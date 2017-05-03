@@ -54,7 +54,7 @@ function mapStateToProps (state) {
     unapprovedMsgs: state.metamask.unapprovedMsgs,
     menuOpen: state.appState.menuOpen,
     network: state.metamask.network,
-    provider: state.metamask.provider,
+    provider: state.metamask.provider,  
     forgottenPassword: state.appState.forgottenPassword,
     lastUnreadNotice: state.metamask.lastUnreadNotice,
     lostAccounts: state.metamask.lostAccounts,

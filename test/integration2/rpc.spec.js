@@ -10,6 +10,5 @@ describe('RPC', () => {
   it('should connect to testrpc', () => {
     const web3 = new Web3()
     web3.setProvider(TestRPC.provider())
-    console.log(web3)
   })
 })
