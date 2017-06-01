@@ -2,12 +2,58 @@
 
 ## Current Master
 
-## 3.6.1 2017-4-25
+## 3.7.2 2017-5-31
 
-- Fix bug where error was reported in debugger console when Chrome opened a new window.
+- Now when switching networks sites that use web3 will reload
+- Now when switching networks the extension does not restart
+- Cleanup decimal bugs in our gas inputs.
+- Fix bug where submit button was enabled for invalid gas inputs.
+- Now enforce 95% of block's gasLimit to protect users.
+- Removing provider-engine from the inpage provider. This fixes some error handling inconsistencies introduced in 3.7.0.
+- Added "inflight cache", which prevents identical requests from clogging up the network, dramatically improving ENS performance.
+- Fixed bug where filter subscriptions would sometimes fail to unsubscribe.
+- Some contracts will now display logos instead of jazzicons.
+- Some contracts will now have names displayed in the confirmation view.
+
+## 3.7.0 2017-5-23
+
+- Add Transaction Number (nonce) to transaction list.
+- Label the pending tx icon with a tooltip.
+- Fix bug where website filters would pile up and not deallocate when leaving a site.
+- Continually resubmit pending txs for a period of time to ensure successful broadcast.
+- ENS names will no longer resolve to their owner if no resolver is set. Resolvers must be explicitly set and configured.
+
+## 3.6.5 2017-5-17
+
+- Fix bug where edited gas parameters would not take effect.
+- Trim currency list.
+- Enable decimals in our gas prices.
+- Fix reset button.
+- Fix event filter bug introduced by newer versions of Geth.
+- Fix bug where decimals in gas inputs could result in strange values.
+
+## 3.6.4 2017-5-8
+
+- Fix main-net ENS resolution.
+
+## 3.6.3 2017-5-8
+
+- Fix bug that could stop newer versions of Geth from working with MetaMask.
+
+## 3.6.2 2017-5-8
+
+- Input gas price in Gwei.
+- Enforce Safe Gas Minimum recommended by EthGasStation.
 - Fix bug where block-tracker could stop polling for new blocks.
+- Reduce UI size by removing internal web3.
+- Fix bug where gas parameters would not properly update on adjustment.
 
-## 3.6.0 2017-4-25
+## 3.6.1 2017-4-30
+
+- Made fox less nosy.
+- Fix bug where error was reported in debugger console when Chrome opened a new window.
+
+## 3.6.0 2017-4-26
 
 - Add Rinkeby Test Network to our network list.
 

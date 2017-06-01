@@ -5,33 +5,33 @@ const ethUtil = require('ethereumjs-util')
 const BN = ethUtil.BN
 const extend = require('xtend')
 
-module.exports = HexAsDecimalInput
+module.exports = BnAsDecimalInput
 
-inherits(HexAsDecimalInput, Component)
-function HexAsDecimalInput () {
+inherits(BnAsDecimalInput, Component)
+function BnAsDecimalInput () {
   this.state = { invalid: null }
   Component.call(this)
 }
 
-/* Hex as Decimal Input
+/* Bn as Decimal Input
  *
  * A component for allowing easy, decimal editing
- * of a passed in hex string value.
+ * of a passed in bn string value.
  *
  * On change, calls back its `onChange` function parameter
- * and passes it an updated hex string.
+ * and passes it an updated bn string.
  */
 
-HexAsDecimalInput.prototype.render = function () {
+BnAsDecimalInput.prototype.render = function () {
   const props = this.props
   const state = this.state
 
-  const { value, onChange, min, max } = props
+  const { value, scale, precision, onChange, min, max } = props
 
-  const toEth = props.toEth
   const suffix = props.suffix
-  const decimalValue = decimalize(value, toEth)
   const style = props.style
+  const valueString = value.toString(10)
+  const newValue = this.downsize(valueString, scale, precision)
 
   return (
     h('.flex-column', [
@@ -45,9 +45,10 @@ HexAsDecimalInput.prototype.render = function () {
       }, [
         h('input.hex-input', {
           type: 'number',
+          step: 'any',
           required: true,
-          min: min,
-          max: max,
+          min,
+          max,
           style: extend({
             display: 'block',
             textAlign: 'right',
@@ -55,14 +56,18 @@ HexAsDecimalInput.prototype.render = function () {
             border: '1px solid #bdbdbd',
 
           }, style),
-          value: parseInt(decimalValue),
+          value: newValue,
           onBlur: (event) => {
             this.updateValidity(event)
           },
           onChange: (event) => {
             this.updateValidity(event)
-            const hexString = (event.target.value === '') ? '' : hexify(event.target.value)
-            onChange(hexString)
+            const value = (event.target.value === '') ? '' : event.target.value
+
+
+            const scaledNumber = this.upsize(value, scale, precision)
+            const precisionBN = new BN(scaledNumber, 10)
+            onChange(precisionBN, event.target.checkValidity())
           },
           onInvalid: (event) => {
             const msg = this.constructWarning()
@@ -102,11 +107,11 @@ HexAsDecimalInput.prototype.render = function () {
   )
 }
 
-HexAsDecimalInput.prototype.setValid = function (message) {
+BnAsDecimalInput.prototype.setValid = function (message) {
   this.setState({ invalid: null })
 }
 
-HexAsDecimalInput.prototype.updateValidity = function (event) {
+BnAsDecimalInput.prototype.updateValidity = function (event) {
   const target = event.target
   const value = this.props.value
   const newValue = target.value
@@ -116,12 +121,13 @@ HexAsDecimalInput.prototype.updateValidity = function (event) {
   }
 
   const valid = target.checkValidity()
+
   if (valid) {
     this.setState({ invalid: null })
   }
 }
 
-HexAsDecimalInput.prototype.constructWarning = function () {
+BnAsDecimalInput.prototype.constructWarning = function () {
   const { name, min, max } = this.props
   let message = name ? name + ' ' : ''
 
@@ -138,17 +144,31 @@ HexAsDecimalInput.prototype.constructWarning = function () {
   return message
 }
 
-function hexify (decimalString) {
-  const hexBN = new BN(parseInt(decimalString), 10)
-  return '0x' + hexBN.toString('hex')
+
+BnAsDecimalInput.prototype.downsize = function (number, scale, precision) {
+  // if there is no scaling, simply return the number
+  if (scale === 0) {
+    return Number(number)
+  } else {
+    // if the scale is the same as the precision, account for this edge case.
+    var decimals = (scale === precision) ? -1 : scale - precision
+    return Number(number.slice(0, -scale) + '.' + number.slice(-scale, decimals))
+  }
 }
 
-function decimalize (input, toEth) {
-  if (input === '') {
-    return ''
-  } else {
-    const strippedInput = ethUtil.stripHexPrefix(input)
-    const inputBN = new BN(strippedInput, 'hex')
-    return inputBN.toString(10)
+BnAsDecimalInput.prototype.upsize = function (number, scale, precision) {
+  var stringArray = number.toString().split('.')
+  var decimalLength = stringArray[1] ? stringArray[1].length : 0
+  var newString = stringArray[0]
+
+  // If there is scaling and decimal parts exist, integrate them in.
+  if ((scale !== 0) && (decimalLength !== 0)) {
+    newString += stringArray[1].slice(0, precision)
   }
+
+  // Add 0s to account for the upscaling.
+  for (var i = decimalLength; i < scale; i++) {
+    newString += '0'
+  }
+  return newString
 }

@@ -1,5 +1,4 @@
 const async = require('async')
-const EthQuery = require('eth-query')
 const ethUtil = require('ethereumjs-util')
 const Transaction = require('ethereumjs-tx')
 const normalize = require('eth-sig-util').normalize
@@ -7,15 +6,14 @@ const BN = ethUtil.BN
 
 /*
 tx-utils are utility methods for Transaction manager
-its passed a provider and that is passed to ethquery
+its passed ethquery
 and used to do things like calculate gas of a tx.
 */
 
 module.exports = class txProviderUtils {
 
-  constructor (provider) {
-    this.provider = provider
-    this.query = new EthQuery(provider)
+  constructor (ethQuery) {
+    this.query = ethQuery
   }
 
   analyzeGasUsage (txMeta, cb) {
@@ -23,10 +21,19 @@ module.exports = class txProviderUtils {
     this.query.getBlockByNumber('latest', true, (err, block) => {
       if (err) return cb(err)
       async.waterfall([
+        self.setBlockGasLimit.bind(self, txMeta, block.gasLimit),
         self.estimateTxGas.bind(self, txMeta, block.gasLimit),
         self.setTxGas.bind(self, txMeta, block.gasLimit),
       ], cb)
     })
+  }
+
+  setBlockGasLimit (txMeta, blockGasLimitHex, cb) {
+    const blockGasLimitBN = hexToBn(blockGasLimitHex)
+    const saferGasLimitBN = blockGasLimitBN.muln(0.95)
+    txMeta.blockGasLimit = bnToHex(saferGasLimitBN)
+    cb()
+    return
   }
 
   estimateTxGas (txMeta, blockGasLimitHex, cb) {
@@ -35,7 +42,9 @@ module.exports = class txProviderUtils {
     txMeta.gasLimitSpecified = Boolean(txParams.gas)
     // if not, fallback to block gasLimit
     if (!txMeta.gasLimitSpecified) {
-      txParams.gas = blockGasLimitHex
+      const blockGasLimitBN = hexToBn(blockGasLimitHex)
+      const saferGasLimitBN = blockGasLimitBN.muln(0.95)
+      txParams.gas = bnToHex(saferGasLimitBN)
     }
     // run tx, see if it will OOG
     this.query.estimateGas(txParams, cb)

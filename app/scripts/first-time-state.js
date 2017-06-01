@@ -3,9 +3,10 @@
 //
 
 module.exports = {
-  config: {
+  config: {},
+  NetworkController: {
     provider: {
-      type: 'testnet',
+      type: 'rinkeby',
     },
   },
 }
