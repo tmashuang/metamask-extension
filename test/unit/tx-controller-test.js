@@ -22,8 +22,8 @@ describe('Transaction Controller', function () {
       provider: { _blockTracker: new EventEmitter()},
       blockTracker: new EventEmitter(),
       ethQuery: new EthQuery(new EventEmitter()),
-      signTransaction: (ethTx) => new Promise((resolve) => {
-        ethTx.sign(privKey)
+      signTransaction: (ethTx) => new Promise(async (resolve) => {
+        await ethTx.sign(privKey)
         resolve()
       }),
     })
