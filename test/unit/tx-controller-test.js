@@ -164,7 +164,6 @@ describe('Transaction Controller', function () {
       }
       txController.on('1:rejected', noop)
       txController.setTxStatusRejected(1)
-      done()
     })
   })
 
