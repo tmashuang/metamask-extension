@@ -22,7 +22,7 @@ describe('Transaction Controller', function () {
       provider: { _blockTracker: new EventEmitter()},
       blockTracker: new EventEmitter(),
       ethQuery: new EthQuery(new EventEmitter()),
-      signTransaction: (ethTx) => new Promise((resolve) => {
+      signTransaction: async (ethTx) => await new Promise((resolve) => {
         ethTx.sign(privKey)
         resolve()
       }),
@@ -164,6 +164,7 @@ describe('Transaction Controller', function () {
       }
       txController.on('1:rejected', noop)
       txController.setTxStatusRejected(1)
+      done()
     })
   })
 
