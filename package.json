@@ -144,6 +144,7 @@
     "enzyme": "^2.8.2",
     "eslint-plugin-chai": "0.0.1",
     "eslint-plugin-mocha": "^4.9.0",
+    "eth-token-tracker": "^1.0.8",
     "fs-promise": "^1.0.0",
     "gulp": "github:gulpjs/gulp#4.0",
     "gulp-if": "^2.0.1",
