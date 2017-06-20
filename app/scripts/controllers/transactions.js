@@ -9,7 +9,6 @@ const createId = require('../lib/random-id')
 const denodeify = require('denodeify')
 
 const RETRY_LIMIT = 200
-const RESUBMIT_INTERVAL = 10000 // Ten seconds
 
 module.exports = class TransactionController extends EventEmitter {
   constructor (opts) {
@@ -25,17 +24,17 @@ module.exports = class TransactionController extends EventEmitter {
     this.blockTracker = opts.blockTracker
     this.query = opts.ethQuery
     this.txProviderUtils = new TxProviderUtil(this.query)
-    this.blockTracker.on('block', this.checkForTxInBlock.bind(this))
+    this.blockTracker.on('rawBlock', this.checkForTxInBlock.bind(this))
+    this.blockTracker.on('latest', this.resubmitPendingTxs.bind(this))
+    this.blockTracker.on('sync', this.queryPendingTxs.bind(this))
     this.signEthTx = opts.signTransaction
     this.nonceLock = Semaphore(1)
-
+    this.ethStore = opts.ethStore
     // memstore is computed from a few different stores
     this._updateMemstore()
     this.store.subscribe(() => this._updateMemstore())
     this.networkStore.subscribe(() => this._updateMemstore())
     this.preferencesStore.subscribe(() => this._updateMemstore())
-
-    this.continuallyResubmitPendingTxs()
   }
 
   getState () {
@@ -340,7 +339,113 @@ module.exports = class TransactionController extends EventEmitter {
 
   //  checks if a signed tx is in a block and
   // if included sets the tx status as 'confirmed'
-  checkForTxInBlock () {
+  checkForTxInBlock (block) {
+    var signedTxList = this.getFilteredTxList({status: 'submitted'})
+    if (!signedTxList.length) return
+    signedTxList.forEach((txMeta) => {
+      var txHash = txMeta.hash
+      var txId = txMeta.id
+
+      if (!txHash) {
+        const errReason = {
+          errCode: 'No hash was provided',
+          message: 'We had an error while submitting this transaction, please try again.',
+        }
+        return this.setTxStatusFailed(txId, errReason)
+      }
+
+      block.transactions.forEach((tx) => {
+        if (tx.hash === txHash) this.setTxStatusConfirmed(txId)
+      })
+    })
+  }
+
+  queryPendingTxs ({oldBlock, newBlock}) {
+    // check pending transactions on start
+    if (!oldBlock) {
+      this._checkPendingTxs()
+      return
+    }
+    // if we synced by more than one block, check for missed pending transactions
+    const diff = Number.parseInt(newBlock.number) - Number.parseInt(oldBlock.number)
+    if (diff > 1) this._checkPendingTxs()
+  }
+
+  // PRIVATE METHODS
+
+  //  Should find the tx in the tx list and
+  //  update it.
+  //  should set the status in txData
+  //    - `'unapproved'` the user has not responded
+  //    - `'rejected'` the user has responded no!
+  //    - `'approved'` the user has approved the tx
+  //    - `'signed'` the tx is signed
+  //    - `'submitted'` the tx is sent to a server
+  //    - `'confirmed'` the tx has been included in a block.
+  //    - `'failed'` the tx failed for some reason, included on tx data.
+  _setTxStatus (txId, status) {
+    var txMeta = this.getTx(txId)
+    txMeta.status = status
+    this.emit(`${txMeta.id}:${status}`, txId)
+    if (status === 'submitted' || status === 'rejected') {
+      this.emit(`${txMeta.id}:finished`, txMeta)
+    }
+    this.updateTx(txMeta)
+    this.emit('updateBadge')
+  }
+
+  // Saves the new/updated txList.
+  // Function is intended only for internal use
+  _saveTxList (transactions) {
+    this.store.updateState({ transactions })
+  }
+
+  _updateMemstore () {
+    const unapprovedTxs = this.getUnapprovedTxList()
+    const selectedAddressTxList = this.getFilteredTxList({
+      from: this.getSelectedAddress(),
+      metamaskNetworkId: this.getNetwork(),
+    })
+    this.memStore.updateState({ unapprovedTxs, selectedAddressTxList })
+  }
+
+  resubmitPendingTxs () {
+    const pending = this.getTxsByMetaData('status', 'submitted')
+    // only try resubmitting if their are transactions to resubmit
+    if (!pending.length) return
+    const resubmit = denodeify(this._resubmitTx.bind(this))
+    Promise.all(pending.map(txMeta => resubmit(txMeta)))
+    .catch((reason) => {
+      log.info('Problem resubmitting tx', reason)
+    })
+  }
+
+  _resubmitTx (txMeta, cb) {
+    const address = txMeta.txParams.from
+    const balance = this.ethStore.getState().accounts[address].balance
+    const nonce = Number.parseInt(this.ethStore.getState().accounts[address].nonce)
+    const txNonce = Number.parseInt(txMeta.txParams.nonce)
+    const gtBalance = Number.parseInt(txMeta.txParams.value) > Number.parseInt(balance)
+    if (!('retryCount' in txMeta)) txMeta.retryCount = 0
+
+    // if the value of the transaction is greater then the balance
+    // or the nonce of the transaction is lower then the accounts nonce
+    // dont resubmit the tx
+    if (gtBalance || txNonce < nonce) return cb()
+    // Only auto-submit already-signed txs:
+    if (!('rawTx' in txMeta)) return cb()
+
+    if (txMeta.retryCount > RETRY_LIMIT) return
+
+    // Increment a try counter.
+    txMeta.retryCount++
+    const rawTx = txMeta.rawTx
+    this.txProviderUtils.publishTransaction(rawTx, cb)
+  }
+
+  // checks the network for signed txs and
+  // if confirmed sets the tx status as 'confirmed'
+  _checkPendingTxs () {
     var signedTxList = this.getFilteredTxList({status: 'submitted'})
     if (!signedTxList.length) return
     signedTxList.forEach((txMeta) => {
@@ -369,83 +474,6 @@ module.exports = class TransactionController extends EventEmitter {
         }
       })
     })
-  }
-
-  // PRIVATE METHODS
-
-  //  Should find the tx in the tx list and
-  //  update it.
-  //  should set the status in txData
-  //    - `'unapproved'` the user has not responded
-  //    - `'rejected'` the user has responded no!
-  //    - `'approved'` the user has approved the tx
-  //    - `'signed'` the tx is signed
-  //    - `'submitted'` the tx is sent to a server
-  //    - `'confirmed'` the tx has been included in a block.
-  _setTxStatus (txId, status) {
-    var txMeta = this.getTx(txId)
-    txMeta.status = status
-    this.emit(`${txMeta.id}:${status}`, txId)
-    if (status === 'submitted' || status === 'rejected') {
-      this.emit(`${txMeta.id}:finished`, txMeta)
-
-    }
-    this.updateTx(txMeta)
-    this.emit('updateBadge')
-  }
-
-  // Saves the new/updated txList.
-  // Function is intended only for internal use
-  _saveTxList (transactions) {
-    this.store.updateState({ transactions })
-  }
-
-  _updateMemstore () {
-    const unapprovedTxs = this.getUnapprovedTxList()
-    const selectedAddressTxList = this.getFilteredTxList({
-      from: this.getSelectedAddress(),
-      metamaskNetworkId: this.getNetwork(),
-    })
-    this.memStore.updateState({ unapprovedTxs, selectedAddressTxList })
-  }
-
-  continuallyResubmitPendingTxs () {
-    const pending = this.getTxsByMetaData('status', 'submitted')
-    const resubmit = denodeify(this.resubmitTx.bind(this))
-    Promise.all(pending.map(txMeta => resubmit(txMeta)))
-    .catch((reason) => {
-      log.info('Problem resubmitting tx', reason)
-    })
-    .then(() => {
-      global.setTimeout(() => {
-        this.continuallyResubmitPendingTxs()
-      }, RESUBMIT_INTERVAL)
-    })
-  }
-
-  resubmitTx (txMeta, cb) {
-    // Increment a try counter.
-    if (!('retryCount' in txMeta)) {
-      txMeta.retryCount = 0
-    }
-
-    // Only auto-submit already-signed txs:
-    if (!('rawTx' in txMeta)) {
-      return cb()
-    }
-
-    if (txMeta.retryCount > RETRY_LIMIT) {
-      txMeta.err = {
-        isWarning: true,
-        message: 'Gave up submitting tx.',
-      }
-      this.updateTx(txMeta)
-      return log.error(txMeta.err.message)
-    }
-
-    txMeta.retryCount++
-    const rawTx = txMeta.rawTx
-    this.txProviderUtils.publishTransaction(rawTx, cb)
   }
 
 }
