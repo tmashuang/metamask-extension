@@ -275,18 +275,16 @@ describe('Transaction Controller', function () {
       txController.addTx(txMeta)
 
       const estimateStub = sinon.stub(txController.txProviderUtils.query, 'estimateGas')
-      .callsArgWith(1, null, wrongValue)
+      .callsArgWithAsync(1, null, wrongValue)
 
       const priceStub = sinon.stub(txController.txProviderUtils.query, 'gasPrice')
-      .callsArgWith(0, null, wrongValue)
+      .callsArgWithAsync(0, null, wrongValue)
 
       const nonceStub = sinon.stub(txController.txProviderUtils.query, 'getTransactionCount')
-      .callsArgWith(2, null, wrongValue)
+      .callsArgWithAsync(2, null, wrongValue)
 
       const signStub = sinon.stub(txController, 'signTransaction')
-      .callsArgWith(1, null, noop)
-      
-      console.log(signStub)
+      .callsArgWithAsync(1, null, noop)
 
       const pubStub = sinon.stub(txController.txProviderUtils, 'publishTransaction')
       .callsArgWith(1, null, originalValue)
