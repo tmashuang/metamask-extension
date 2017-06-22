@@ -163,7 +163,7 @@ describe('util', function () {
 
   describe('normalizing values', function () {
     describe('#normalizeToWei', function () {
-      it('should convert an eth to the appropriate equivalent values', function () {
+      it('should convert an eth to the appropriate equivalent values', function (done) {
         var valueTable = {
           wei: '1000000000000000000',
           kwei: '1000000000000000',
@@ -186,6 +186,7 @@ describe('util', function () {
           var output = util.normalizeToWei(value, currency)
           assert.equal(output.toString(10), valueTable.wei, `value of ${output.toString(10)} ${currency} should convert to ${oneEthBn}`)
         }
+        done()
       })
     })
 

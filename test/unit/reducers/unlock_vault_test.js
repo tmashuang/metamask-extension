@@ -34,7 +34,7 @@ describe('#unlockMetamask(selectedAccount)', function () {
   })
 
   describe('going home after an error', function () {
-    it('clears warning', function () {
+    it('clears warning', function (done) {
       const warning = 'this is the wrong warning'
       // const account = 'foo_account'
       const initialState = {
@@ -45,6 +45,7 @@ describe('#unlockMetamask(selectedAccount)', function () {
 
       const resultState = reducers(initialState, actions.goHome())
       assert.equal(resultState.appState.warning, null, 'warning nullified')
+      done()
     })
   })
 })
