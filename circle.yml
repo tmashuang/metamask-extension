@@ -9,7 +9,7 @@ dependencies:
     - "npm i -g mocha"
     
 test:
-  post:
+  pre:
     - wget http://chromedriver.storage.googleapis.com/2.22/chromedriver_linux32.zip
     - unzip chromedriver_linux32.zip
     - ./chromedriver:
