@@ -9,9 +9,8 @@ describe('Metamask popup page', function () {
   let driver
   this.seedPhase
   this.accountAddress
-  this.timeout(50000)
 
-  before(async () => {
+  before(async function () {
     await startChromeDriver()
     const extPath = path.resolve('dist/chrome')
     driver = buildWebDriver(extPath)
@@ -23,15 +22,17 @@ describe('Metamask popup page', function () {
     await driver.get(`chrome-extension://${extensionId}/popup.html`)
   })
 
-  after(async () => driver.quit())
+  after(async function () { 
+    driver.quit()
+  })
 
-  describe('#onboarding', () => {
-    it('should match title', async () => {
+  describe('#onboarding', function () {
+    it('should match title', async function () {
       const title = await driver.getTitle()
       assert.equal(title, 'MetaMask Plugin', 'title matches MetaMask Plugin')
     })
 
-    it('should show privacy notice', async () => {
+    it('should show privacy notice', async function () {
       const privacy = await driver.findElement(By.className(
         'terms-header'
       )).getText()
@@ -41,15 +42,17 @@ describe('Metamask popup page', function () {
       )).click()
     })
 
-    it('should show terms of use', async () => {
+    it('should show terms of use', async function () {
       await delay(300)
+      const tabs = await driver.getAllWindowHandles()
+      await driver.switchTo().window(tabs[0])
       const terms = await driver.findElement(By.className(
         'terms-header'
       )).getText()
       assert.equal(terms, 'TERMS OF USE', 'shows terms of use')
     })
 
-    it('should be unable to continue without scolling throught the terms of use', async () => {
+    it('should be unable to continue without scolling throught the terms of use', async function () {
       const button = await driver.findElement(By.css(
         'button'
       )).isEnabled()
@@ -60,16 +63,15 @@ describe('Metamask popup page', function () {
       await driver.executeScript('arguments[0].scrollIntoView(true)', element)
     })
 
-    it('should be able to continue when scrolled to the bottom of terms of use', async () => {
+    it('should be able to continue when scrolled to the bottom of terms of use', async function () {
       const button = await driver.findElement(By.css('button'))
       const buttonEnabled = await button.isEnabled()
       await delay(500)
-      // const buttonEnabled = driver.wait(until.elementIsEnabled(By.css('button')), 1000)
       assert.equal(buttonEnabled, true, 'enabled continue button')
       await button.click()
     })
 
-    it('should accept password with length of eight', async () => {
+    it('should accept password with length of eight', async function () {
       await delay(300)
       const passwordBox = await driver.findElement(By.id('password-box'))
       const passwordBoxConfirm = driver.findElement(By.id('password-box-confirm'))
@@ -81,34 +83,34 @@ describe('Metamask popup page', function () {
       await button.click()
     })
 
-    it('should show value was created and seed phrase', async () => {
+    it('should show value was created and seed phrase', async function () {
       await delay(700)
       this.seedPhase = await driver.findElement(By.className('twelve-word-phrase')).getText()
       const continueAfterSeedPhrase = await driver.findElement(By.css('button'))
       await continueAfterSeedPhrase.click()
     })
 
-    it('should show lock account', async () => {
+    it('should show lock account', async function () {
       await delay(300)
       await driver.findElement(By.className('sandwich-expando')).click()
       await delay(500)
       await driver.findElement(By.className('fa-lock')).click()
     })
 
-    it('should accept account password after lock', async () => {
+    it('should accept account password after lock', async function () {
       await delay(500)
       await driver.findElement(By.id('password-box')).sendKeys('12345678')
       await driver.findElement(By.css('button')).click()
       await delay(500)
     })
 
-    it('should show QR code', async () => {
+    it('should show QR code', async function () {
       await delay(300)
       await driver.findElement(By.className('fa-qrcode')).click()
       await delay(300)
     })
 
-    it('should show the account address', async () => {
+    it('should show the account address', async function () {
       this.accountAddress = await driver.findElement(By.className('ellip-address')).getText()
       await driver.findElement(By.className('fa-arrow-left')).click()
       await delay(500)
