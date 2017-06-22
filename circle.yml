@@ -5,3 +5,9 @@ dependencies:
   pre:
     - "npm i -g testem"
     - "npm i -g mocha"
+test:
+  pre:
+    - wget http://chromedriver.storage.googleapis.com/2.22/chromedriver_linux32.zip
+    - unzip chromedriver_linux32.zip
+    - ./chromedriver --port=4444 --url-base=we/hub:
+        background: true
