@@ -220,7 +220,7 @@ describe('Transaction Controller', function () {
   })
 
   describe('#getFilteredTxList', function () {
-    it('returns a tx with the requested data', function () {
+    it('returns a tx with the requested data', function (done) {
       const txMetas = [
         { id: 0, status: 'unapproved', txParams: { from: '0xaa', to: '0xbb' }, metamaskNetworkId: currentNetworkId },
         { id: 1, status: 'unapproved', txParams: { from: '0xaa', to: '0xbb' }, metamaskNetworkId: currentNetworkId },
@@ -248,6 +248,7 @@ describe('Transaction Controller', function () {
       assert.equal(txController.getFilteredTxList(filterParams).length, 5, `getFilteredTxList - ${JSON.stringify(filterParams)}`)
       filterParams = { to: '0xaa' }
       assert.equal(txController.getFilteredTxList(filterParams).length, 5, `getFilteredTxList - ${JSON.stringify(filterParams)}`)
+      done()
     })
   })
 
