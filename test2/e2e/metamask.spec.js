@@ -10,7 +10,7 @@ describe('Metamask popup page', function () {
   this.seedPhase
   this.accountAddress
 
-  before(async function () {
+  before(async function (done) {
     await startChromeDriver()
     const extPath = path.resolve('dist/chrome')
     driver = buildWebDriver(extPath)
@@ -20,6 +20,7 @@ describe('Metamask popup page', function () {
     ))
     const extensionId = await elems[0].getAttribute('id')
     await driver.get(`chrome-extension://${extensionId}/popup.html`)
+    done()
   })
 
   after(async function () { 
