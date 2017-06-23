@@ -13,7 +13,16 @@ dependencies:
     - sudo apt-get update
     - sudo apt-get --only-upgrade install google-chrome-stable
     - google-chrome --version
-    - wget http://chromedriver.storage.googleapis.com/2.22/chromedriver_linux32.zip
-    - unzip chromedriver_linux32.zip
-    - ./chromedriver:
+
+    # Install Chrome driver
+    - curl http://chromedriver.storage.googleapis.com/2.23/chromedriver_linux64.zip | gzip -dc > chromedriver
+    - chmod +x chromedriver
+    # Install Selenium
+    - curl http://selenium-release.storage.googleapis.com/3.4/selenium-server-standalone-3.4.1.jar > selenium-server-standalone.jar
+    - 'java -jar selenium-server-standalone.jar -trustAllSSLCertificates -Dwebdriver.chrome.driver=chromedriver':
         background: true
+
+    # - wget http://chromedriver.storage.googleapis.com/2.22/chromedriver_linux32.zip
+    # - unzip chromedriver_linux32.zip
+    # - ./chromedriver:
+    #     background: true
