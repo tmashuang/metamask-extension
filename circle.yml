@@ -5,3 +5,8 @@ dependencies:
   pre:
     - "npm i -g testem"
     - "npm i -g mocha"
+  override:
+  - "npm install"
+  - mocha test --reporter mocha-junit-reporter:
+    enviornment:
+      $CIRCLE_TEST_REPORTS/test/test-results.xml
