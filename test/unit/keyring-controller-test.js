@@ -97,12 +97,13 @@ describe('KeyringController', function () {
   })
 
   describe('#createNickname', function () {
-    it('should add the address to the identities hash', function () {
+    it('should add the address to the identities hash', function (done) {
       const fakeAddress = '0x12345678'
       keyringController.createNickname(fakeAddress)
       const identities = keyringController.memStore.getState().identities
       const identity = identities[fakeAddress]
       assert.equal(identity.address, fakeAddress)
+      done()
     })
   })
 
