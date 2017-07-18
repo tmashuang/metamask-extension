@@ -1,4 +1,4 @@
-# MetaMask Plugin [![Build Status](https://circleci.com/gh/MetaMask/metamask-plugin.svg?style=shield&circle-token=a1ddcf3cd38e29267f254c9c59d556d513e3a1fd)](https://circleci.com/gh/MetaMask/metamask-plugin)
+# MetaMask Plugin [![Build Status](https://circleci.com/gh/MetaMask/metamask-extension.svg?style=shield&circle-token=a1ddcf3cd38e29267f254c9c59d556d513e3a1fd)](https://circleci.com/gh/MetaMask/metamask-extension) [![Coverage Status](https://coveralls.io/repos/github/tmashuang/metamask-extension/badge.svg?branch=master)](https://coveralls.io/github/tmashuang/metamask-extension?branch=master)
 
 ## Developing Compatible Dapps
 
