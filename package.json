@@ -11,7 +11,7 @@
     "dist": "npm run clear && npm install && gulp dist",
     "test": "npm run lint && npm run test-unit && npm run test-integration",
     "test-unit": "METAMASK_ENV=test mocha --require test/helper.js --recursive \"test/unit/**/*.js\"",
-    "single-test": "METAMASK_ENV=test mocha --require test/helper.js",
+    "test-coverage": "nyc --reporter=lcov --reporter=text mocha --require test/helper.js --recursive \"test/unit/**/*.js\" && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage",
     "test-integration": "npm run buildMock && npm run buildCiUnits && testem ci -P 2",
     "test-coverage": "nyc --reporter=text npm run test-unit",
     "lint": "gulp lint",
@@ -135,6 +135,7 @@
   "devDependencies": {
     "babel-core": "^6.24.1",
     "babel-eslint": "^6.0.5",
+    "babel-plugin-istanbul": "^4.1.4",
     "babel-plugin-transform-async-to-generator": "^6.24.1",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-polyfill": "^6.23.0",
