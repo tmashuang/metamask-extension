@@ -32,6 +32,7 @@ const BuyView = require('./components/buy-button-subview')
 const QrView = require('./components/qr-code')
 const HDCreateVaultComplete = require('./keychains/hd/create-vault-complete')
 const HDRestoreVaultScreen = require('./keychains/hd/restore-vault')
+const SeedWordConfirmationScreen = require('./keychains/hd/seed-word-confirmation')
 const RevealSeedConfirmation = require('./keychains/hd/recover-seed/confirmation')
 
 module.exports = connect(mapStateToProps)(App)
@@ -392,8 +393,14 @@ App.prototype.renderPrimary = function () {
   }
 
   if (props.seedWords) {
-    log.debug('rendering seed words')
-    return h(HDCreateVaultComplete, {key: 'HDCreateVaultComplete'})
+    switch (props.currentView.name) {
+      case 'seedWordConfirmation':
+        log.debug('seed word confirmation screen')
+        return h(SeedWordConfirmationScreen, {key: 'SeedWordConfirmationScreen'})
+      default:
+        log.debug('rendering seed words')
+        return h(HDCreateVaultComplete, {key: 'HDCreateVaultComplete'})
+    }
   }
 
   // show initialize screen

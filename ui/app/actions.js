@@ -53,6 +53,8 @@ var actions = {
   REVEAL_SEED_CONFIRMATION: 'REVEAL_SEED_CONFIRMATION',
   revealSeedConfirmation: revealSeedConfirmation,
   requestRevealSeed: requestRevealSeed,
+  SEED_WORD_CONFIRMATION: 'SEED_WORD_CONIFMATION',
+  seedWordConfirmation: seedWordConfirmation,
   // unlock screen
   UNLOCK_IN_PROGRESS: 'UNLOCK_IN_PROGRESS',
   UNLOCK_FAILED: 'UNLOCK_FAILED',
@@ -216,15 +218,16 @@ function confirmSeedWords () {
   return (dispatch) => {
     dispatch(actions.showLoadingIndication())
     log.debug(`background.clearSeedWordCache`)
-    background.clearSeedWordCache((err, account) => {
-      dispatch(actions.hideLoadingIndication())
-      if (err) {
-        return dispatch(actions.displayWarning(err.message))
-      }
+    dispatch(actions.seedWordConfirmation())
+    // background.clearSeedWordCache((err, account) => {
+    //   dispatch(actions.hideLoadingIndication())
+    //   if (err) {
+    //     return dispatch(actions.displayWarning(err.message))
+    //   }
 
-      log.info('Seed word cache cleared. ' + account)
-      dispatch(actions.showAccountDetail(account))
-    })
+    //   log.info('Seed word cache cleared. ' + account)
+    //   dispatch(actions.showAccountDetail(account))
+    // })
   }
 }
 
@@ -281,6 +284,12 @@ function requestRevealSeed (password) {
         dispatch(actions.showNewVaultSeed(result))
       })
     })
+  }
+}
+
+function seedWordConfirmation () {
+  return {
+    type: actions.SEED_WORD_CONFIRMATION,
   }
 }
 
