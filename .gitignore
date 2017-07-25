@@ -26,5 +26,9 @@ test/test-bundle.js
 
 notes.txt
 
+<<<<<<< test-coverage
+=======
+coverage/
+>>>>>>> master
 .coveralls.yml
 .nyc_output

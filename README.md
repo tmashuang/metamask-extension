@@ -1,4 +1,5 @@
-# MetaMask Plugin [![Build Status](https://circleci.com/gh/MetaMask/metamask-extension.svg?style=shield&circle-token=a1ddcf3cd38e29267f254c9c59d556d513e3a1fd)](https://circleci.com/gh/MetaMask/metamask-extension) [![Coverage Status](https://coveralls.io/repos/github/MetaMask/metamask-extension/badge.svg)](https://coveralls.io/github/MetaMask/metamask-extension)
+# MetaMask Plugin [![Build Status](https://circleci.com/gh/MetaMask/metamask-extension.svg?style=shield&circle-token=a1ddcf3cd38e29267f254c9c59d556d513e3a1fd)](https://circleci.com/gh/MetaMask/metamask-extension) [![Coverage Status](https://coveralls.io/repos/github/tmashuang/metamask-extension/badge.svg?branch=master)](https://coveralls.io/github/tmashuang/metamask-extension)
+
 ## Support
 
 If you're a user seeking support, [here is our support site](http://metamask.consensyssupport.happyfox.com).
