@@ -36,8 +36,8 @@ function reduceApp (state, action) {
   var appState = extend({
     shouldClose: false,
     menuOpen: false,
-currentView: seedWords ? seedConfView : defaultView,
-accountDetail: {
+    currentView: seedWords ? seedConfView : defaultView,
+    accountDetail: {
       subview: 'transactions',
     },
     transForward: true, // Used to render transition direction

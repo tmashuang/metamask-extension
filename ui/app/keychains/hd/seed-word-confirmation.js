@@ -20,8 +20,9 @@ function mapStateToProps (state) {
 }
 
 SeedWordConfirmation.prototype.render = function () {
-  var state = this.mapStateToProps
-  // var seed = state.seed || state.cachedSeed || ''
+  var seed = this.props.seed
+  const scrambledSeed = this.scrambleSeedWords(seed)
+  const array = scrambledSeed.map()
 
   return (
     h('.initialize-screen.flex-column.flex-center.flex-grow', [
@@ -30,27 +31,43 @@ SeedWordConfirmation.prototype.render = function () {
         h('i.fa.fa-arrow-left.fa-lg.cursor-pointer', {
           onClick (event) {
             event.preventDefault()
-            state.dispatch(actions.revealSeedConfirmation())
+            // state.dispatch(actions.revealSeedConfirmation())
           },
         }),
         h('h2.page-subtitle', 'Confirm Seed Phrase'),
       ]),
 
       h('textarea.twelve-word-phrase', {
-        value: '',
+
       }),
 
       h('button.primary', {
-        onClick: () => this.confirmSeedWords(),
+
+      }),
+
+      h('button.primary', {
+        onClick: () => this.scrambleSeedWords(seed),
         style: {
           margin: '24px',
           fontSize: '0.9em',
         },
-      }, 'Changed View'),
+      }, 'Confirm'),
     ])
   )
 }
 
 SeedWordConfirmation.prototype.confirmSeedWords = function () {
   this.props.dispatch(actions.confirmSeedWords())
+}
+
+SeedWordConfirmation.prototype.scrambleSeedWords = function (seed) {
+  var array = seed.split(' ')
+  for (var i = array.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1))
+    var tmp = array[i]
+    array[i] = array[j]
+    array[j] = tmp
+  }
+  console.log(array)
+  return array
 }

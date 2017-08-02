@@ -283,7 +283,6 @@ function requestRevealSeed (password) {
 }
 
 function seedWordConfirmation (seed) {
-  console.log('seedWordConfirmation:: seed-> ', seed)
   return {
     type: actions.SEED_WORD_CONFIRMATION,
     value: seed,
