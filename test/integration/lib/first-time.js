@@ -10,26 +10,35 @@ QUnit.test('render init screen', (assert) => {
   })
 })
 
+QUnit.testDone(({ module, name, total, passed, failed, skipped, todo, runtime }) => {
+  if (failed > 0) {
+    console.warn('Test failures - dumping DOM:')
+    console.log(document.documentElement.innerHTML)
+  }
+})
+
 async function runFirstTimeUsageTest(assert, done) {
   await wait()
 
   const app = $('iframe').contents().find('#app-content .mock-app-root')
 
-  const recurseNotices = async () => {
+  // recurse notices
+  while (true) {
     const button = app.find('button')
     if (button.html() === 'Accept') {
+      // still notices to accept
       const termsPage = app.find('.markdown')[0]
       termsPage.scrollTop = termsPage.scrollHeight
       await wait()
       button.click()
       await wait()
-      await recurseNotices()
     } else {
-      await wait()
+      // exit loop
+      break
     }
   }
 
-  await recurseNotices()
+  await wait()
 
   // Scroll through terms
   const title = app.find('h1').text()
