@@ -25,7 +25,38 @@ describe('MetaMaskController', function () {
   })
 
   describe('Metamask Controller', function () {
-    assert(metamaskController)
+    it('exists', function () {
+      assert(metamaskController)
+    })
+
+    describe('#initializeProvider', function () {
+      it('has a initializeProvider method and calls network controller and pass opts for the provider', function () {
+
+      })
+      it('returns a provider', function () {
+
+      })
+    })
+
+    describe('#initPublicConfigStore', function () {
+      it('returns a publicConfigStore that has the keys selectedAddress and NetworkVersio', function () {
+
+      })
+    })
+
+    describe('#getState', function () {
+      it('returns the state used by trusted connections', function () {
+
+      })
+    })
+
+    describe('#getApi', function () {
+      it('returns the api used by trusted connections', function () {
+
+      })
+    })
   })
+
+
 })
 
