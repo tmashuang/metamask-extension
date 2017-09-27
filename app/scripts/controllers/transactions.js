@@ -32,7 +32,7 @@ module.exports = class TransactionController extends EventEmitter {
     this.provider = opts.provider
     this.blockTracker = opts.blockTracker
     this.signEthTx = opts.signTransaction
-    this.ethStore = opts.ethStore
+    this.accountTracker = opts.accountTracker
 
     this.memStore = new ObservableStore({})
     this.query = new EthQuery(this.provider)
@@ -43,7 +43,8 @@ module.exports = class TransactionController extends EventEmitter {
       txHistoryLimit: opts.txHistoryLimit,
       getNetwork: this.getNetwork.bind(this),
     })
-
+    this.store = this.txStateManager.store
+    this.txStateManager.on('tx:status-update', this.emit.bind(this, 'tx:status-update'))
     this.nonceTracker = new NonceTracker({
       provider: this.provider,
       getPendingTransactions: this.txStateManager.getPendingTransactions.bind(this.txStateManager),
@@ -61,7 +62,7 @@ module.exports = class TransactionController extends EventEmitter {
       nonceTracker: this.nonceTracker,
       retryLimit: 3500, // Retry 3500 blocks, or about 1 day.
       getBalance: (address) => {
-        const account = this.ethStore.getState().accounts[address]
+        const account = this.accountTracker.store.getState().accounts[address]
         if (!account) return
         return account.balance
       },
@@ -69,16 +70,21 @@ module.exports = class TransactionController extends EventEmitter {
       getPendingTransactions: this.txStateManager.getPendingTransactions.bind(this.txStateManager),
     })
 
-    this.txStateManager.store.subscribe(() => this.emit('updateBadge'))
+    this.txStateManager.store.subscribe(() => this.emit('update:badge'))
 
-    this.pendingTxTracker.on('txWarning', this.txStateManager.updateTx.bind(this.txStateManager))
-    this.pendingTxTracker.on('txFailed', this.txStateManager.setTxStatusFailed.bind(this.txStateManager))
-    this.pendingTxTracker.on('txConfirmed', this.txStateManager.setTxStatusConfirmed.bind(this.txStateManager))
+    this.pendingTxTracker.on('tx:warning', this.txStateManager.updateTx.bind(this.txStateManager))
+    this.pendingTxTracker.on('tx:failed', this.txStateManager.setTxStatusFailed.bind(this.txStateManager))
+    this.pendingTxTracker.on('tx:confirmed', this.txStateManager.setTxStatusConfirmed.bind(this.txStateManager))
+    this.pendingTxTracker.on('tx:retry', (txMeta) => {
+      if (!('retryCount' in txMeta)) txMeta.retryCount = 0
+      txMeta.retryCount++
+      this.txStateManager.updateTx(txMeta)
+    })
 
     this.blockTracker.on('rawBlock', this.pendingTxTracker.checkForTxInBlock.bind(this.pendingTxTracker))
     // this is a little messy but until ethstore has been either
     // removed or redone this is to guard against the race condition
-    // where ethStore hasent been populated by the results yet
+    // where accountTracker hasent been populated by the results yet
     this.blockTracker.once('latest', () => {
       this.blockTracker.on('latest', this.pendingTxTracker.resubmitPendingTxs.bind(this.pendingTxTracker))
     })
@@ -108,6 +114,10 @@ module.exports = class TransactionController extends EventEmitter {
 
   getPendingTxCount (account) {
     return this.txStateManager.getPendingTransactions(account).length
+  }
+
+  getFilteredTxList (opts) {
+    return this.txStateManager.getFilteredTxList(opts)
   }
 
   getChainId () {
@@ -212,7 +222,7 @@ module.exports = class TransactionController extends EventEmitter {
     const txParams = txMeta.txParams
     const fromAddress = txParams.from
     // add network/chain id
-    txParams.chainId = this.getChainId()
+    txParams.chainId = ethUtil.addHexPrefix(this.getChainId().toString(16))
     const ethTx = new Transaction(txParams)
     await this.signEthTx(ethTx, fromAddress)
     this.txStateManager.setTxStatusSigned(txMeta.id)

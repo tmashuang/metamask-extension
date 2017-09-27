@@ -1,10 +1,11 @@
 const extend = require('xtend')
 const EventEmitter = require('events')
 const ObservableStore = require('obs-store')
+const ethUtil = require('ethereumjs-util')
 const txStateHistoryHelper = require('./tx-state-history-helper')
 
 module.exports = class TransactionStateManger extends EventEmitter {
-  constructor ({initState, txHistoryLimit, getNetwork}) {
+  constructor ({ initState, txHistoryLimit, getNetwork }) {
     super()
 
     this.store = new ObservableStore(
@@ -14,7 +15,8 @@ module.exports = class TransactionStateManger extends EventEmitter {
     this.txHistoryLimit = txHistoryLimit
     this.getNetwork = getNetwork
   }
-    // Returns the number of txs for the current network.
+
+  // Returns the number of txs for the current network.
   getTxCount () {
     return this.getTxList().length
   }
@@ -30,7 +32,6 @@ module.exports = class TransactionStateManger extends EventEmitter {
   }
 
   // Returns the tx list
-
   getUnapprovedTxList () {
     const txList = this.getTxsByMetaData('status', 'unapproved')
     return txList.reduce((result, tx) => {
@@ -68,7 +69,7 @@ module.exports = class TransactionStateManger extends EventEmitter {
     // or rejected tx's.
     // not tx's that are pending or unapproved
     if (txCount > txHistoryLimit - 1) {
-      const index = transactions.findIndex((metaTx) => ((metaTx.status === 'confirmed' || metaTx.status === 'rejected')))
+      const index = transactions.findIndex((metaTx) => metaTx.status === 'confirmed' || metaTx.status === 'rejected')
       transactions.splice(index, 1)
     }
     transactions.push(txMeta)
@@ -82,6 +83,14 @@ module.exports = class TransactionStateManger extends EventEmitter {
   }
 
   updateTx (txMeta) {
+    if (txMeta.txParams) {
+      Object.keys(txMeta.txParams).forEach((key) => {
+        let value = txMeta.txParams[key]
+        if (typeof value !== 'string') console.error(`${key}: ${value} in txParams is not a string`)
+        if (!ethUtil.isHexPrefixed(value)) console.error('is not hex prefixed, anything on txParams must be hex prefixed')
+      })
+    }
+
     // create txMeta snapshot for history
     const currentState = txStateHistoryHelper.snapshotFromTxMeta(txMeta)
     // recover previous tx state obj
@@ -220,11 +229,12 @@ module.exports = class TransactionStateManger extends EventEmitter {
     const txMeta = this.getTx(txId)
     txMeta.status = status
     this.emit(`${txMeta.id}:${status}`, txId)
+    this.emit(`tx:status-update`, txId, status)
     if (status === 'submitted' || status === 'rejected') {
       this.emit(`${txMeta.id}:finished`, txMeta)
     }
     this.updateTx(txMeta)
-    this.emit('updateBadge')
+    this.emit('update:badge')
   }
 
   // Saves the new/updated txList.
