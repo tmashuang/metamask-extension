@@ -11,11 +11,11 @@ describe('Nonce Tracker', function () {
   describe('#getNonceLock', function () {
 
     describe('with 3 confirmed and 1 pending', function () {
-      beforeEach(function () {
+      beforeEach(async function () {
         const txGen = new MockTxGen()
-        confirmedTxs = txGen.generate({ status: 'confirmed' }, { count: 3 })
-        pendingTxs = txGen.generate({ status: 'submitted' }, { count: 1 })
-        nonceTracker = generateNonceTrackerWith(pendingTxs, confirmedTxs, '0x1')
+        confirmedTxs = await txGen.generate({ status: 'confirmed' }, { count: 3 })
+        pendingTxs = await txGen.generate({ status: 'submitted' }, { count: 1 })
+        nonceTracker = await generateNonceTrackerWith(pendingTxs, confirmedTxs, '0x1')
       })
 
       it('should return 4', async function () {
