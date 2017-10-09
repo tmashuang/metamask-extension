@@ -20,6 +20,7 @@ module.exports = class NetworkController extends EventEmitter {
     this._proxy = createEventEmitterProxy()
 
     this.on('networkDidChange', this.lookupNetwork)
+    this.providerStore.subscribe((state) => this._switchNetwork({ rpcUrl: state.rpcTarget }))        
   }
 
   initializeProvider (_providerParams) {
@@ -63,7 +64,6 @@ module.exports = class NetworkController extends EventEmitter {
       type: 'rpc',
       rpcTarget: rpcUrl,
     })
-    this._switchNetwork({ rpcUrl })
   }
 
   getCurrentRpcAddress () {
@@ -79,7 +79,6 @@ module.exports = class NetworkController extends EventEmitter {
     const rpcTarget = this.getRpcAddressForType(type)
     assert(rpcTarget, `NetworkController - unknown rpc address for type "${type}"`)
     this.providerStore.updateState({ type, rpcTarget })
-    this._switchNetwork({ rpcUrl: rpcTarget })
   }
 
   getProviderConfig () {
