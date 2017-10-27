@@ -1,3 +1,24 @@
+// const assert = require('assert')
+// const { createStubedProvider } = require('../stub/provider')
+// const MockTxGen = require('../lib/mock-tx-gen')
+// const NonceTracker = require('../../app/scripts/lib/nonce-tracker')
+
+// describe('NonceTracker', function () {
+//   let nonceTracker, provider
+//   const providerResultStub = {}
+//   beforeEach(function () {
+//     provider = createStubedProvider(providerResultStub)
+//     nonceTracker = new NonceTracker({
+//       provider,
+//     })
+//     const txGen = new MockTxGen()
+//   })
+
+//   it('does some shit', function () {
+//     console.log(nonceTracker)
+//   })
+// })
+
 const assert = require('assert')
 const NonceTracker = require('../../app/scripts/lib/nonce-tracker')
 const MockTxGen = require('../lib/mock-tx-gen')
