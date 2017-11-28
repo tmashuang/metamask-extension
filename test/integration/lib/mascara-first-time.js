@@ -24,7 +24,7 @@ async function runFirstTimeUsageTest (assert, done) {
     }
   }
 
-  await timeout()
+  await timeout(3000)
 
   // Scroll through terms
   const title = app.find('.create-password__title').text()
