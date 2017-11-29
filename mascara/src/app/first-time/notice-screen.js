@@ -70,8 +70,9 @@ class NoticeScreen extends Component {
         />
         <button
           className="first-time-flow__button"
-          onClick={atBottom && this.acceptTerms}
-          disabled={!atBottom}
+          onClick={this.acceptTerms}
+          // onClick={atBottom && this.acceptTerms}
+          // disabled={!atBottom}
         >
           Accept
         </button>
