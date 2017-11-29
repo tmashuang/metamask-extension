@@ -57,6 +57,13 @@ async function runFirstTimeUsageTest (assert, done) {
 
   await timeout(1000)
 
+  // Seed Phrase Alert Screen
+  const seedAlert = app.find('.tou__title')[0]
+  assert.equal(seedAlert.textContent, 'Seed Phrase Alert', 'seed phrase alert screen')
+  app.find('button').click()
+
+  await timeout(1000)
+
   // Privacy Screen
   const detail = app.find('.tou__title')[0]
   assert.equal(detail.textContent, 'Privacy Notice', 'privacy notice screen')
