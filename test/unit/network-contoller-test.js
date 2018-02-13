@@ -1,25 +1,35 @@
 const assert = require('assert')
 const NetworkController = require('../../app/scripts/controllers/network')
+const { createTestProviderTools } = require('../stub/provider')
+
 
 describe('# Network Controller', function () {
-  let networkController
+  let networkController, provider, providerResultStub, testBlockchain
   const networkControllerProviderInit = {
     getAccounts: () => {},
   }
 
   beforeEach(function () {
+    providerResultStub = {
+      // 1 gwei
+      eth_gasPrice: '0x0de0b6b3a7640000',
+      // by default, all accounts are external accounts (not contracts)
+      eth_getCode: '0x',
+    }
+    const providerTools = createTestProviderTools({ scaffold: providerResultStub })
+    provider = providerTools.provider
+    testBlockchain = providerTools.testBlockchain
+
     networkController = new NetworkController({
-      provider: {
-        type: 'rinkeby',
-      },
+      provider,
     })
 
-    networkController.initializeProvider(networkControllerProviderInit, dummyProviderConstructor)
+    networkController.initializeProvider(networkControllerProviderInit, provider)
   })
   describe('network', function () {
     describe('#provider', function () {
       it('provider should be updatable without reassignment', function () {
-        networkController.initializeProvider(networkControllerProviderInit, dummyProviderConstructor)
+        networkController.initializeProvider(networkControllerProviderInit, provider)
         const proxy = networkController._proxy
         proxy.setTarget({ test: true, on: () => {} })
         assert.ok(proxy.test)
