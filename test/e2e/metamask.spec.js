@@ -49,14 +49,11 @@ describe('Metamask popup page', function () {
       const privacy = await driver.findElement(By.css('.terms-header')).getText()
       assert.equal(privacy, 'PRIVACY NOTICE', 'shows privacy notice')
       driver.findElement(By.css('button')).click()
-      await delay(300)
     })
 
     it('should show terms of use', async () => {
-      await delay(300)
       const terms = await driver.findElement(By.css('.terms-header')).getText()
       assert.equal(terms, 'TERMS OF USE', 'shows terms of use')
-      await delay(300)
     })
 
     it('should be unable to continue without scolling throught the terms of use', async () => {
@@ -66,7 +63,6 @@ describe('Metamask popup page', function () {
         'Attributions'
       ))
       await driver.executeScript('arguments[0].scrollIntoView(true)', element)
-      await delay(300)
     })
 
     it('should be able to continue when scrolled to the bottom of terms of use', async () => {
