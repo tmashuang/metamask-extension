@@ -5,7 +5,7 @@ const nock = require('nock')
 const ethUtil = require('ethereumjs-util')
 const createThoughStream = require('through2').obj
 const MetaMaskController = require('../../../../app/scripts/metamask-controller')
-const blacklistJSON = require('eth-phishing-detect/src/config')
+const phishingListJSON = require('eth-phishing-detect/src/config')
 const firstTimeState = require('../../../../app/scripts/first-time-state')
 
 const currentNetworkId = 42
@@ -25,7 +25,7 @@ describe('MetaMaskController', function () {
     nock('https://api.infura.io')
       .persist()
       .get('/v2/blacklist')
-      .reply(200, blacklistJSON)
+      .reply(200, phishingListJSON)
 
     nock('https://api.infura.io')
       .get('/v1/ticker/ethusd')
@@ -327,7 +327,7 @@ describe('MetaMaskController', function () {
     let defaultMetaMaskCurrency
 
     beforeEach(function () {
-      defaultMetaMaskCurrency = metamaskController.currencyController.getCurrentCurrency()
+      defaultMetaMaskCurrency = metamaskController.currencyRateController.state.currentCurrency
     })
 
     it('defaults to usd', function () {
@@ -336,7 +336,7 @@ describe('MetaMaskController', function () {
 
     it('sets currency to JPY', function () {
       metamaskController.setCurrentCurrency('JPY', noop)
-      assert.equal(metamaskController.currencyController.getCurrentCurrency(), 'JPY')
+      assert.equal(metamaskController.currencyRateController.activeCurrency, 'JPY')
     })
   })
 
@@ -350,7 +350,7 @@ describe('MetaMaskController', function () {
 
       depositAddress = '3EevLFfB4H4XMWQwYCgjLie1qCAGpd2WBc'
       depositType = 'ETH'
-      shapeShiftTxList = metamaskController.shapeshiftController.store.getState().shapeShiftTxList
+      shapeShiftTxList = metamaskController.shapeshiftController.state.shapeShiftTxList
     })
 
     it('creates a shapeshift tx', async function () {
@@ -584,10 +584,6 @@ describe('MetaMaskController', function () {
 
   describe('#setupUntrustedCommunication', function () {
     let streamTest
-
-    beforeEach(async function () {
-      await metamaskController.blacklistController.updatePhishingList()
-    })
 
     afterEach(function () {
       streamTest.end()
