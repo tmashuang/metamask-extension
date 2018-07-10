@@ -39,14 +39,14 @@ describe('SufficientBalance', function () {
     assert.ok(!result, 'insufficient balance found.')
   })
 
-  it('returns popup enviornment with popup.html path', function () {
-    const envoirnment = getEnvironmentType('test.io/popup.html')
-    assert.equal(envoirnment, 'popup')
+  it('returns popup environment with popup.html path', function () {
+    const environment = getEnvironmentType('test.io/popup.html')
+    assert.equal(environment, 'popup')
   })
 
-  it('returns fullscreen enviornment with home.html path', function () {
-    const envoirnment = getEnvironmentType('test.io/home.html')
-    assert.equal(envoirnment, 'fullscreen')
+  it('returns fullscreen environment with home.html path', function () {
+    const environment = getEnvironmentType('test.io/home.html')
+    assert.equal(environment, 'fullscreen')
   })
 
   it('returns error message stack', function () {
