@@ -5,6 +5,10 @@ const enLocale = require('../../../app/_locales/en/messages.json')
 
 
 describe('i18n', () => {
+  // This is a representation of  state.localMessages.
+  const localeMessages = {
+    current: enLocale,
+  }
 
   before(() => {
     fetchMock.get('*', enLocale)
@@ -20,21 +24,8 @@ describe('i18n', () => {
     assert.equal(response.builtInCalifornia.message, 'MetaMask is designed and built in California.')
   })
 
-  describe('#getMessage', () => {
-
-    // This is a representation of  state.localMessages
-    const localeMessages = {
-      current: enLocale,
-    }
-
-    it('#getMessage', () => {
-      const i18nGetMessage = getMessage(localeMessages, 'builtInCalifornia')
-      assert.equal(i18nGetMessage, 'MetaMask is designed and built in California.')
-    })
-
-    it('#getMessage returns empty string with empty args', () => {
-      assert.equal(getMessage(), '')
-    })
-
+  it('#getMessage', () => {
+    const i18nGetMessage = getMessage(localeMessages, 'builtInCalifornia')
+    assert.equal(i18nGetMessage, 'MetaMask is designed and built in California.')
   })
 })
