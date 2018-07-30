@@ -95,7 +95,7 @@ function isValidENSAddress (address) {
 function isInvalidChecksumAddress (address) {
   var prefixed = ethUtil.addHexPrefix(address)
   if (address === '0x0000000000000000000000000000000000000000') return false
-  return !isAllOneCase(prefixed) && !ethUtil.isValidChecksumAddress(prefixed) && ethUtil.isValidAddress(prefixed)
+  return !isAllOneCase(prefixed) && !ethUtil.isValidChecksumAddress(prefixed) && !ethUtil.isValidAddress(prefixed)
 }
 
 function isAllOneCase (address) {
