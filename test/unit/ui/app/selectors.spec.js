@@ -9,12 +9,7 @@ describe('Selectors', function () {
     beforeEach(function () {
       state = {
         metamask: {
-          'accounts': {
-            '0x0dcd5d886577d5081b0c52e242ef29e70be3e7bc': {
-              'balance': '0x0',
-              'address': '0x0dcd5d886577d5081b0c52e242ef29e70be3e7bc',
-            },
-          },
+          selectedAddress: '0x0dcd5d886577d5081b0c52e242ef29e70be3e7bc'
         },
       }
     })
@@ -75,7 +70,7 @@ describe('Selectors', function () {
 
     it('returns token exchange rate for specified token in state', function () {
       const tokenRate = selectors.getTokenExchangeRate(mockState, '0xd8f6a2ffb0fc5952d16c9768b71cfd35b6399aa5')
-      assert.equal(tokenRate, 0.00008189274407698049)      
+      assert.equal(tokenRate, 0.00008189274407698049)
     })
 
   })
