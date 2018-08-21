@@ -1,3 +1,5 @@
+// Used to inspect long objects
+// util.inspect({JSON}, false, null))
 const util = require('util')
 const assert = require('assert')
 const sinon = require('sinon')
@@ -5,6 +7,8 @@ const clone = require('clone')
 const nock = require('nock')
 const configureStore = require('redux-mock-store').default
 const thunk = require('redux-thunk').default
+const EthQuery = require('eth-query')
+const Eth = require('ethjs')
 const actions = require('../../../../ui/app/actions')
 const MetaMaskController = require('../../../../app/scripts/metamask-controller')
 const KeyringController = require('eth-keyring-controller')
@@ -50,9 +54,7 @@ describe('Actions', () => {
 
     metamaskController = new MetaMaskController({
       provider,
-      keyringController: new KeyringController({
-
-      }),
+      keyringController: new KeyringController({}),
       showUnapprovedTx: noop,
       showUnconfirmedMessage: noop,
       encryptor: {
@@ -72,6 +74,8 @@ describe('Actions', () => {
     background = metamaskController.getApi()
 
     actions._setBackgroundConnection(background)
+
+    global.ethQuery = new EthQuery(provider)
 
   })
 
@@ -295,27 +299,6 @@ describe('Actions', () => {
     })
   })
 
-  xdescribe('', () => {
-
-    let addNewKeyringSpy
-    beforeEach(() => {
-      addNewKeyringSpy = sinon.spy(background, 'addNewKeyring')
-    })
-
-    afterEach(() => {
-      addNewKeyringSpy.restore()
-    })
-
-    it('', () => {
-      const store = mockStore()
-
-      return store.dispatch(actions.addNewKeyring())
-        .then(() => {
-          console.log(store.getActions())
-        })
-    })
-  })
-
   describe('#importNewAccount', () => {
 
     let importAccountWithStrategySpy
@@ -440,7 +423,7 @@ describe('Actions', () => {
         { type: 'SHOW_LOADING_INDICATION', value: undefined },
         { type: 'UPDATE_METAMASK_STATE', value: devState5 },
         { type: 'HIDE_LOADING_INDICATION' },
-        { type: 'COMPLETED_TX', value: undefined }
+        { type: 'COMPLETED_TX', value: undefined },
       ]
 
       return store.dispatch(actions.signMsg(msgParams))
@@ -449,6 +432,26 @@ describe('Actions', () => {
           assert.deepEqual(store.getActions(), expectedActions)
         })
 
+    })
+
+    it('#cancelMsg', () => {
+
+      const store = mockStore()
+
+      const cancelMessageSpy = sinon.spy(background, 'cancelMessage')
+
+      const expectedActions = [
+        { type: 'SHOW_LOADING_INDICATION', value: undefined },
+        { type: 'UPDATE_METAMASK_STATE', value: devState },
+        { type: 'HIDE_LOADING_INDICATION' },
+        { type: 'COMPLETED_TX', value: msgId},
+      ]
+
+      store.dispatch(actions.cancelMsg(messages[0]))
+        .then(() => {
+          assert(cancelMessageSpy.calledOnce)
+          assert.deepEqual(store.getActions(), expectedActions)
+        })
     })
   })
 
@@ -481,7 +484,7 @@ describe('Actions', () => {
         { type: 'SHOW_LOADING_INDICATION', value: undefined },
         { type: 'UPDATE_METAMASK_STATE', value: devState },
         { type: 'HIDE_LOADING_INDICATION' },
-        { type: 'COMPLETED_TX', value: undefined }
+        { type: 'COMPLETED_TX', value: undefined },
       ]
 
       return store.dispatch(actions.signPersonalMsg(msgParams))
@@ -490,6 +493,95 @@ describe('Actions', () => {
           assert.deepEqual(store.getActions(), expectedActions)
         })
 
+    })
+
+    it('#cancelPersonalMsg', () => {
+      const store = mockStore()
+
+      const cancelMessageSpy = sinon.spy(background, 'cancelPersonalMessage')
+
+      const expectedActions = [
+        { type: 'SHOW_LOADING_INDICATION', value: undefined },
+        { type: 'UPDATE_METAMASK_STATE', value: devState },
+        { type: 'HIDE_LOADING_INDICATION' },
+        { type: 'COMPLETED_TX', value: msgId},
+      ]
+
+      store.dispatch(actions.cancelPersonalMsg(personalMessages[0]))
+        .then(() => {
+          assert(cancelMessageSpy.calledOnce)
+          // console.log(util.inspect(store.getActions(), false, null))
+          assert.deepEqual(store.getActions(), expectedActions)
+        })
+    })
+  })
+
+  describe('#signTx', () => {
+
+    let sendTransactionSpy
+
+    beforeEach(() => {
+      global.ethQuery = new EthQuery(provider)
+      sendTransactionSpy = sinon.spy(global.ethQuery, 'sendTransaction')
+    })
+
+    it('', () => {
+      const store = mockStore()
+
+      const expectedActions = [
+        { type: 'SHOW_LOADING_INDICATION', value: undefined },
+        { type: 'SHOW_CONF_TX_PAGE', transForward: true, id: undefined },
+      ]
+
+      store.dispatch(actions.signTx())
+      assert(sendTransactionSpy.calledOnce)
+      assert.deepEqual(store.getActions(), expectedActions)
+    })
+  })
+
+  describe('#updateGasData', () => {
+    it('', () => {
+      const store = mockStore()
+
+      const expectedActions = [
+        { type: 'GAS_LOADING_STARTED' },
+        { type: 'UPDATE_GAS_PRICE', value: '0x3b9aca00' },
+        { type: 'UPDATE_GAS_LIMIT', value: '0x5208' },
+        { type: 'UPDATE_GAS_TOTAL', value: '1319718a5000' },
+        { type: 'UPDATE_SEND_ERRORS', value: { gasLoadingError: null } },
+        { type: 'GAS_LOADING_FINISHED' },
+      ]
+
+      return store.dispatch(actions.updateGasData({
+        blockGasLimit: '0x7a121d',
+      }))
+        .then(() => {
+          assert.deepEqual(store.getActions(), expectedActions)
+        })
+    })
+  })
+
+  describe('#signTokenTx', () => {
+
+    let signTokenTxSpy
+
+    beforeEach(() => {
+      global.eth = new Eth(provider)
+      signTokenTxSpy = sinon.spy(global.eth, 'contract')
+    })
+
+    it('', () => {
+
+      const store = mockStore()
+
+      const expectedActions = [
+        { type: 'SHOW_LOADING_INDICATION', value: undefined },
+        { type: 'SHOW_CONF_TX_PAGE', transForward: true, id: undefined },
+      ]
+
+      store.dispatch(actions.signTokenTx())
+      assert(signTokenTxSpy.calledOnce)
+      assert.deepEqual(store.getActions(), expectedActions)
     })
   })
 
