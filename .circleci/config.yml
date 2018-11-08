@@ -360,7 +360,7 @@ jobs:
   #         at: .
   #     - run:
   #         name: test:integration:mascara
-          command: npm run test:mascara
+  #         command: npm run test:mascara
 
   all-tests-pass:
     docker:
