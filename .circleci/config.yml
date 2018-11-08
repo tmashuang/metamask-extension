@@ -28,15 +28,7 @@ workflows:
           requires:
             - prep-deps-npm
             - prep-build
-      - test-e2e-beta-chrome:
-          requires:
-            - prep-deps-npm
-            - prep-build
-      - test-e2e-beta-firefox:
-          requires:
-            - prep-deps-npm
-            - prep-build
-      - test-e2e-beta-drizzle:
+      - test-e2e-drizzle:
           requires:
             - prep-deps-npm
             - prep-build
@@ -55,14 +47,14 @@ workflows:
     #       requires:
     #         - prep-deps-npm
     #         - prep-scss
-      - test-integration-flat-chrome:
-          requires:
-            - prep-deps-npm
-            - prep-scss
-      - test-integration-flat-firefox:
-          requires:
-            - prep-deps-npm
-            - prep-scss
+      # - test-integration-flat-chrome:
+      #     requires:
+      #       - prep-deps-npm
+      #       - prep-scss
+      # - test-integration-flat-firefox:
+      #     requires:
+      #       - prep-deps-npm
+      #       - prep-scss
       - all-tests-pass:
           requires:
             - test-lint
@@ -70,13 +62,11 @@ workflows:
             - test-mozilla-lint
             - test-e2e-chrome
             - test-e2e-firefox
-            - test-e2e-beta-chrome
-            - test-e2e-beta-firefox
-            - test-e2e-beta-drizzle
+            - test-e2e-drizzle
             # - test-integration-mascara-chrome
             # - test-integration-mascara-firefox
-            - test-integration-flat-chrome
-            - test-integration-flat-firefox
+            # - test-integration-flat-chrome
+            # - test-integration-flat-firefox
       - job-screens:
           requires:
             - prep-deps-npm
@@ -196,6 +186,20 @@ jobs:
           name: Test
           command: npx nsp check
 
+  test-e2e-drizzle:
+    docker:
+      - image: circleci/node:8.11.3-browsers
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: test:e2e:drizzle
+          command: npm run test:e2e:drizzle
+      - store_artifacts:
+          path: test-artifacts
+          destination: test-artifacts
+
   test-e2e-chrome:
     docker:
       - image: circleci/node:8.11.3-browsers
@@ -223,50 +227,6 @@ jobs:
       - run:
           name: test:e2e:firefox
           command: npm run test:e2e:firefox
-      - store_artifacts:
-          path: test-artifacts
-          destination: test-artifacts
-
-  test-e2e-beta-drizzle:
-    docker:
-      - image: circleci/node:8.11.3-browsers
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: test:e2e:drizzle:beta
-          command: npm run test:e2e:drizzle:beta
-      - store_artifacts:
-          path: test-artifacts
-          destination: test-artifacts
-  test-e2e-beta-chrome:
-    docker:
-      - image: circleci/node:8.11.3-browsers
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: test:e2e:chrome:beta
-          command: npm run test:e2e:chrome:beta
-      - store_artifacts:
-          path: test-artifacts
-          destination: test-artifacts
-
-  test-e2e-beta-firefox:
-    docker:
-      - image: circleci/node:8.11.3-browsers
-    steps:
-      - checkout
-      - run:
-          name: Install Firefox
-          command: ./.circleci/scripts/firefox-install
-      - attach_workspace:
-          at: .
-      - run:
-          name: test:e2e:firefox:beta
-          command: npm run test:e2e:firefox:beta
       - store_artifacts:
           path: test-artifacts
           destination: test-artifacts
@@ -336,6 +296,7 @@ jobs:
       - run:
           name: test:coverage
           command: npm run test:coverage
+
   test-mozilla-lint:
     docker:
       - image: circleci/node:8.11.3-browsers
@@ -347,58 +308,58 @@ jobs:
           name: test:mozilla-lint
           command: npm run mozilla-lint
 
-  test-integration-flat-firefox:
-    docker:
-      - image: circleci/node:8.11.3-browsers
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Install Firefox
-          command: ./.circleci/scripts/firefox-install
-      - run:
-          name: test:integration:flat
-          command: npm run test:flat
+  # test-integration-flat-firefox:
+  #   docker:
+  #     - image: circleci/node:8.11.3-browsers
+  #   steps:
+  #     - checkout
+  #     - attach_workspace:
+  #         at: .
+  #     - run:
+  #         name: Install Firefox
+  #         command: ./.circleci/scripts/firefox-install
+  #     - run:
+  #         name: test:integration:flat
+  #         command: npm run test:flat
 
-  test-integration-flat-chrome:
-    environment:
-      browsers: '["Chrome"]'
-    docker:
-      - image: circleci/node:8.11.3-browsers
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: test:integration:flat
-          command: npm run test:flat
+  # test-integration-flat-chrome:
+  #   environment:
+  #     browsers: '["Chrome"]'
+  #   docker:
+  #     - image: circleci/node:8.11.3-browsers
+  #   steps:
+  #     - checkout
+  #     - attach_workspace:
+  #         at: .
+  #     - run:
+  #         name: test:integration:flat
+  #         command: npm run test:flat
 
-  test-integration-mascara-firefox:
-    docker:
-      - image: circleci/node:8.11.3-browsers
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: Install Firefox
-          command: ./.circleci/scripts/firefox-install
-      - run:
-          name: test:integration:mascara
-          command: npm run test:mascara
+  # test-integration-mascara-firefox:
+  #   docker:
+  #     - image: circleci/node:8.11.3-browsers
+  #   steps:
+  #     - checkout
+  #     - attach_workspace:
+  #         at: .
+  #     - run:
+  #         name: Install Firefox
+  #         command: ./.circleci/scripts/firefox-install
+  #     - run:
+  #         name: test:integration:mascara
+  #         command: npm run test:mascara
 
-  test-integration-mascara-chrome:
-    environment:
-      browsers: '["Chrome"]'
-    docker:
-      - image: circleci/node:8.11.3-browsers
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run:
-          name: test:integration:mascara
+  # test-integration-mascara-chrome:
+  #   environment:
+  #     browsers: '["Chrome"]'
+  #   docker:
+  #     - image: circleci/node:8.11.3-browsers
+  #   steps:
+  #     - checkout
+  #     - attach_workspace:
+  #         at: .
+  #     - run:
+  #         name: test:integration:mascara
           command: npm run test:mascara
 
   all-tests-pass:
