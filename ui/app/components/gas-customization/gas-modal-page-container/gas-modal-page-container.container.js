@@ -142,6 +142,7 @@ const mapDispatchToProps = dispatch => {
       dispatch(resetCustomData())
       dispatch(hideModal())
     },
+    hideModal: () => dispatch(hideModal()),
     updateCustomGasPrice,
     convertThenUpdateCustomGasPrice: newPrice => updateCustomGasPrice(decGWEIToHexWEI(newPrice)),
     convertThenUpdateCustomGasLimit: newLimit => dispatch(setCustomGasLimit(addHexPrefix(newLimit.toString(16)))),
@@ -150,6 +151,8 @@ const mapDispatchToProps = dispatch => {
       dispatch(setGasPrice(newPrice))
     },
     updateConfirmTxGasAndCalculate: (gasLimit, gasPrice) => {
+      updateCustomGasPrice(gasPrice)
+      dispatch(setCustomGasLimit(addHexPrefix(gasLimit.toString(16))))
       return dispatch(updateGasAndCalculate({ gasLimit, gasPrice }))
     },
     createSpeedUpTransaction: (txId, gasPrice) => {
@@ -172,6 +175,8 @@ const mergeProps = (stateProps, dispatchProps, ownProps) => {
     updateConfirmTxGasAndCalculate: dispatchUpdateConfirmTxGasAndCalculate,
     createSpeedUpTransaction: dispatchCreateSpeedUpTransaction,
     hideSidebar: dispatchHideSidebar,
+    cancelAndClose: dispatchCancelAndClose,
+    hideModal: dispatchHideModal,
     ...otherDispatchProps
   } = dispatchProps
 
@@ -182,12 +187,15 @@ const mergeProps = (stateProps, dispatchProps, ownProps) => {
     onSubmit: (gasLimit, gasPrice) => {
       if (isConfirm) {
         dispatchUpdateConfirmTxGasAndCalculate(gasLimit, gasPrice)
+        dispatchHideModal()
       } else if (isSpeedUp) {
         dispatchCreateSpeedUpTransaction(txId, gasPrice)
         dispatchHideSidebar()
+        dispatchCancelAndClose()
       } else {
         dispatchSetGasData(gasLimit, gasPrice)
         dispatchHideGasButtonGroup()
+        dispatchCancelAndClose()
       }
     },
     gasPriceButtonGroupProps: {

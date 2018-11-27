@@ -156,6 +156,11 @@ function getTimeEstimateInSeconds (blockWaitEstimate) {
 function formatTimeEstimate (totalSeconds) {
   const minutes = Math.floor(totalSeconds / 60)
   const seconds = Math.floor(totalSeconds % 60)
+
+  if (!minutes && !seconds) {
+    return '...'
+  }
+
   const formattedMin = `${minutes ? minutes + ' min' : ''}`
   const formattedSec = `${seconds ? seconds + ' sec' : ''}`
   const formattedCombined = formattedMin && formattedSec

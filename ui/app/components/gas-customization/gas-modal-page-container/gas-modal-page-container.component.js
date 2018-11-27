@@ -167,7 +167,6 @@ export default class GasModalPageContainer extends Component {
           onClose={() => cancelAndClose()}
           onSubmit={() => {
             onSubmit(customModalGasLimitInHex, customModalGasPriceInHex)
-            cancelAndClose()
           }}
           submitText={this.context.t('save')}
           headerCloseText={'Close'}
