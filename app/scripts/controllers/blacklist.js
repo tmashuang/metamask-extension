@@ -29,6 +29,7 @@ class BlacklistController {
   constructor (opts = {}) {
     const initState = extend({
       phishing: PHISHING_DETECTION_CONFIG,
+      whitelist: [],
     }, opts.initState)
     this.store = new ObservableStore(initState)
     // phishing detector
@@ -36,6 +37,21 @@ class BlacklistController {
     this._setupPhishingDetector(initState.phishing)
     // polling references
     this._phishingUpdateIntervalRef = null
+  }
+
+  /**
+   * Adds the given hostname to the runtime whitelist
+   * @param {string} hostname the hostname to whitelist
+   */
+  whitelistDomain (hostname) {
+    if (!hostname) {
+      return
+    }
+
+    const { whitelist } = this.store.getState()
+    this.store.updateState({
+      whitelist: [...new Set([hostname, ...whitelist])],
+    })
   }
 
   /**
@@ -48,6 +64,12 @@ class BlacklistController {
    */
   checkForPhishing (hostname) {
     if (!hostname) return false
+
+    const { whitelist } = this.store.getState()
+    if (whitelist.some((e) => e === hostname)) {
+      return false
+    }
+
     const { result } = this._phishingDetector.check(hostname)
     return result
   }
@@ -61,8 +83,25 @@ class BlacklistController {
    *
    */
   async updatePhishingList () {
-    const response = await fetch('https://api.infura.io/v2/blacklist')
-    const phishing = await response.json()
+    // make request
+    let response
+    try {
+      response = await fetch('https://api.infura.io/v2/blacklist')
+    } catch (err) {
+      log.error(new Error(`BlacklistController - failed to fetch blacklist:\n${err.stack}`))
+      return
+    }
+    // parse response
+    let rawResponse
+    let phishing
+    try {
+      const rawResponse = await response.text()
+      phishing = JSON.parse(rawResponse)
+    } catch (err) {
+      log.error(new Error(`BlacklistController - failed to parse blacklist:\n${rawResponse}`))
+      return
+    }
+    // update current blacklist
     this.store.updateState({ phishing })
     this._setupPhishingDetector(phishing)
     return phishing
@@ -75,9 +114,9 @@ class BlacklistController {
    */
   scheduleUpdates () {
     if (this._phishingUpdateIntervalRef) return
-    this.updatePhishingList().catch(log.warn)
+    this.updatePhishingList()
     this._phishingUpdateIntervalRef = setInterval(() => {
-      this.updatePhishingList().catch(log.warn)
+      this.updatePhishingList()
     }, POLLING_INTERVAL)
   }
 

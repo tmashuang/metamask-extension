@@ -12,6 +12,7 @@ const {
   getCurrentCurrency,
   getCurrentNetwork,
   getCurrentViewContext,
+  getNativeCurrency,
   getForceGasMin,
   getGasLimit,
   getGasPrice,
@@ -178,6 +179,15 @@ describe('send selectors', () => {
     })
   })
 
+  describe('getNativeCurrency()', () => {
+    it('should return the ticker symbol of the selected network', () => {
+      assert.equal(
+        getNativeCurrency(mockState),
+        'ETH'
+      )
+    })
+  })
+
   describe('getCurrentNetwork()', () => {
     it('should return the id of the currently selected network', () => {
       assert.equal(
@@ -227,7 +237,7 @@ describe('send selectors', () => {
     it('should return the send.gasTotal', () => {
       assert.equal(
         getGasTotal(mockState),
-        '0xb451dc41b578'
+        'a9ff56'
       )
     })
   })

@@ -1,6 +1,7 @@
 const injectCss = require('inject-css')
 const OldMetaMaskUiCss = require('../../old-ui/css')
 const NewMetaMaskUiCss = require('../../ui/css')
+const {getShouldUseNewUi} = require('../../ui/app/selectors')
 const startPopup = require('./popup-core')
 const PortStream = require('extension-port-stream')
 const { getEnvironmentType } = require('./lib/util')
@@ -9,7 +10,7 @@ const extension = require('extensionizer')
 const ExtensionPlatform = require('./platforms/extension')
 const NotificationManager = require('./lib/notification-manager')
 const notificationManager = new NotificationManager()
-const setupRaven = require('./lib/setupRaven')
+const setupSentry = require('./lib/setupSentry')
 const log = require('loglevel')
 
 start().catch(log.error)
@@ -21,11 +22,17 @@ async function start () {
 
   // setup sentry error reporting
   const release = global.platform.getVersion()
-  setupRaven({ release })
-
-  // inject css
-  // const css = MetaMaskUiCss()
-  // injectCss(css)
+  setupSentry({ release, getState })
+  // provide app state to append to error logs
+  function getState () {
+    // get app state
+    const state = window.getCleanAppState()
+    // remove unnecessary data
+    delete state.localeMessages
+    delete state.metamask.recentBlocks
+    // return state to be added to request
+    return state
+  }
 
   // identify window type (popup, notification)
   const windowType = getEnvironmentType(window.location.href)
@@ -41,15 +48,9 @@ async function start () {
   startPopup({ container, connectionStream }, (err, store) => {
     if (err) return displayCriticalError(err)
 
-    // Code commented out until we begin auto adding users to NewUI
-    // const { isMascara, identities = {}, featureFlags = {} } = store.getState().metamask
-    // const firstTime = Object.keys(identities).length === 0
-    const { isMascara, featureFlags = {} } = store.getState().metamask
-    let betaUIState = featureFlags.betaUI
-
-    // Code commented out until we begin auto adding users to NewUI
-    // const useBetaCss = isMascara || firstTime || betaUIState
-    const useBetaCss = isMascara || betaUIState
+    const state = store.getState()
+    let betaUIState = Boolean(state.featureFlags && state.featureFlags.betaUI)
+    const useBetaCss = getShouldUseNewUi(state)
 
     let css = useBetaCss ? NewMetaMaskUiCss() : OldMetaMaskUiCss()
     let deleteInjectedCss = injectCss(css)

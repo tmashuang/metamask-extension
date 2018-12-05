@@ -5,6 +5,7 @@ import { CARDS_VARIANT } from '../sender-to-recipient/sender-to-recipient.consta
 import TransactionActivityLog from '../transaction-activity-log'
 import TransactionBreakdown from '../transaction-breakdown'
 import Button from '../button'
+import Tooltip from '../tooltip'
 import prefixForNetwork from '../../../lib/etherscan-prefix-for-network'
 
 export default class TransactionListItemDetails extends PureComponent {
@@ -25,6 +26,7 @@ export default class TransactionListItemDetails extends PureComponent {
 
     const prefix = prefixForNetwork(metamaskNetworkId)
     const etherscanUrl = `https://${prefix}etherscan.io/tx/${hash}`
+
     global.platform.openWindow({ url: etherscanUrl })
     this.setState({ showTransactionDetails: true })
   }
@@ -75,13 +77,15 @@ export default class TransactionListItemDetails extends PureComponent {
                 </Button>
               )
             }
-            <Button
-              type="raised"
-              onClick={this.handleEtherscanClick}
-              className="transaction-list-item-details__header-button"
-            >
-              <img src="/images/arrow-popout.svg" />
-            </Button>
+            <Tooltip title={t('viewOnEtherscan')}>
+              <Button
+                type="raised"
+                onClick={this.handleEtherscanClick}
+                className="transaction-list-item-details__header-button"
+                >
+                <img src="/images/arrow-popout.svg" />
+              </Button>
+            </Tooltip>
           </div>
         </div>
         <div className="transaction-list-item-details__sender-to-recipient-container">

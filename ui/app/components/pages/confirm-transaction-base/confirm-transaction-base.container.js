@@ -8,7 +8,7 @@ import {
   clearConfirmTransaction,
   updateGasAndCalculate,
 } from '../../../ducks/confirm-transaction.duck'
-import { clearSend, cancelTx, updateAndApproveTx, showModal } from '../../../actions'
+import { clearSend, cancelTx, cancelTxs, updateAndApproveTx, showModal } from '../../../actions'
 import {
   INSUFFICIENT_FUNDS_ERROR_KEY,
   GAS_LIMIT_TOO_LOW_ERROR_KEY,
@@ -17,7 +17,8 @@ import { getHexGasTotal } from '../../../helpers/confirm-transaction/util'
 import { isBalanceSufficient } from '../../send/send.utils'
 import { conversionGreaterThan } from '../../../conversion-util'
 import { MIN_GAS_LIMIT_DEC } from '../../send/send.constants'
-import { addressSlicer } from '../../../util'
+import { addressSlicer, valuesFor } from '../../../util'
+import { getMetaMaskAccounts } from '../../../selectors'
 
 const casedContractMap = Object.keys(contractMap).reduce((acc, base) => {
   return {
@@ -28,7 +29,7 @@ const casedContractMap = Object.keys(contractMap).reduce((acc, base) => {
 
 const mapStateToProps = (state, props) => {
   const { toAddress: propsToAddress } = props
-  const { confirmTransaction, metamask } = state
+  const { confirmTransaction, metamask, gas } = state
   const {
     ethTransactionAmount,
     ethTransactionFee,
@@ -36,7 +37,9 @@ const mapStateToProps = (state, props) => {
     fiatTransactionAmount,
     fiatTransactionFee,
     fiatTransactionTotal,
-    hexGasTotal,
+    hexTransactionAmount,
+    hexTransactionFee,
+    hexTransactionTotal,
     tokenData,
     methodData,
     txData,
@@ -45,16 +48,24 @@ const mapStateToProps = (state, props) => {
   } = confirmTransaction
   const { txParams = {}, lastGasPrice, id: transactionId } = txData
   const { from: fromAddress, to: txParamsToAddress } = txParams
+  const accounts = getMetaMaskAccounts(state)
   const {
     conversionRate,
     identities,
     currentCurrency,
-    accounts,
     selectedAddress,
     selectedAddressTxList,
     assetImages,
+    network,
+    unapprovedTxs,
   } = metamask
   const assetImage = assetImages[txParamsToAddress]
+
+  const {
+    customGasLimit,
+    customGasPrice,
+  } = gas
+
   const { balance } = accounts[selectedAddress]
   const { name: fromName } = identities[selectedAddress]
   const toAddress = propsToAddress || txParamsToAddress
@@ -66,6 +77,12 @@ const mapStateToProps = (state, props) => {
 
   const transaction = R.find(({ id }) => id === transactionId)(selectedAddressTxList)
   const transactionStatus = transaction ? transaction.status : ''
+
+  const currentNetworkUnapprovedTxs = R.filter(
+    ({ metamaskNetworkId }) => metamaskNetworkId === network,
+    unapprovedTxs,
+  )
+  const unapprovedTxCount = valuesFor(currentNetworkUnapprovedTxs).length
 
   return {
     balance,
@@ -79,7 +96,9 @@ const mapStateToProps = (state, props) => {
     fiatTransactionAmount,
     fiatTransactionFee,
     fiatTransactionTotal,
-    hexGasTotal,
+    hexTransactionAmount,
+    hexTransactionFee,
+    hexTransactionTotal,
     txData,
     tokenData,
     methodData,
@@ -90,6 +109,13 @@ const mapStateToProps = (state, props) => {
     transactionStatus,
     nonce,
     assetImage,
+    unapprovedTxs,
+    unapprovedTxCount,
+    currentNetworkUnapprovedTxs,
+    customGas: {
+      gasLimit: customGasLimit || txData.gasPrice,
+      gasPrice: customGasPrice || txData.gasLimit,
+    },
   }
 }
 
@@ -101,12 +127,16 @@ const mapDispatchToProps = dispatch => {
       return dispatch(showModal({ name: 'TRANSACTION_CONFIRMED', onSubmit }))
     },
     showCustomizeGasModal: ({ txData, onSubmit, validate }) => {
-      return dispatch(showModal({ name: 'CONFIRM_CUSTOMIZE_GAS', txData, onSubmit, validate }))
+      return dispatch(showModal({ name: 'CUSTOMIZE_GAS', txData, onSubmit, validate }))
     },
     updateGasAndCalculate: ({ gasLimit, gasPrice }) => {
       return dispatch(updateGasAndCalculate({ gasLimit, gasPrice }))
     },
+    showRejectTransactionsConfirmationModal: ({ onSubmit, unapprovedTxCount }) => {
+      return dispatch(showModal({ name: 'REJECT_TRANSACTIONS', onSubmit, unapprovedTxCount }))
+    },
     cancelTransaction: ({ id }) => dispatch(cancelTx({ id })),
+    cancelAllTransactions: (txList) => dispatch(cancelTxs(txList)),
     sendTransaction: txData => dispatch(updateAndApproveTx(txData)),
   }
 }
@@ -156,8 +186,9 @@ const getValidateEditGas = ({ balance, conversionRate, txData }) => {
 }
 
 const mergeProps = (stateProps, dispatchProps, ownProps) => {
-  const { balance, conversionRate, txData } = stateProps
+  const { balance, conversionRate, txData, unapprovedTxs } = stateProps
   const {
+    cancelAllTransactions: dispatchCancelAllTransactions,
     showCustomizeGasModal: dispatchShowCustomizeGasModal,
     updateGasAndCalculate: dispatchUpdateGasAndCalculate,
     ...otherDispatchProps
@@ -171,9 +202,10 @@ const mergeProps = (stateProps, dispatchProps, ownProps) => {
     ...ownProps,
     showCustomizeGasModal: () => dispatchShowCustomizeGasModal({
       txData,
-      onSubmit: txData => dispatchUpdateGasAndCalculate(txData),
+      onSubmit: customGas => dispatchUpdateGasAndCalculate(customGas),
       validate: validateEditGas,
     }),
+    cancelAllTransactions: () => dispatchCancelAllTransactions(valuesFor(unapprovedTxs)),
   }
 }
 

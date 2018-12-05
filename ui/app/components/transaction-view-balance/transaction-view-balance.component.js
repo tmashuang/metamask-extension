@@ -3,9 +3,9 @@ import PropTypes from 'prop-types'
 import Button from '../button'
 import Identicon from '../identicon'
 import TokenBalance from '../token-balance'
-import CurrencyDisplay from '../currency-display'
+import UserPreferencedCurrencyDisplay from '../user-preferenced-currency-display'
 import { SEND_ROUTE } from '../../routes'
-import { ETH } from '../../constants/common'
+import { PRIMARY, SECONDARY } from '../../constants/common'
 
 export default class TransactionViewBalance extends PureComponent {
   static contextTypes = {
@@ -26,22 +26,26 @@ export default class TransactionViewBalance extends PureComponent {
 
     return selectedToken
       ? (
-        <TokenBalance
-          token={selectedToken}
-          withSymbol
-          className="transaction-view-balance__token-balance"
-        />
+        <div className="transaction-view-balance__balance">
+          <TokenBalance
+            token={selectedToken}
+            withSymbol
+            className="transaction-view-balance__primary-balance"
+          />
+        </div>
       ) : (
         <div className="transaction-view-balance__balance">
-          <CurrencyDisplay
+          <UserPreferencedCurrencyDisplay
             className="transaction-view-balance__primary-balance"
             value={balance}
-            currency={ETH}
-            numberOfDecimals={3}
+            type={PRIMARY}
+            ethNumberOfDecimals={4}
           />
-          <CurrencyDisplay
+          <UserPreferencedCurrencyDisplay
             className="transaction-view-balance__secondary-balance"
             value={balance}
+            type={SECONDARY}
+            ethNumberOfDecimals={4}
           />
         </div>
       )

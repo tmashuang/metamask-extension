@@ -1,4 +1,49 @@
 {
+  "privacyMode": {
+    "message": "Modo de privacidade"
+  },
+  "privacyModeDescription": {
+    "message": "Os sites devem solicitar acesso para visualizar as informações da sua conta."
+  },
+  "exposeAccounts": {
+    "message": "Expor contas"
+  },
+  "exposeDescription": {
+    "message": "Exponha contas ao site atual. Útil para dapps herdados."
+  },
+  "confirmExpose": {
+    "message": "Tem certeza de que deseja expor suas contas ao site atual?"
+  },
+  "confirmClear": {
+    "message": "Tem certeza de que deseja limpar sites aprovados?"
+  },
+  "clearApprovalDataSuccess": {
+    "message": "Dados aprovados do website foram limpos com sucesso."
+  },
+  "approvalData": {
+    "message": "Dados de aprovação"
+  },
+  "approvalDataDescription": {
+    "message": "Limpe os dados aprovados do website para que todos os sites solicitem aprovação novamente."
+  },
+  "clearApprovalData": {
+    "message": "Limpar dados de aprovação"
+  },
+  "approve": {
+    "message": "Aprovar"
+  },
+  "reject": {
+    "message": "Rejeitar"
+  },
+  "providerAPIRequest": {
+    "message": "Solicitação de API do Web3"
+  },
+  "reviewProviderRequest": {
+    "message": "Por favor, revise esta solicitação da API da Ethereum."
+  },
+  "providerRequestInfo": {
+    "message": "O domínio listado abaixo está tentando solicitar acesso à API Ethereum para que ele possa interagir com o blockchain Ethereum. Sempre verifique se você está no site correto antes de aprovar o acesso à Ethereum."
+  },
   "accept": {
     "message": "Aceitar"
   },
@@ -173,7 +218,7 @@
   },
   "decimal": {
     "message": "Precisão em Decimais"
-  }, 
+  },
   "defaultNetwork": {
     "message": "A rede pré definida para transações em Ether é a Main Net."
   },
@@ -351,7 +396,7 @@
     "message": "Importar Conta"
   },
   "importAccountMsg": {
-    "message":"Contas importadas não irão ser associadas com a frase seed da conta criada originalmente pelo MetaMask. Saiba mais sobre contas importadas."
+    "message": "Contas importadas não irão ser associadas com a frase seed da conta criada originalmente pelo MetaMask. Saiba mais sobre contas importadas."
   },
   "importAnAccount": {
     "message": "Importar uma conta"
@@ -696,8 +741,8 @@
   "supportCenter": {
     "message": "Visitar o nosso Centro de Suporte"
   },
-  "symbolBetweenZeroTen": {
-    "message": "Símbolo deve conter entre 0 e 10 characters."
+  "symbolBetweenZeroTwelve": {
+    "message": "Símbolo deve conter entre 0 e 12 characters."
   },
   "takesTooLong": {
     "message": "A demorar muito?"
@@ -800,12 +845,12 @@
   },
   "visitWebSite": {
     "message": "Visite o nosso site"
-  }, 
+  },
   "warning": {
     "message": "Aviso"
   },
-  "welcomeBeta": {
-    "message": "Bem-vindo ao MetaMask Beta"
+  "welcome": {
+    "message": "Bem-vindo ao MetaMask"
   },
   "whatsThis": {
     "message": "O que é isto?"

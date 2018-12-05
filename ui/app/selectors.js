@@ -1,9 +1,7 @@
 const abi = require('human-standard-token-abi')
-
 import {
   transactionsSelector,
 } from './selectors/transactions'
-
 const {
   multiplyCurrencies,
 } = require('./conversion-util')
@@ -26,19 +24,24 @@ const selectors = {
   getAddressBook,
   getSendFrom,
   getCurrentCurrency,
+  getNativeCurrency,
   getSendAmount,
   getSelectedTokenToFiatRate,
   getSelectedTokenContract,
   autoAddToBetaUI,
+  getShouldUseNewUi,
   getSendMaxModeState,
   getCurrentViewContext,
   getTotalUnapprovedCount,
+  preferencesSelector,
+  getMetaMaskAccounts,
+  getCurrentEthBalance,
 }
 
 module.exports = selectors
 
 function getSelectedAddress (state) {
-  const selectedAddress = state.metamask.selectedAddress || Object.keys(state.metamask.accounts)[0]
+  const selectedAddress = state.metamask.selectedAddress || Object.keys(getMetaMaskAccounts(state))[0]
 
   return selectedAddress
 }
@@ -50,8 +53,27 @@ function getSelectedIdentity (state) {
   return identities[selectedAddress]
 }
 
+function getMetaMaskAccounts (state) {
+  const currentAccounts = state.metamask.accounts
+  const cachedBalances = state.metamask.cachedBalances
+  const selectedAccounts = {}
+
+  Object.keys(currentAccounts).forEach(accountID => {
+    const account = currentAccounts[accountID]
+    if (account && account.balance === null || account.balance === undefined) {
+      selectedAccounts[accountID] = {
+        ...account,
+        balance: cachedBalances[accountID],
+      }
+    } else {
+      selectedAccounts[accountID] = account
+    }
+  })
+  return selectedAccounts
+}
+
 function getSelectedAccount (state) {
-  const accounts = state.metamask.accounts
+  const accounts = getMetaMaskAccounts(state)
   const selectedAddress = getSelectedAddress(state)
 
   return accounts[selectedAddress]
@@ -99,10 +121,8 @@ function getAddressBook (state) {
 }
 
 function accountsWithSendEtherInfoSelector (state) {
-  const {
-    accounts,
-    identities,
-  } = state.metamask
+  const accounts = getMetaMaskAccounts(state)
+  const { identities } = state.metamask
 
   const accountsWithSendEtherInfo = Object.entries(accounts).map(([key, account]) => {
     return Object.assign({}, account, identities[key])
@@ -116,6 +136,10 @@ function getCurrentAccountWithSendEtherInfo (state) {
   const accounts = accountsWithSendEtherInfoSelector(state)
 
   return accounts.find(({ address }) => address === currentAddress)
+}
+
+function getCurrentEthBalance (state) {
+  return getCurrentAccountWithSendEtherInfo(state).balance
 }
 
 function getGasIsLoading (state) {
@@ -140,6 +164,10 @@ function getSendMaxModeState (state) {
 
 function getCurrentCurrency (state) {
   return state.metamask.currentCurrency
+}
+
+function getNativeCurrency (state) {
+  return state.metamask.nativeCurrency
 }
 
 function getSelectedTokenToFiatRate (state) {
@@ -168,7 +196,7 @@ function autoAddToBetaUI (state) {
   const autoAddTokensThreshold = 1
 
   const numberOfTransactions = state.metamask.selectedAddressTxList.length
-  const numberOfAccounts = Object.keys(state.metamask.accounts).length
+  const numberOfAccounts = Object.keys(getMetaMaskAccounts(state)).length
   const numberOfTokensAdded = state.metamask.tokens.length
 
   const userPassesThreshold = (numberOfTransactions > autoAddTransactionThreshold) &&
@@ -177,6 +205,13 @@ function autoAddToBetaUI (state) {
   const userIsNotInBeta = !state.metamask.featureFlags.betaUI
 
   return userIsNotInBeta && userPassesThreshold
+}
+
+function getShouldUseNewUi (state) {
+  const isAlreadyUsingBetaUi = state.metamask.featureFlags.betaUI
+  const isMascara = state.metamask.isMascara
+  const isFreshInstall = Object.keys(state.metamask.identities).length === 0
+  return isAlreadyUsingBetaUi || isMascara || isFreshInstall
 }
 
 function getCurrentViewContext (state) {
@@ -194,4 +229,8 @@ function getTotalUnapprovedCount ({ metamask }) {
 
   return Object.keys(unapprovedTxs).length + unapprovedMsgCount + unapprovedPersonalMsgCount +
     unapprovedTypedMessagesCount
+}
+
+function preferencesSelector ({ metamask }) {
+  return metamask.preferences
 }

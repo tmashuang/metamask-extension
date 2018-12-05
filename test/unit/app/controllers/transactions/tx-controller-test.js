@@ -5,6 +5,9 @@ const EthTx = require('ethereumjs-tx')
 const ObservableStore = require('obs-store')
 const sinon = require('sinon')
 const TransactionController = require('../../../../../app/scripts/controllers/transactions')
+const {
+  TRANSACTION_TYPE_RETRY,
+} = require('../../../../../app/scripts/controllers/transactions/enums')
 const { createTestProviderTools, getTestAccounts } = require('../../../../stub/provider')
 
 const noop = () => true
@@ -28,6 +31,7 @@ describe('Transaction Controller', function () {
     blockTrackerStub.getLatestBlock = noop
     txController = new TransactionController({
       provider,
+      getGasPrice: function () { return '0xee6b2800' },
       networkStore: new ObservableStore(currentNetworkId),
       txHistoryLimit: 10,
       blockTracker: blockTrackerStub,
@@ -52,9 +56,9 @@ describe('Transaction Controller', function () {
   describe('#getUnapprovedTxCount', function () {
     it('should return the number of unapproved txs', function () {
       txController.txStateManager._saveTxList([
-        { id: 1, status: 'unapproved', metamaskNetworkId: currentNetworkId, txParams: {}, history: [] },
-        { id: 2, status: 'unapproved', metamaskNetworkId: currentNetworkId, txParams: {}, history: [] },
-        { id: 3, status: 'unapproved', metamaskNetworkId: currentNetworkId, txParams: {}, history: [] },
+        { id: 1, status: 'unapproved', metamaskNetworkId: currentNetworkId, txParams: {}, history: [{}] },
+        { id: 2, status: 'unapproved', metamaskNetworkId: currentNetworkId, txParams: {}, history: [{}] },
+        { id: 3, status: 'unapproved', metamaskNetworkId: currentNetworkId, txParams: {}, history: [{}] },
       ])
       const unapprovedTxCount = txController.getUnapprovedTxCount()
       assert.equal(unapprovedTxCount, 3, 'should be 3')
@@ -64,9 +68,9 @@ describe('Transaction Controller', function () {
   describe('#getPendingTxCount', function () {
     it('should return the number of pending txs', function () {
       txController.txStateManager._saveTxList([
-        { id: 1, status: 'submitted', metamaskNetworkId: currentNetworkId, txParams: {}, history: [] },
-        { id: 2, status: 'submitted', metamaskNetworkId: currentNetworkId, txParams: {}, history: [] },
-        { id: 3, status: 'submitted', metamaskNetworkId: currentNetworkId, txParams: {}, history: [] },
+        { id: 1, status: 'submitted', metamaskNetworkId: currentNetworkId, txParams: {}, history: [{}] },
+        { id: 2, status: 'submitted', metamaskNetworkId: currentNetworkId, txParams: {}, history: [{}] },
+        { id: 3, status: 'submitted', metamaskNetworkId: currentNetworkId, txParams: {}, history: [{}] },
       ])
       const pendingTxCount = txController.getPendingTxCount()
       assert.equal(pendingTxCount, 3, 'should be 3')
@@ -82,15 +86,15 @@ describe('Transaction Controller', function () {
         'to': '0xc684832530fcbddae4b4230a47e991ddcec2831d',
       }
       txController.txStateManager._saveTxList([
-        {id: 0, status: 'confirmed', metamaskNetworkId: currentNetworkId, txParams, history: [] },
-        {id: 1, status: 'confirmed', metamaskNetworkId: currentNetworkId, txParams, history: [] },
-        {id: 2, status: 'confirmed', metamaskNetworkId: currentNetworkId, txParams, history: [] },
-        {id: 3, status: 'unapproved', metamaskNetworkId: currentNetworkId, txParams, history: [] },
-        {id: 4, status: 'rejected', metamaskNetworkId: currentNetworkId, txParams, history: [] },
-        {id: 5, status: 'approved', metamaskNetworkId: currentNetworkId, txParams, history: [] },
-        {id: 6, status: 'signed', metamaskNetworkId: currentNetworkId, txParams, history: [] },
-        {id: 7, status: 'submitted', metamaskNetworkId: currentNetworkId, txParams, history: [] },
-        {id: 8, status: 'failed', metamaskNetworkId: currentNetworkId, txParams, history: [] },
+        {id: 0, status: 'confirmed', metamaskNetworkId: currentNetworkId, txParams, history: [{}] },
+        {id: 1, status: 'confirmed', metamaskNetworkId: currentNetworkId, txParams, history: [{}] },
+        {id: 2, status: 'confirmed', metamaskNetworkId: currentNetworkId, txParams, history: [{}] },
+        {id: 3, status: 'unapproved', metamaskNetworkId: currentNetworkId, txParams, history: [{}] },
+        {id: 4, status: 'rejected', metamaskNetworkId: currentNetworkId, txParams, history: [{}] },
+        {id: 5, status: 'approved', metamaskNetworkId: currentNetworkId, txParams, history: [{}] },
+        {id: 6, status: 'signed', metamaskNetworkId: currentNetworkId, txParams, history: [{}] },
+        {id: 7, status: 'submitted', metamaskNetworkId: currentNetworkId, txParams, history: [{}] },
+        {id: 8, status: 'failed', metamaskNetworkId: currentNetworkId, txParams, history: [{}] },
       ])
     })
 
@@ -112,7 +116,7 @@ describe('Transaction Controller', function () {
         id: 1,
         metamaskNetworkId: currentNetworkId,
         txParams,
-        history: [],
+        history: [{}],
       }
       txController.txStateManager._saveTxList([txMeta])
       stub = sinon.stub(txController, 'addUnapprovedTransaction').callsFake(() => {
@@ -158,9 +162,19 @@ describe('Transaction Controller', function () {
   })
 
   describe('#addUnapprovedTransaction', function () {
+    const selectedAddress = '0x1678a085c290ebd122dc42cba69373b5953b831d'
+
+    let getSelectedAddress
+    beforeEach(function () {
+      getSelectedAddress = sinon.stub(txController, 'getSelectedAddress').returns(selectedAddress)
+    })
+
+    afterEach(function () {
+      getSelectedAddress.restore()
+    })
 
     it('should add an unapproved transaction and return a valid txMeta', function (done) {
-      txController.addUnapprovedTransaction({ from: '0x1678a085c290ebd122dc42cba69373b5953b831d' })
+      txController.addUnapprovedTransaction({ from: selectedAddress })
       .then((txMeta) => {
         assert(('id' in txMeta), 'should have a id')
         assert(('time' in txMeta), 'should have a time stamp')
@@ -180,17 +194,29 @@ describe('Transaction Controller', function () {
         assert(txMetaFromEmit, 'txMeta is falsey')
         done()
       })
-      txController.addUnapprovedTransaction({ from: '0x1678a085c290ebd122dc42cba69373b5953b831d' })
+      txController.addUnapprovedTransaction({ from: selectedAddress })
       .catch(done)
     })
 
     it('should fail if recipient is public', function (done) {
       txController.networkStore = new ObservableStore(1)
-      txController.addUnapprovedTransaction({ from: '0x1678a085c290ebd122dc42cba69373b5953b831d', to: '0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2' })
+      txController.addUnapprovedTransaction({ from: selectedAddress, to: '0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2' })
       .catch((err) => {
         if (err.message === 'Recipient is a public account') done()
         else done(err)
       })
+    })
+
+    it('should fail if the from address isn\'t the selected address', function (done) {
+      txController.addUnapprovedTransaction({from: '0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2'})
+        .then(function () {
+          assert.fail('transaction should not have been added')
+          done()
+        })
+        .catch(function () {
+          assert.ok('pass')
+          done()
+        })
     })
 
     it('should not fail if recipient is public but not on mainnet', function (done) {
@@ -198,7 +224,7 @@ describe('Transaction Controller', function () {
         assert(txMetaFromEmit, 'txMeta is falsey')
         done()
       })
-      txController.addUnapprovedTransaction({ from: '0x1678a085c290ebd122dc42cba69373b5953b831d', to: '0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2' })
+      txController.addUnapprovedTransaction({ from: selectedAddress, to: '0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2' })
       .catch(done)
     })
   })
@@ -210,7 +236,7 @@ describe('Transaction Controller', function () {
           from: '0xc684832530fcbddae4b4230a47e991ddcec2831d',
           to: '0xc684832530fcbddae4b4230a47e991ddcec2831d',
         },
-        history: [],
+        history: [{}],
       }
       providerResultStub.eth_gasPrice = '4a817c800'
       providerResultStub.eth_getBlockByNumber = { gasLimit: '47b784' }
@@ -291,6 +317,7 @@ describe('Transaction Controller', function () {
         assert.equal(params.gas, originalValue, 'gas unmodified')
         assert.equal(params.gasPrice, originalValue, 'gas price unmodified')
         assert.equal(result.hash, originalValue, `hash was set \n got: ${result.hash} \n expected: ${originalValue}`)
+        assert.equal(result.status, 'submitted', 'Should have reached the submitted status.')
         signStub.restore()
         pubStub.restore()
         done()
@@ -368,6 +395,70 @@ describe('Transaction Controller', function () {
 
   })
 
+  describe('#createSpeedUpTransaction', () => {
+    let addTxSpy
+    let approveTransactionSpy
+    let txParams
+    let expectedTxParams
+
+    beforeEach(() => {
+      addTxSpy = sinon.spy(txController, 'addTx')
+      approveTransactionSpy = sinon.spy(txController, 'approveTransaction')
+
+      txParams = {
+        nonce: '0x00',
+        from: '0xB09d8505E1F4EF1CeA089D47094f5DD3464083d4',
+        to: '0xB09d8505E1F4EF1CeA089D47094f5DD3464083d4',
+        gas: '0x5209',
+        gasPrice: '0xa',
+      }
+      txController.txStateManager._saveTxList([
+        { id: 1, status: 'submitted', metamaskNetworkId: currentNetworkId, txParams, history: [{}] },
+      ])
+
+      expectedTxParams = Object.assign({}, txParams, { gasPrice: '0xb'})
+    })
+
+    afterEach(() => {
+      addTxSpy.restore()
+      approveTransactionSpy.restore()
+    })
+
+    it('should call this.addTx and this.approveTransaction with the expected args', async () => {
+      await txController.createSpeedUpTransaction(1)
+      assert.equal(addTxSpy.callCount, 1)
+
+      const addTxArgs = addTxSpy.getCall(0).args[0]
+      assert.deepEqual(addTxArgs.txParams, expectedTxParams)
+
+      const { lastGasPrice, type } = addTxArgs
+      assert.deepEqual({ lastGasPrice, type }, {
+        lastGasPrice: '0xa',
+        type: TRANSACTION_TYPE_RETRY,
+      })
+    })
+
+    it('should call this.approveTransaction with the id of the returned tx', async () => {
+      const result = await txController.createSpeedUpTransaction(1)
+      assert.equal(approveTransactionSpy.callCount, 1)
+
+      const approveTransactionArg = approveTransactionSpy.getCall(0).args[0]
+      assert.equal(result.id, approveTransactionArg)
+    })
+
+    it('should return the expected txMeta', async () => {
+      const result = await txController.createSpeedUpTransaction(1)
+
+      assert.deepEqual(result.txParams, expectedTxParams)
+
+      const { lastGasPrice, type } = result
+      assert.deepEqual({ lastGasPrice, type }, {
+        lastGasPrice: '0xa',
+        type: TRANSACTION_TYPE_RETRY,
+      })
+    })
+  })
+
   describe('#publishTransaction', function () {
     let hash, txMeta
     beforeEach(function () {
@@ -392,18 +483,20 @@ describe('Transaction Controller', function () {
   })
 
   describe('#retryTransaction', function () {
-    it('should create a new txMeta with the same txParams as the original one', function (done) {
+    it('should create a new txMeta with the same txParams as the original one but with a higher gasPrice', function (done) {
       const txParams = {
+        gasPrice: '0xee6b2800',
         nonce: '0x00',
         from: '0xB09d8505E1F4EF1CeA089D47094f5DD3464083d4',
         to: '0xB09d8505E1F4EF1CeA089D47094f5DD3464083d4',
         data: '0x0',
       }
       txController.txStateManager._saveTxList([
-        { id: 1, status: 'submitted', metamaskNetworkId: currentNetworkId, txParams, history: [] },
+        { id: 1, status: 'submitted', metamaskNetworkId: currentNetworkId, txParams, history: [{}] },
       ])
       txController.retryTransaction(1)
       .then((txMeta) => {
+        assert.equal(txMeta.txParams.gasPrice, '0x10642ac00', 'gasPrice should have a %10 gasPrice bump')
         assert.equal(txMeta.txParams.nonce, txParams.nonce, 'nonce should be the same')
         assert.equal(txMeta.txParams.from, txParams.from, 'from should be the same')
         assert.equal(txMeta.txParams.to, txParams.to, 'to should be the same')
@@ -439,17 +532,19 @@ describe('Transaction Controller', function () {
     beforeEach(function () {
       txController.txStateManager._saveTxList([
         { id: 1, status: 'unapproved', metamaskNetworkId: currentNetworkId, txParams: {} },
-        { id: 2, status: 'rejected', metamaskNetworkId: currentNetworkId, txParams: {} },
-        { id: 3, status: 'approved', metamaskNetworkId: currentNetworkId, txParams: {} },
-        { id: 4, status: 'signed', metamaskNetworkId: currentNetworkId, txParams: {} },
-        { id: 5, status: 'submitted', metamaskNetworkId: currentNetworkId, txParams: {} },
-        { id: 6, status: 'confirmed', metamaskNetworkId: currentNetworkId, txParams: {} },
-        { id: 7, status: 'failed', metamaskNetworkId: currentNetworkId, txParams: {} },
+        { id: 2, status: 'rejected', metamaskNetworkId: currentNetworkId, txParams: {}, history: [{}] },
+        { id: 3, status: 'approved', metamaskNetworkId: currentNetworkId, txParams: {}, history: [{}] },
+        { id: 4, status: 'signed', metamaskNetworkId: currentNetworkId, txParams: {}, history: [{}] },
+        { id: 5, status: 'submitted', metamaskNetworkId: currentNetworkId, txParams: {}, history: [{}] },
+        { id: 6, status: 'confirmed', metamaskNetworkId: currentNetworkId, txParams: {}, history: [{}] },
+        { id: 7, status: 'failed', metamaskNetworkId: currentNetworkId, txParams: {}, history: [{}] },
       ])
     })
-    it('should show only submitted transactions as pending transasction', function () {
-      assert(txController.pendingTxTracker.getPendingTransactions().length, 1)
-      assert(txController.pendingTxTracker.getPendingTransactions()[0].status, 'submitted')
+    it('should show only submitted and approved transactions as pending transasction', function () {
+      assert(txController.pendingTxTracker.getPendingTransactions().length, 2)
+      const states = txController.pendingTxTracker.getPendingTransactions().map(tx => tx.status)
+      assert(states.includes('approved'), 'includes approved')
+      assert(states.includes('submitted'), 'includes submitted')
     })
   })
 })

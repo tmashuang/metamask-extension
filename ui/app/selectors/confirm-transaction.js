@@ -93,6 +93,7 @@ export const unconfirmedTransactionsCountSelector = createSelector(
 
 export const currentCurrencySelector = state => state.metamask.currentCurrency
 export const conversionRateSelector = state => state.metamask.conversionRate
+export const getNativeCurrency = state => state.metamask.nativeCurrency
 
 const txDataSelector = state => state.confirmTransaction.txData
 const tokenDataSelector = state => state.confirmTransaction.tokenData
@@ -126,7 +127,8 @@ const TOKEN_PARAM_VALUE = '_value'
 
 export const tokenAmountAndToAddressSelector = createSelector(
   tokenDataParamsSelector,
-  params => {
+  tokenDecimalsSelector,
+  (params, tokenDecimals) => {
     let toAddress = ''
     let tokenAmount = 0
 
@@ -135,7 +137,12 @@ export const tokenAmountAndToAddressSelector = createSelector(
       const valueParam = params.find(param => param.name === TOKEN_PARAM_VALUE)
       toAddress = toParam ? toParam.value : params[0].value
       const value = valueParam ? Number(valueParam.value) : Number(params[1].value)
-      tokenAmount = roundExponential(value)
+
+      if (tokenDecimals) {
+        tokenAmount = calcTokenAmount(value, tokenDecimals).toNumber()
+      }
+
+      tokenAmount = roundExponential(tokenAmount)
     }
 
     return {
@@ -157,7 +164,7 @@ export const approveTokenAmountAndToAddressSelector = createSelector(
       const value = Number(params.find(param => param.name === TOKEN_PARAM_VALUE).value)
 
       if (tokenDecimals) {
-        tokenAmount = calcTokenAmount(value, tokenDecimals)
+        tokenAmount = calcTokenAmount(value, tokenDecimals).toNumber()
       }
 
       tokenAmount = roundExponential(tokenAmount)
@@ -182,7 +189,7 @@ export const sendTokenTokenAmountAndToAddressSelector = createSelector(
       let value = Number(params.find(param => param.name === TOKEN_PARAM_VALUE).value)
 
       if (tokenDecimals) {
-        value = calcTokenAmount(value, tokenDecimals)
+        value = calcTokenAmount(value, tokenDecimals).toNumber()
       }
 
       tokenAmount = roundExponential(value)

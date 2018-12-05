@@ -1,9 +1,48 @@
 {
+  "privacyMode": {
+    "message": "Privacy Mode"
+  },
+  "privacyModeDescription": {
+    "message": "Websites must request access to view your account information."
+  },
+  "exposeAccounts": {
+    "message": "Expose Accounts"
+  },
+  "exposeDescription": {
+    "message": "Expose accounts to the current website. Useful for legacy dapps."
+  },
+  "confirmExpose": {
+    "message": "Are you sure you want to expose your accounts to the current website?"
+  },
+  "confirmClear": {
+    "message": "Are you sure you want to clear approved websites?"
+  },
+  "clearApprovalDataSuccess": {
+    "message": "Approved website data cleared successfully."
+  },
+  "approvalData": {
+    "message": "Privacy Data"
+  },
+  "approvalDataDescription": {
+    "message": "Clear privacy data so all websites must request access to view account information again."
+  },
+  "clearApprovalData": {
+    "message": "Clear Privacy Data"
+  },
+  "reject": {
+    "message": "Reject"
+  },
+  "providerRequest": {
+    "message": "$1 would like to connect to your account"
+  },
+  "providerRequestInfo": {
+    "message": "This site is requesting access to view your current account address. Always make sure you trust the sites you interact with."
+  },
   "accept": {
     "message": "Accept"
   },
   "accessingYourCamera": {
-    "message": "Accesing your camera..."
+    "message": "Accessing your camera..."
   },
   "account": {
     "message": "Account"
@@ -14,6 +53,9 @@
   "accountName": {
     "message": "Account Name"
   },
+  "accountOptions": {
+    "message": "Account Options"
+  },
   "accountSelectionRequired": {
     "message": "You need to select an account!"
   },
@@ -22,6 +64,9 @@
   },
   "address": {
     "message": "Address"
+  },
+  "advancedOptions": {
+    "message": "Advanced Options"
   },
   "addCustomToken": {
     "message": "Add custom token"
@@ -38,11 +83,17 @@
   "addAcquiredTokens": {
     "message": "Add the tokens you've acquired using MetaMask"
   },
+  "advanced": {
+    "message": "Advanced"
+  },
   "amount": {
     "message": "Amount"
   },
   "amountPlusGas": {
     "message": "Amount + Gas"
+  },
+  "amountPlusTxFee": {
+    "message": "Amount + TX Fee"
   },
   "appDescription": {
     "message": "Ethereum Browser Extension",
@@ -65,13 +116,16 @@
     "message": "Attempt to Cancel?"
   },
   "attemptToCancelDescription": {
-    "message": "Attempting to cancel does not guarantee your original transaction will be cancelled. If cancelled, you are still required to pay a transaction fee to the network."
+    "message": "Submitting this attempt does not guarantee your original transaction will be cancelled. If the cancellation attempt is successful, you will be charged the transaction fee above."
   },
   "attributions": {
     "message": "Attributions"
   },
   "available": {
     "message": "Available"
+  },
+  "average": {
+    "message": "Average"
   },
   "back": {
     "message": "Back"
@@ -84,6 +138,9 @@
   },
   "balanceIsInsufficientGas": {
     "message": "Insufficient balance for current gas total"
+  },
+  "basic": {
+    "message": "Basic"
   },
   "beta": {
     "message": "BETA"
@@ -99,7 +156,7 @@
     "message": "Borrow With Dharma (Beta)"
   },
   "browserNotSupported": {
-  "message": "Your Browser is not supported..."
+    "message": "Your Browser is not supported..."
   },
   "builtInCalifornia": {
     "message": "MetaMask is designed and built in California."
@@ -128,16 +185,22 @@
   "cancellationGasFee": {
     "message": "Cancellation Gas Fee"
   },
+  "cancelN": {
+    "message": "Cancel all $1 transactions"
+  },
   "classicInterface": {
     "message": "Use classic interface"
   },
   "clickCopy": {
     "message": "Click to Copy"
   },
+  "clickToAdd": {
+    "message": "Click on $1 to add them to your account"
+  },
   "close": {
     "message": "Close"
   },
-  "chromeRequiredForHardwareWallets":{
+  "chromeRequiredForHardwareWallets": {
     "message": "You need to use MetaMask on Google Chrome in order to connect to your Hardware Wallet."
   },
   "confirm": {
@@ -161,8 +224,26 @@
   "connect": {
     "message": "Connect"
   },
+  "connectRequest": {
+    "message": "Connect Request"
+  },
   "connecting": {
     "message": "Connecting..."
+  },
+  "connectingToKovan": {
+    "message": "Connecting to Kovan Test Network"
+  },
+  "connectingToMainnet": {
+    "message": "Connecting to Main Ethereum Network"
+  },
+  "connectingToRopsten": {
+    "message": "Connecting to Ropsten Test Network"
+  },
+  "connectingToRinkeby": {
+    "message": "Connecting to Rinkeby Test Network"
+  },
+  "connectingToUnknown": {
+    "message": "Connecting to Unknown Network"
   },
   "connectToLedger": {
     "message": "Connect to Ledger"
@@ -196,9 +277,6 @@
   },
   "copy": {
     "message": "Copy"
-  },
-  "copyContractAddress": {
-    "message": "Copy Contract Address"
   },
   "copyAddress": {
     "message": "Copy address to clipboard"
@@ -234,8 +312,14 @@
   "currentNetwork": {
     "message": "Current Network"
   },
+  "currentRpc": {
+    "message": "Current RPC"
+  },
   "customGas": {
     "message": "Customize Gas"
+  },
+  "customGasSubTitle": {
+    "message": "Increasing fee may decrease processing times, but it is not guaranteed."
   },
   "customToken": {
     "message": "Custom Token"
@@ -340,20 +424,17 @@
   "enterPasswordContinue": {
     "message": "Enter password to continue"
   },
-  "parameters": {
-    "message": "Parameters"
-  },
-  "passwordNotLongEnough": {
-    "message": "Password not long enough"
-  },
-  "passwordsDontMatch": {
-    "message": "Passwords Don't Match"
+  "eth": {
+    "message": "ETH"
   },
   "etherscanView": {
     "message": "View account on Etherscan"
   },
   "exchangeRate": {
     "message": "Exchange Rate"
+  },
+  "expandView": {
+    "message": "Expand View"
   },
   "exportPrivateKey": {
     "message": "Export Private Key"
@@ -364,8 +445,17 @@
   "failed": {
     "message": "Failed"
   },
+  "fast": {
+    "message": "Fast"
+  },
+  "fastest": {
+    "message": "Fastest"
+  },
+  "feeChartTitle": {
+    "message": "Live Transaction Fee Predictions"
+  },
   "fiat": {
-    "message": "FIAT",
+    "message": "Fiat",
     "description": "Exchange type"
   },
   "fileImportFail": {
@@ -409,11 +499,17 @@
   "gasLimitTooLow": {
     "message": "Gas limit must be at least 21000"
   },
+  "gasUsed": {
+    "message": "Gas Used"
+  },
   "generatingSeed": {
     "message": "Generating Seed..."
   },
   "gasPrice": {
     "message": "Gas Price (GWEI)"
+  },
+  "gasPriceNoDenom": {
+    "message": "Gas Price"
   },
   "gasPriceCalculation": {
     "message": "We calculate the suggested gas prices based on network success rates."
@@ -489,7 +585,7 @@
     "message": "Import Account"
   },
   "importAccountMsg": {
-    "message":" Imported accounts will not be associated with your originally created MetaMask account seedphrase. Learn more about imported accounts "
+    "message": " Imported accounts will not be associated with your originally created MetaMask account seedphrase. Learn more about imported accounts "
   },
   "importAnAccount": {
     "message": "Import an account"
@@ -503,6 +599,9 @@
   },
   "importUsingSeed": {
     "message": "Import using account seed phrase"
+  },
+  "info": {
+    "message": "Info"
   },
   "infoHelp": {
     "message": "Info & Help"
@@ -532,7 +631,7 @@
     "message": "Invalid Request"
   },
   "invalidRPC": {
-    "message": "Invalid RPC URI"
+    "message": "Invalid RPC URL"
   },
   "invalidSeedPhrase": {
     "message": "Invalid seed phrase"
@@ -617,6 +716,12 @@
   "min": {
     "message": "Minimum"
   },
+  "missingYourTokens": {
+    "message": "Don't see your tokens?"
+  },
+  "minutesShorthand": {
+    "message": "Min"
+  },
   "myAccounts": {
     "message": "My Accounts"
   },
@@ -656,11 +761,38 @@
   "newPassword": {
     "message": "New Password (min 8 chars)"
   },
+  "newPassword8Chars": {
+    "message": "New Password (min 8 chars)"
+  },
   "newRecipient": {
     "message": "New Recipient"
   },
-  "newRPC": {
+  "newNetwork": {
+    "message": "New Network"
+  },
+  "rpcURL": {
     "message": "New RPC URL"
+  },
+  "showAdvancedOptions": {
+    "message": "Show Advanced Options"
+  },
+  "hideAdvancedOptions": {
+    "message": "Hide Advanced Options"
+  },
+  "optionalChainId": {
+    "message": "ChainID (optional)"
+  },
+  "optionalSymbol": {
+    "message": "Symbol (optional)"
+  },
+  "optionalNickname": {
+    "message": "Nickname (optional)"
+  },
+  "newTotal": {
+    "message": "New Total"
+  },
+  "newTransactionFee": {
+    "message": "New Transaction Fee"
   },
   "next": {
     "message": "Next"
@@ -671,7 +803,7 @@
   "noDeposits": {
     "message": "No deposits received"
   },
-  "noConversionRateAvailable":{
+  "noConversionRateAvailable": {
     "message": "No Conversion Rate Available"
   },
   "noTransactionHistory": {
@@ -692,11 +824,21 @@
   "noWebcamFound": {
     "message": "Your computer's webcam was not found. Please try again."
   },
+  "ofTextNofM": {
+    "message": "of"
+  },
   "oldUI": {
     "message": "Old UI"
   },
   "oldUIMessage": {
     "message": "You have returned to the old UI. You can switch back to the New UI through the option in the top right dropdown menu."
+  },
+  "onlySendToEtherAddress": {
+    "message": "Only send ETH to an Ethereum address."
+  },
+  "onlySendTokensToAccountAddress": {
+    "message": "Only send $1 to an Ethereum account address.",
+    "description": "displays token symbol"
   },
   "openInTab": {
     "message": "Open in tab"
@@ -705,8 +847,20 @@
     "message": "or",
     "description": "choice between creating or importing a new account"
   },
+  "orderOneHere": {
+    "message": "Order a Trezor or Ledger and keep your funds in cold storage"
+  },
   "origin": {
     "message": "Origin"
+  },
+  "outgoing": {
+    "message": "Outgoing"
+  },
+  "parameters": {
+    "message": "Parameters"
+  },
+  "originalTotal": {
+    "message": "Original Total"
   },
   "password": {
     "message": "Password"
@@ -714,9 +868,15 @@
   "passwordCorrect": {
     "message": "Please make sure your password is correct."
   },
+  "passwordsDontMatch": {
+    "message": "Passwords Don't Match"
+  },
   "passwordMismatch": {
     "message": "passwords don't match",
     "description": "in password creation process, the two new password fields did not match"
+  },
+  "passwordNotLongEnough": {
+    "message": "Password not long enough"
   },
   "passwordShort": {
     "message": "password not long enough",
@@ -744,6 +904,12 @@
   "prev": {
     "message": "Prev"
   },
+  "primaryCurrencySetting": {
+    "message": "Primary Currency"
+  },
+  "primaryCurrencySettingDescription": {
+    "message": "Select native to prioritize displaying values in the native currency of the chain (e.g. ETH). Select Fiat to prioritize displaying values in your selected fiat currency."
+  },
   "privacyMsg": {
     "message": "Privacy Policy"
   },
@@ -752,7 +918,7 @@
     "description": "select this type of file to use to import an account"
   },
   "privateKeyWarning": {
-    "message": "Warning: Never disclose this key. Anyone with your private keys can take steal any assets held in your account."
+    "message": "Warning: Never disclose this key. Anyone with your private keys can steal any assets held in your account."
   },
   "privateNetwork": {
     "message": "Private Network"
@@ -781,6 +947,15 @@
   "refundAddress": {
     "message": "Your Refund Address"
   },
+  "rejectAll": {
+    "message": "Reject All"
+  },
+  "rejectTxsN": {
+    "message": "Reject $1 transactions"
+  },
+  "rejectTxsDescription": {
+    "message": "You are about to batch reject $1 transactions."
+  },
   "rejected": {
     "message": "Rejected"
   },
@@ -802,14 +977,14 @@
   "restoreAccountWithSeed": {
     "message": "Restore your Account with Seed Phrase"
   },
+  "requestsAwaitingAcknowledgement": {
+    "message": "requests waiting to be acknowledged"
+  },
   "required": {
     "message": "Required"
   },
   "retryWithMoreGas": {
     "message": "Retry with a higher gas price here"
-  },
-  "walletSeed": {
-    "message": "Wallet Seed"
   },
   "restore": {
     "message": "Restore"
@@ -853,24 +1028,6 @@
   "rpc": {
     "message": "Custom RPC"
   },
-  "currentRpc": {
-    "message": "Current RPC"
-  },
-  "connectingToMainnet": {
-    "message": "Connecting to Main Ethereum Network"
-  },
-  "connectingToRopsten": {
-    "message": "Connecting to Ropsten Test Network"
-  },
-  "connectingToKovan": {
-    "message": "Connecting to Kovan Test Network"
-  },
-  "connectingToRinkeby": {
-    "message": "Connecting to Rinkeby Test Network"
-  },
-  "connectingToUnknown": {
-    "message": "Connecting to Unknown Network"
-  },
   "sampleAccountName": {
     "message": "E.g. My new account",
     "description": "Help user understand concept of adding a human-readable name to their account"
@@ -878,14 +1035,8 @@
   "save": {
     "message": "Save"
   },
-  "speedUp": {
-    "message": "speed up"
-  },
-  "speedUpTitle": {
-    "message": "Speed Up Transaction"
-  },
-  "speedUpSubtitle": {
-    "message": "Increase your gas price to attempt to overwrite and speed up your transaction"
+  "slow": {
+    "message": "Slow"
   },
   "saveAsCsvFile": {
     "message": "Save as CSV File"
@@ -897,6 +1048,12 @@
   "saveSeedAsFile": {
     "message": "Save Seed Words As File"
   },
+  "scanInstructions": {
+    "message": "Place the QR code in front of your camera"
+  },
+  "scanQrCode": {
+    "message": "Scan QR Code"
+  },
   "search": {
     "message": "Search"
   },
@@ -906,14 +1063,8 @@
   "secretPhrase": {
     "message": "Enter your secret twelve word phrase here to restore your vault."
   },
-  "showHexData": {
-    "message": "Show Hex Data"
-  },
-  "showHexDataDescription": {
-    "message": "Select this to show the hex data field on the send screen"
-  },
-  "newPassword8Chars": {
-    "message": "New Password (min 8 chars)"
+  "secondsShorthand": {
+    "message": "Sec"
   },
   "seedPhraseReq": {
     "message": "Seed phrases are 12 words long"
@@ -936,6 +1087,9 @@
   "send": {
     "message": "Send"
   },
+  "sendAmount": {
+    "message": "Send Amount"
+  },
   "sendETH": {
     "message": "Send ETH"
   },
@@ -950,19 +1104,6 @@
   },
   "separateEachWord": {
     "message": "Separate each word with a single space"
-  },
-  "onlySendToEtherAddress": {
-    "message": "Only send ETH to an Ethereum address."
-  },
-  "onlySendTokensToAccountAddress": {
-    "message": "Only send $1 to an Ethereum account address.",
-    "description": "displays token symbol"
-  },
-  "orderOneHere": {
-    "message": "Order a Trezor or Ledger and keep your funds in cold storage"
-  },
-  "outgoing": {
-    "message": "Outgoing"
   },
   "searchTokens": {
     "message": "Search Tokens"
@@ -988,33 +1129,6 @@
   "settings": {
     "message": "Settings"
   },
-  "step1HardwareWallet": {
-    "message": "1. Connect Hardware Wallet"
-  },
-  "step1HardwareWalletMsg": {
-    "message": "Connect your hardware wallet directly to your computer."
-  },
-  "step2HardwareWallet": {
-    "message": "2. Select an Account"
-  },
-  "step2HardwareWalletMsg": {
-    "message": "Select the account you want to view. You can only choose one at a time."
-  },
-  "step3HardwareWallet": {
-    "message": "3. Start using dApps and more!"
-  },
-  "step3HardwareWalletMsg": {
-    "message": "Use your hardware account like you would with any Ethereum account. Log in to dApps, send Eth, buy and store ERC20 tokens and Non-Fungible tokens like CryptoKitties."
-  },
-  "info": {
-  "message": "Info"
-  },
-  "scanInstructions": {
-    "message": "Place the QR code in front of your camera"
-  },
-  "scanQrCode": {
-    "message": "Scan QR Code"
-  },
   "shapeshiftBuy": {
     "message": "Buy with Shapeshift"
   },
@@ -1023,6 +1137,12 @@
   },
   "showQRCode": {
     "message": "Show QR Code"
+  },
+  "showHexData": {
+    "message": "Show Hex Data"
+  },
+  "showHexDataDescription": {
+    "message": "Select this to show the hex data field on the send screen"
   },
   "sign": {
     "message": "Sign"
@@ -1048,6 +1168,15 @@
   "spaceBetween": {
     "message": "there can only be a space between words"
   },
+  "speedUp": {
+    "message": "speed up"
+  },
+  "speedUpTitle": {
+    "message": "Speed Up Transaction"
+  },
+  "speedUpSubtitle": {
+    "message": "Increase your gas price to attempt to overwrite and speed up your transaction"
+  },
   "status": {
     "message": "Status"
   },
@@ -1060,6 +1189,24 @@
   "stateLogError": {
     "message": "Error in retrieving state logs."
   },
+  "step1HardwareWallet": {
+    "message": "1. Connect Hardware Wallet"
+  },
+  "step1HardwareWalletMsg": {
+    "message": "Connect your hardware wallet directly to your computer."
+  },
+  "step2HardwareWallet": {
+    "message": "2. Select an Account"
+  },
+  "step2HardwareWalletMsg": {
+    "message": "Select the account you want to view. You can only choose one at a time."
+  },
+  "step3HardwareWallet": {
+    "message": "3. Start using dApps and more!"
+  },
+  "step3HardwareWalletMsg": {
+    "message": "Use your hardware account like you would with any Ethereum account. Log in to dApps, send Eth, buy and store ERC20 tokens and Non-Fungible tokens like CryptoKitties."
+  },
   "submit": {
     "message": "Submit"
   },
@@ -1069,8 +1216,8 @@
   "supportCenter": {
     "message": "Visit our Support Center"
   },
-  "symbolBetweenZeroTen": {
-    "message": "Symbol must be between 0 and 10 characters."
+  "symbolBetweenZeroTwelve": {
+    "message": "Symbol must be between 0 and 12 characters."
   },
   "takesTooLong": {
     "message": "Taking too long?"
@@ -1136,11 +1283,20 @@
   "transactionUpdatedGas": {
     "message": "Transaction updated with a gas price of $1 on $2."
   },
+  "transactionErrored": {
+    "message": "Transaction encountered an error."
+  },
   "transactions": {
     "message": "transactions"
   },
   "transactionError": {
     "message": "Transaction Error. Exception thrown in contract code."
+  },
+  "transactionErrorNoContract": {
+    "message": "Trying to call a function on a non-contract address."
+  },
+  "transactionFee": {
+    "message": "Transaction Fee"
   },
   "transactionMemo": {
     "message": "Transaction memo (optional)"
@@ -1148,8 +1304,14 @@
   "transactionNumber": {
     "message": "Transaction Number"
   },
+  "transactionTime": {
+    "message": "Transaction Time"
+  },
   "transfer": {
     "message": "Transfer"
+  },
+  "transferFrom": {
+    "message": "Transfer From"
   },
   "transfers": {
     "message": "Transfers"
@@ -1168,7 +1330,7 @@
     "message": "These 12 words are the only way to restore your MetaMask accounts.\nSave them somewhere safe and secret."
   },
   "typePassword": {
-    "message": "Type Your Password"
+    "message": "Type your MetaMask password"
   },
   "uiWelcome": {
     "message": "Welcome to the New UI (Beta)"
@@ -1204,7 +1366,7 @@
     "message": "Ooops! Something went wrong...."
   },
   "unknownCameraError": {
-    "message": "There was an error while trying to access you camera. Please try again..."
+    "message": "There was an error while trying to access your camera. Please try again..."
   },
   "unlock": {
     "message": "Unlock"
@@ -1243,14 +1405,17 @@
   "visitWebSite": {
     "message": "Visit our web site"
   },
+  "walletSeed": {
+    "message": "Wallet Seed"
+  },
   "warning": {
     "message": "Warning"
   },
   "welcomeBack": {
     "message": "Welcome Back!"
   },
-  "welcomeBeta": {
-    "message": "Welcome to MetaMask Beta"
+  "welcome": {
+    "message": "Welcome to MetaMask"
   },
   "whatsThis": {
     "message": "What's this?"

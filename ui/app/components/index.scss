@@ -1,14 +1,22 @@
 @import './app-header/index';
 
+@import './add-token-button/index';
+
 @import './button-group/index';
 
 @import './card/index';
 
 @import './confirm-page-container/index';
 
+@import './currency-input/index';
+
+@import './currency-display/index';
+
 @import './error-message/index';
 
 @import './export-text-container/index';
+
+@import './identicon/index';
 
 @import './info-box/index';
 
@@ -24,11 +32,15 @@
 
 @import './pages/index';
 
+@import './provider-page-container/index';
+
 @import './selected-account/index';
 
 @import './sender-to-recipient/index';
 
 @import './tabs/index';
+
+@import './token-balance/index';
 
 @import './transaction-activity-log/index';
 
@@ -49,3 +61,15 @@
 @import './app-header/index';
 
 @import './sidebars/index';
+
+@import './unit-input/index';
+
+@import './gas-customization/gas-modal-page-container/index';
+
+@import './gas-customization/gas-modal-page-container/index';
+
+@import './gas-customization/gas-modal-page-container/index';
+
+@import './gas-customization/index';
+
+@import './gas-customization/gas-price-button-group/index';

@@ -4,6 +4,7 @@ const inherits = require('util').inherits
 const connect = require('react-redux').connect
 const FadeModal = require('boron').FadeModal
 const actions = require('../../actions')
+const { resetCustomData: resetCustomGasData } = require('../../ducks/gas.duck')
 const isMobileView = require('../../../lib/is-mobile-view')
 const { getEnvironmentType } = require('../../../../app/scripts/lib/util')
 const { ENVIRONMENT_TYPE_POPUP } = require('../../../../app/scripts/lib/enums')
@@ -17,17 +18,17 @@ const ExportPrivateKeyModal = require('./export-private-key-modal')
 const NewAccountModal = require('./new-account-modal')
 const ShapeshiftDepositTxModal = require('./shapeshift-deposit-tx-modal.js')
 const HideTokenConfirmationModal = require('./hide-token-confirmation-modal')
-const CustomizeGasModal = require('../customize-gas-modal')
 const NotifcationModal = require('./notification-modal')
 const QRScanner = require('./qr-scanner')
 
 import ConfirmRemoveAccount from './confirm-remove-account'
 import ConfirmResetAccount from './confirm-reset-account'
 import TransactionConfirmed from './transaction-confirmed'
-import ConfirmCustomizeGasModal from './customize-gas'
 import CancelTransaction from './cancel-transaction'
 import WelcomeBeta from './welcome-beta'
-import TransactionDetails from './transaction-details'
+import RejectTransactions from './reject-transactions'
+import ClearApprovedOrigins from './clear-approved-origins'
+import ConfirmCustomizeGasModal from '../gas-customization/gas-modal-page-container'
 
 const modalContainerBaseStyle = {
   transform: 'translate3d(-50%, 0, 0px)',
@@ -212,6 +213,19 @@ const MODALS = {
     },
   },
 
+  CLEAR_APPROVED_ORIGINS: {
+    contents: h(ClearApprovedOrigins),
+    mobileModalStyle: {
+      ...modalContainerMobileStyle,
+    },
+    laptopModalStyle: {
+      ...modalContainerLaptopStyle,
+    },
+    contentStyle: {
+      borderRadius: '8px',
+    },
+  },
+
   OLD_UI_NOTIFICATION_MODAL: {
     contents: [
       h(NotifcationModal, {
@@ -281,7 +295,7 @@ const MODALS = {
 
   CUSTOMIZE_GAS: {
     contents: [
-      h(CustomizeGasModal),
+      h(ConfirmCustomizeGasModal),
     ],
     mobileModalStyle: {
       width: '100vw',
@@ -293,35 +307,20 @@ const MODALS = {
       margin: '0 auto',
     },
     laptopModalStyle: {
-      width: '720px',
-      height: '377px',
+      width: 'auto',
+      height: '0px',
       top: '80px',
+      left: '0px',
       transform: 'none',
-      left: '0',
-      right: '0',
       margin: '0 auto',
+      position: 'relative',
     },
-  },
-
-  CONFIRM_CUSTOMIZE_GAS: {
-    contents: h(ConfirmCustomizeGasModal),
-    mobileModalStyle: {
-      width: '100vw',
-      height: '100vh',
-      top: '0',
-      transform: 'none',
-      left: '0',
-      right: '0',
-      margin: '0 auto',
+    contentStyle: {
+      borderRadius: '8px',
     },
-    laptopModalStyle: {
-      width: '720px',
-      height: '377px',
-      top: '80px',
-      transform: 'none',
-      left: '0',
-      right: '0',
-      margin: '0 auto',
+    customOnHideOpts: {
+      action: resetCustomGasData,
+      args: [],
     },
   },
 
@@ -365,8 +364,8 @@ const MODALS = {
     },
   },
 
-  TRANSACTION_DETAILS: {
-    contents: h(TransactionDetails),
+  REJECT_TRANSACTIONS: {
+    contents: h(RejectTransactions),
     mobileModalStyle: {
       ...modalContainerMobileStyle,
     },
@@ -398,8 +397,11 @@ function mapStateToProps (state) {
 
 function mapDispatchToProps (dispatch) {
   return {
-    hideModal: () => {
+    hideModal: (customOnHideOpts) => {
       dispatch(actions.hideModal())
+      if (customOnHideOpts && customOnHideOpts.action) {
+        dispatch(customOnHideOpts.action(...customOnHideOpts.args))
+      }
     },
     hideWarning: () => {
       dispatch(actions.hideWarning())
@@ -431,7 +433,7 @@ Modal.prototype.render = function () {
         if (modal.onHide) {
           modal.onHide(this.props)
         }
-        this.onHide()
+        this.onHide(modal.customOnHideOpts)
       },
       ref: (ref) => {
         this.modalRef = ref
@@ -453,11 +455,11 @@ Modal.prototype.componentWillReceiveProps = function (nextProps) {
   }
 }
 
-Modal.prototype.onHide = function () {
+Modal.prototype.onHide = function (customOnHideOpts) {
   if (this.props.onHideCallback) {
     this.props.onHideCallback()
   }
-  this.props.hideModal()
+  this.props.hideModal(customOnHideOpts)
 }
 
 Modal.prototype.hide = function () {

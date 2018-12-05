@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import SenderToRecipient from '../sender-to-recipient'
 import { PageContainerFooter } from '../page-container'
-import { ConfirmPageContainerHeader, ConfirmPageContainerContent } from './'
+import { ConfirmPageContainerHeader, ConfirmPageContainerContent, ConfirmPageContainerNavigation } from './'
 
 export default class ConfirmPageContainer extends Component {
   static contextTypes = {
@@ -16,8 +16,9 @@ export default class ConfirmPageContainer extends Component {
     onEdit: PropTypes.func,
     showEdit: PropTypes.bool,
     subtitle: PropTypes.string,
+    subtitleComponent: PropTypes.node,
     title: PropTypes.string,
-    titleComponent: PropTypes.func,
+    titleComponent: PropTypes.node,
     // Sender to Recipient
     fromAddress: PropTypes.string,
     fromName: PropTypes.string,
@@ -41,7 +42,20 @@ export default class ConfirmPageContainer extends Component {
     assetImage: PropTypes.string,
     summaryComponent: PropTypes.node,
     warning: PropTypes.string,
+    unapprovedTxCount: PropTypes.number,
+    // Navigation
+    totalTx: PropTypes.number,
+    positionOfCurrentTx: PropTypes.number,
+    nextTxId: PropTypes.string,
+    prevTxId: PropTypes.string,
+    showNavigation: PropTypes.bool,
+    onNextTx: PropTypes.func,
+    firstTx: PropTypes.string,
+    lastTx: PropTypes.string,
+    ofText: PropTypes.string,
+    requestsWaitingText: PropTypes.string,
     // Footer
+    onCancelAll: PropTypes.func,
     onCancel: PropTypes.func,
     onSubmit: PropTypes.func,
     disabled: PropTypes.bool,
@@ -63,21 +77,46 @@ export default class ConfirmPageContainer extends Component {
       title,
       titleComponent,
       subtitle,
+      subtitleComponent,
       hideSubtitle,
       summaryComponent,
       detailsComponent,
       dataComponent,
+      onCancelAll,
       onCancel,
       onSubmit,
       identiconAddress,
       nonce,
+      unapprovedTxCount,
       assetImage,
       warning,
+      totalTx,
+      positionOfCurrentTx,
+      nextTxId,
+      prevTxId,
+      showNavigation,
+      onNextTx,
+      firstTx,
+      lastTx,
+      ofText,
+      requestsWaitingText,
     } = this.props
     const renderAssetImage = contentComponent || (!contentComponent && !identiconAddress)
 
     return (
       <div className="page-container">
+        <ConfirmPageContainerNavigation
+            totalTx={totalTx}
+            positionOfCurrentTx={positionOfCurrentTx}
+            nextTxId={nextTxId}
+            prevTxId={prevTxId}
+            showNavigation={showNavigation}
+            onNextTx={(txId) => onNextTx(txId)}
+            firstTx={firstTx}
+            lastTx={lastTx}
+            ofText={ofText}
+            requestsWaitingText={requestsWaitingText}
+        />
         <ConfirmPageContainerHeader
           showEdit={showEdit}
           onEdit={() => onEdit()}
@@ -97,6 +136,7 @@ export default class ConfirmPageContainer extends Component {
               title={title}
               titleComponent={titleComponent}
               subtitle={subtitle}
+              subtitleComponent={subtitleComponent}
               hideSubtitle={hideSubtitle}
               summaryComponent={summaryComponent}
               detailsComponent={detailsComponent}
@@ -112,11 +152,18 @@ export default class ConfirmPageContainer extends Component {
         }
         <PageContainerFooter
           onCancel={() => onCancel()}
+          cancelText={this.context.t('reject')}
           onSubmit={() => onSubmit()}
           submitText={this.context.t('confirm')}
           submitButtonType="confirm"
           disabled={disabled}
-        />
+        >
+          {unapprovedTxCount > 1 && (
+            <a onClick={() => onCancelAll()}>
+              {this.context.t('rejectTxsN', [unapprovedTxCount])}
+            </a>
+          )}
+        </PageContainerFooter>
       </div>
     )
   }

@@ -1,8 +1,8 @@
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
-import CurrencyDisplay from '../currency-display/currency-display.component'
+import CurrencyDisplay from '../currency-display'
 import { getTokenData } from '../../helpers/transactions.util'
-import { calcTokenAmount } from '../../token-util'
+import { getTokenValue, calcTokenAmount } from '../../token-util'
 
 export default class TokenCurrencyDisplay extends PureComponent {
   static propTypes = {
@@ -12,6 +12,7 @@ export default class TokenCurrencyDisplay extends PureComponent {
 
   state = {
     displayValue: '',
+    suffix: '',
   }
 
   componentDidMount () {
@@ -29,25 +30,27 @@ export default class TokenCurrencyDisplay extends PureComponent {
 
   setDisplayValue () {
     const { transactionData: data, token } = this.props
-    const { decimals = '', symbol = '' } = token
+    const { decimals = '', symbol: suffix = '' } = token
     const tokenData = getTokenData(data)
 
     let displayValue
 
-    if (tokenData.params && tokenData.params.length === 2) {
-      const tokenValue = tokenData.params[1].value
-      const tokenAmount = calcTokenAmount(tokenValue, decimals)
-      displayValue = `${tokenAmount} ${symbol}`
+    if (tokenData.params && tokenData.params.length) {
+      const tokenValue = getTokenValue(tokenData.params)
+      displayValue = calcTokenAmount(tokenValue, decimals).toString()
     }
 
-    this.setState({ displayValue })
+    this.setState({ displayValue, suffix })
   }
 
   render () {
+    const { displayValue, suffix } = this.state
+
     return (
       <CurrencyDisplay
         {...this.props}
-        displayValue={this.state.displayValue}
+        displayValue={displayValue}
+        suffix={suffix}
       />
     )
   }

@@ -1,14 +1,16 @@
+import ethUtil from 'ethereumjs-util'
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import ConfirmPageContainer, { ConfirmDetailRow } from '../../confirm-page-container'
-import { formatCurrency } from '../../../helpers/confirm-transaction/util'
 import { isBalanceSufficient } from '../../send/send.utils'
-import { DEFAULT_ROUTE } from '../../../routes'
+import { DEFAULT_ROUTE, CONFIRM_TRANSACTION_ROUTE } from '../../../routes'
 import {
   INSUFFICIENT_FUNDS_ERROR_KEY,
   TRANSACTION_ERROR_KEY,
 } from '../../../constants/error-keys'
 import { CONFIRMED_STATUS, DROPPED_STATUS } from '../../../constants/transactions'
+import UserPreferencedCurrencyDisplay from '../../user-preferenced-currency-display'
+import { PRIMARY, SECONDARY } from '../../../constants/common'
 
 export default class ConfirmTransactionBase extends Component {
   static contextTypes = {
@@ -22,6 +24,7 @@ export default class ConfirmTransactionBase extends Component {
     // Redux props
     balance: PropTypes.string,
     cancelTransaction: PropTypes.func,
+    cancelAllTransactions: PropTypes.func,
     clearConfirmTransaction: PropTypes.func,
     clearSend: PropTypes.func,
     conversionRate: PropTypes.number,
@@ -35,7 +38,9 @@ export default class ConfirmTransactionBase extends Component {
     fiatTransactionTotal: PropTypes.string,
     fromAddress: PropTypes.string,
     fromName: PropTypes.string,
-    hexGasTotal: PropTypes.string,
+    hexTransactionAmount: PropTypes.string,
+    hexTransactionFee: PropTypes.string,
+    hexTransactionTotal: PropTypes.string,
     isTxReprice: PropTypes.bool,
     methodData: PropTypes.object,
     nonce: PropTypes.string,
@@ -43,12 +48,15 @@ export default class ConfirmTransactionBase extends Component {
     sendTransaction: PropTypes.func,
     showCustomizeGasModal: PropTypes.func,
     showTransactionConfirmedModal: PropTypes.func,
+    showRejectTransactionsConfirmationModal: PropTypes.func,
     toAddress: PropTypes.string,
     tokenData: PropTypes.object,
     tokenProps: PropTypes.object,
     toName: PropTypes.string,
     transactionStatus: PropTypes.string,
     txData: PropTypes.object,
+    unapprovedTxCount: PropTypes.number,
+    currentNetworkUnapprovedTxs: PropTypes.object,
     // Component props
     action: PropTypes.string,
     contentComponent: PropTypes.node,
@@ -56,8 +64,8 @@ export default class ConfirmTransactionBase extends Component {
     detailsComponent: PropTypes.node,
     errorKey: PropTypes.string,
     errorMessage: PropTypes.string,
-    ethTotalTextOverride: PropTypes.string,
-    fiatTotalTextOverride: PropTypes.string,
+    primaryTotalTextOverride: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+    secondaryTotalTextOverride: PropTypes.string,
     hideData: PropTypes.bool,
     hideDetails: PropTypes.bool,
     hideSubtitle: PropTypes.bool,
@@ -67,8 +75,10 @@ export default class ConfirmTransactionBase extends Component {
     onEditGas: PropTypes.func,
     onSubmit: PropTypes.func,
     subtitle: PropTypes.string,
+    subtitleComponent: PropTypes.node,
     summaryComponent: PropTypes.node,
     title: PropTypes.string,
+    titleComponent: PropTypes.node,
     valid: PropTypes.bool,
     warning: PropTypes.string,
   }
@@ -102,7 +112,7 @@ export default class ConfirmTransactionBase extends Component {
     const {
       balance,
       conversionRate,
-      hexGasTotal,
+      hexTransactionFee,
       txData: {
         simulationFails,
         txParams: {
@@ -113,7 +123,7 @@ export default class ConfirmTransactionBase extends Component {
 
     const insufficientBalance = balance && !isBalanceSufficient({
       amount,
-      gasTotal: hexGasTotal || '0x0',
+      gasTotal: hexTransactionFee || '0x0',
       balance,
       conversionRate,
     })
@@ -128,7 +138,7 @@ export default class ConfirmTransactionBase extends Component {
     if (simulationFails) {
       return {
         valid: true,
-        errorKey: TRANSACTION_ERROR_KEY,
+        errorKey: simulationFails.errorKey ? simulationFails.errorKey : TRANSACTION_ERROR_KEY,
       }
     }
 
@@ -150,13 +160,10 @@ export default class ConfirmTransactionBase extends Component {
   renderDetails () {
     const {
       detailsComponent,
-      fiatTransactionFee,
-      ethTransactionFee,
-      currentCurrency,
-      fiatTransactionTotal,
-      ethTransactionTotal,
-      fiatTotalTextOverride,
-      ethTotalTextOverride,
+      primaryTotalTextOverride,
+      secondaryTotalTextOverride,
+      hexTransactionFee,
+      hexTransactionTotal,
       hideDetails,
     } = this.props
 
@@ -164,16 +171,13 @@ export default class ConfirmTransactionBase extends Component {
       return null
     }
 
-    const formattedCurrency = formatCurrency(fiatTransactionTotal, currentCurrency)
-
     return (
       detailsComponent || (
         <div className="confirm-page-container-content__details">
           <div className="confirm-page-container-content__gas-fee">
             <ConfirmDetailRow
               label="Gas Fee"
-              fiatText={formatCurrency(fiatTransactionFee, currentCurrency)}
-              ethText={`\u2666 ${ethTransactionFee}`}
+              value={hexTransactionFee}
               headerText="Edit"
               headerTextClassName="confirm-detail-row__header-text--edit"
               onHeaderClick={() => this.handleEditGas()}
@@ -182,11 +186,12 @@ export default class ConfirmTransactionBase extends Component {
           <div>
             <ConfirmDetailRow
               label="Total"
-              fiatText={fiatTotalTextOverride || formattedCurrency}
-              ethText={ethTotalTextOverride || `\u2666 ${ethTransactionTotal}`}
+              value={hexTransactionTotal}
+              primaryText={primaryTotalTextOverride}
+              secondaryText={secondaryTotalTextOverride}
               headerText="Amount + Gas Fee"
               headerTextClassName="confirm-detail-row__header-text--total"
-              fiatTextColor="#2f9ae0"
+              primaryValueTextColor="#2f9ae0"
             />
           </div>
         </div>
@@ -235,7 +240,7 @@ export default class ConfirmTransactionBase extends Component {
           )
         }
         <div className="confirm-page-container-content__data-box-label">
-          {`${t('hexData')}:`}
+          {`${t('hexData')}: ${ethUtil.toBuffer(data).length} bytes`}
         </div>
         <div className="confirm-page-container-content__data-box">
           { data }
@@ -247,6 +252,25 @@ export default class ConfirmTransactionBase extends Component {
   handleEdit () {
     const { txData, tokenData, tokenProps, onEdit } = this.props
     onEdit({ txData, tokenData, tokenProps })
+  }
+
+  handleCancelAll () {
+    const {
+      cancelAllTransactions,
+      clearConfirmTransaction,
+      history,
+      showRejectTransactionsConfirmationModal,
+      unapprovedTxCount,
+    } = this.props
+
+    showRejectTransactionsConfirmationModal({
+      unapprovedTxCount,
+      async onSubmit () {
+        await cancelAllTransactions()
+        clearConfirmTransaction()
+        history.push(DEFAULT_ROUTE)
+      },
+    })
   }
 
   handleCancel () {
@@ -271,21 +295,97 @@ export default class ConfirmTransactionBase extends Component {
       return
     }
 
-    this.setState({ submitting: true, submitError: null })
+    this.setState({
+      submitting: true,
+      submitError: null,
+    }, () => {
+      if (onSubmit) {
+        Promise.resolve(onSubmit(txData))
+          .then(() => {
+            this.setState({
+              submitting: false,
+            })
+          })
+      } else {
+        sendTransaction(txData)
+          .then(() => {
+            clearConfirmTransaction()
+            this.setState({
+              submitting: false,
+            }, () => {
+              history.push(DEFAULT_ROUTE)
+            })
+          })
+          .catch(error => {
+            this.setState({
+              submitting: false,
+              submitError: error.message,
+            })
+          })
+      }
+    })
+  }
 
-    if (onSubmit) {
-      Promise.resolve(onSubmit(txData))
-        .then(this.setState({ submitting: false }))
-    } else {
-      sendTransaction(txData)
-        .then(() => {
-          clearConfirmTransaction()
-          this.setState({ submitting: false })
-          history.push(DEFAULT_ROUTE)
-        })
-        .catch(error => {
-          this.setState({ submitting: false, submitError: error.message })
-        })
+  renderTitleComponent () {
+    const { title, titleComponent, hexTransactionAmount } = this.props
+
+    // Title string passed in by props takes priority
+    if (title) {
+      return null
+    }
+
+    return titleComponent || (
+      <UserPreferencedCurrencyDisplay
+        value={hexTransactionAmount}
+        type={PRIMARY}
+        showEthLogo
+        ethLogoHeight="26"
+        hideLabel
+      />
+    )
+  }
+
+  renderSubtitleComponent () {
+    const { subtitle, subtitleComponent, hexTransactionAmount } = this.props
+
+    // Subtitle string passed in by props takes priority
+    if (subtitle) {
+      return null
+    }
+
+    return subtitleComponent || (
+      <UserPreferencedCurrencyDisplay
+        value={hexTransactionAmount}
+        type={SECONDARY}
+        showEthLogo
+        hideLabel
+      />
+    )
+  }
+
+  handleNextTx (txId) {
+    const { history, clearConfirmTransaction } = this.props
+    if (txId) {
+      clearConfirmTransaction()
+      history.push(`${CONFIRM_TRANSACTION_ROUTE}/${txId}`)
+    }
+  }
+
+  getNavigateTxData () {
+    const { currentNetworkUnapprovedTxs, txData: { id } = {} } = this.props
+    const enumUnapprovedTxs = Object.keys(currentNetworkUnapprovedTxs).reverse()
+    const currentPosition = enumUnapprovedTxs.indexOf(id.toString())
+
+    return {
+      totalTx: enumUnapprovedTxs.length,
+      positionOfCurrentTx: currentPosition + 1,
+      nextTxId: enumUnapprovedTxs[currentPosition + 1],
+      prevTxId: enumUnapprovedTxs[currentPosition - 1],
+      showNavigation: enumUnapprovedTxs.length > 1,
+      firstTx: enumUnapprovedTxs[0],
+      lastTx: enumUnapprovedTxs[enumUnapprovedTxs.length - 1],
+      ofText: this.context.t('ofTextNofM'),
+      requestsWaitingText: this.context.t('requestsAwaitingAcknowledgement'),
     }
   }
 
@@ -297,12 +397,9 @@ export default class ConfirmTransactionBase extends Component {
       toName,
       toAddress,
       methodData,
-      ethTransactionAmount,
-      fiatTransactionAmount,
       valid: propsValid = true,
       errorMessage,
       errorKey: propsErrorKey,
-      currentCurrency,
       action,
       title,
       subtitle,
@@ -314,12 +411,13 @@ export default class ConfirmTransactionBase extends Component {
       nonce,
       assetImage,
       warning,
+      unapprovedTxCount,
     } = this.props
     const { submitting, submitError } = this.state
 
     const { name } = methodData
-    const fiatConvertedAmount = formatCurrency(fiatTransactionAmount, currentCurrency)
     const { valid, errorKey } = this.getErrorKey()
+    const { totalTx, positionOfCurrentTx, nextTxId, prevTxId, showNavigation, firstTx, lastTx, ofText, requestsWaitingText } = this.getNavigateTxData()
 
     return (
       <ConfirmPageContainer
@@ -329,21 +427,35 @@ export default class ConfirmTransactionBase extends Component {
         toAddress={toAddress}
         showEdit={onEdit && !isTxReprice}
         action={action || name || this.context.t('unknownFunction')}
-        title={title || `${fiatConvertedAmount} ${currentCurrency.toUpperCase()}`}
-        subtitle={subtitle || `\u2666 ${ethTransactionAmount}`}
+        title={title}
+        titleComponent={this.renderTitleComponent()}
+        subtitle={subtitle}
+        subtitleComponent={this.renderSubtitleComponent()}
         hideSubtitle={hideSubtitle}
         summaryComponent={summaryComponent}
         detailsComponent={this.renderDetails()}
         dataComponent={this.renderData()}
         contentComponent={contentComponent}
         nonce={nonce}
+        unapprovedTxCount={unapprovedTxCount}
         assetImage={assetImage}
         identiconAddress={identiconAddress}
         errorMessage={errorMessage || submitError}
         errorKey={propsErrorKey || errorKey}
         warning={warning}
+        totalTx={totalTx}
+        positionOfCurrentTx={positionOfCurrentTx}
+        nextTxId={nextTxId}
+        prevTxId={prevTxId}
+        showNavigation={showNavigation}
+        onNextTx={(txId) => this.handleNextTx(txId)}
+        firstTx={firstTx}
+        lastTx={lastTx}
+        ofText={ofText}
+        requestsWaitingText={requestsWaitingText}
         disabled={!propsValid || !valid || submitting}
         onEdit={() => this.handleEdit()}
+        onCancelAll={() => this.handleCancelAll()}
         onCancel={() => this.handleCancel()}
         onSubmit={() => this.handleSubmit()}
       />

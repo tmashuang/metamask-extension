@@ -25,25 +25,31 @@ class PreferencesController {
    */
   constructor (opts = {}) {
     const initState = extend({
-      frequentRpcList: [],
+      frequentRpcListDetail: [],
       currentAccountTab: 'history',
       accountTokens: {},
       assetImages: {},
       tokens: [],
       suggestedTokens: {},
       useBlockie: false,
-      featureFlags: {},
+      featureFlags: {
+        betaUI: true,
+        skipAnnounceBetaUI: true,
+      },
       currentLocale: opts.initLangCode,
       identities: {},
       lostIdentities: {},
       seedWords: null,
       forgottenPassword: false,
+      preferences: {
+        useNativeCurrencyAsPrimaryCurrency: true,
+      },
     }, opts.initState)
 
     this.diagnostics = opts.diagnostics
     this.network = opts.network
     this.store = new ObservableStore(initState)
-    this.showWatchAssetUi = opts.showWatchAssetUi
+    this.openPopup = opts.openPopup
     this._subscribeProviderType()
   }
 // PUBLIC METHODS
@@ -101,7 +107,7 @@ class PreferencesController {
    * @param {Function} - end
    */
   async requestWatchAsset (req, res, next, end) {
-    if (req.method === 'metamask_watchAsset') {
+    if (req.method === 'metamask_watchAsset' || req.method === 'wallet_watchAsset') {
       const { type, options } = req.params
       switch (type) {
         case 'ERC20':
@@ -372,21 +378,6 @@ class PreferencesController {
   }
 
   /**
-   * Gets an updated rpc list from this.addToFrequentRpcList() and sets the `frequentRpcList` to this update list.
-   *
-   * @param {string} _url The the new rpc url to add to the updated list
-   * @returns {Promise<void>} Promise resolves with undefined
-   *
-   */
-  updateFrequentRpcList (_url) {
-    return this.addToFrequentRpcList(_url)
-      .then((rpcList) => {
-        this.store.updateState({ frequentRpcList: rpcList })
-        return Promise.resolve()
-      })
-  }
-
-  /**
    * Setter for the `currentAccountTab` property
    *
    * @param {string} currentAccountTab Specifies the new tab to be marked as current
@@ -401,37 +392,53 @@ class PreferencesController {
   }
 
   /**
-   * Returns an updated rpcList based on the passed url and the current list.
-   * The returned list will have a max length of 3. If the _url currently exists it the list, it will be moved to the
-   * end of the list. The current list is modified and returned as a promise.
+   * Adds custom RPC url to state.
    *
-   * @param {string} _url The rpc url to add to the frequentRpcList.
-   * @returns {Promise<array>} The updated frequentRpcList.
+   * @param {string} url The RPC url to add to frequentRpcList.
+   * @param {number} chainId Optional chainId of the selected network.
+   * @param {string} ticker   Optional ticker symbol of the selected network.
+   * @param {string} nickname Optional nickname of the selected network.
+   * @returns {Promise<array>} Promise resolving to updated frequentRpcList.
    *
    */
-  addToFrequentRpcList (_url) {
-    const rpcList = this.getFrequentRpcList()
-    const index = rpcList.findIndex((element) => { return element === _url })
+  addToFrequentRpcList (url, chainId, ticker = 'ETH', nickname = '') {
+    const rpcList = this.getFrequentRpcListDetail()
+    const index = rpcList.findIndex((element) => { return element.rpcUrl === url })
     if (index !== -1) {
       rpcList.splice(index, 1)
     }
-    if (_url !== 'http://localhost:8545') {
-      rpcList.push(_url)
+    if (url !== 'http://localhost:8545') {
+      rpcList.push({ rpcUrl: url, chainId, ticker, nickname })
     }
-    if (rpcList.length > 3) {
-      rpcList.shift()
-    }
+    this.store.updateState({ frequentRpcListDetail: rpcList })
     return Promise.resolve(rpcList)
   }
 
   /**
-   * Getter for the `frequentRpcList` property.
+   * Removes custom RPC url from state.
    *
-   * @returns {array<string>} An array of one or two rpc urls.
+   * @param {string} url The RPC url to remove from frequentRpcList.
+   * @returns {Promise<array>} Promise resolving to updated frequentRpcList.
    *
    */
-  getFrequentRpcList () {
-    return this.store.getState().frequentRpcList
+  removeFromFrequentRpcList (url) {
+    const rpcList = this.getFrequentRpcListDetail()
+    const index = rpcList.findIndex((element) => { return element.rpcUrl === url })
+    if (index !== -1) {
+      rpcList.splice(index, 1)
+    }
+    this.store.updateState({ frequentRpcListDetail: rpcList })
+    return Promise.resolve(rpcList)
+  }
+
+  /**
+   * Getter for the `frequentRpcListDetail` property.
+   *
+   * @returns {array<array>} An array of rpc urls.
+   *
+   */
+  getFrequentRpcListDetail () {
+    return this.store.getState().frequentRpcListDetail
   }
 
   /**
@@ -464,6 +471,33 @@ class PreferencesController {
   getFeatureFlags () {
     return this.store.getState().featureFlags
   }
+
+  /**
+   * Updates the `preferences` property, which is an object. These are user-controlled features
+   * found in the settings page.
+   * @param {string} preference The preference to enable or disable.
+   * @param {boolean} value Indicates whether or not the preference should be enabled or disabled.
+   * @returns {Promise<object>} Promises a new object; the updated preferences object.
+   */
+  setPreference (preference, value) {
+    const currentPreferences = this.getPreferences()
+    const updatedPreferences = {
+      ...currentPreferences,
+      [preference]: value,
+    }
+
+    this.store.updateState({ preferences: updatedPreferences })
+    return Promise.resolve(updatedPreferences)
+  }
+
+  /**
+   * A getter for the `preferences` property
+   * @returns {object} A key-boolean map of user-selected preferences.
+   */
+  getPreferences () {
+    return this.store.getState().preferences
+  }
+
   //
   // PRIVATE METHODS
   //
@@ -536,7 +570,7 @@ class PreferencesController {
     }
     const tokenOpts = { rawAddress, decimals, symbol, image }
     this.addSuggestedERC20Asset(tokenOpts)
-    return this.showWatchAssetUi().then(() => {
+    return this.openPopup().then(() => {
       const tokenAddresses = this.getTokens().filter(token => token.address === normalizeAddress(rawAddress))
       return tokenAddresses.length > 0
     })
@@ -552,8 +586,8 @@ class PreferencesController {
    */
   _validateERC20AssetParams (opts) {
     const { rawAddress, symbol, decimals } = opts
-    if (!rawAddress || !symbol || !decimals) throw new Error(`Cannot suggest token without address, symbol, and decimals`)
-    if (!(symbol.length < 6)) throw new Error(`Invalid symbol ${symbol} more than five characters`)
+    if (!rawAddress || !symbol || typeof decimals === 'undefined') throw new Error(`Cannot suggest token without address, symbol, and decimals`)
+    if (!(symbol.length < 7)) throw new Error(`Invalid symbol ${symbol} more than six characters`)
     const numDecimals = parseInt(decimals, 10)
     if (isNaN(numDecimals) || numDecimals > 36 || numDecimals < 0) {
       throw new Error(`Invalid decimals ${decimals} must be at least 0, and not over 36`)

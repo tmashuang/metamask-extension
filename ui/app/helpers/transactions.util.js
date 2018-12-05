@@ -27,10 +27,21 @@ export function getTokenData (data = '') {
 
 const registry = new MethodRegistry({ provider: global.ethereumProvider })
 
+/**
+ * Attempts to return the method data from the MethodRegistry library, if the method exists in the
+ * registry. Otherwise, returns an empty object.
+ * @param {string} data - The hex data (@code txParams.data) of a transaction
+ * @returns {Object}
+ */
 export async function getMethodData (data = '') {
   const prefixedData = ethUtil.addHexPrefix(data)
   const fourBytePrefix = prefixedData.slice(0, 10)
   const sig = await registry.lookup(fourBytePrefix)
+
+  if (!sig) {
+    return {}
+  }
+
   const parsedResult = registry.parse(sig)
 
   return {
@@ -44,6 +55,12 @@ export function isConfirmDeployContract (txData = {}) {
   return !txParams.to
 }
 
+/**
+ * Returns the action of a transaction as a key to be passed into the translator.
+ * @param {Object} transaction - txData object
+ * @param {Object} methodData - Data returned from eth-method-registry
+ * @returns {string|undefined}
+ */
 export async function getTransactionActionKey (transaction, methodData) {
   const { txParams: { data, to } = {}, msgParams, type } = transaction
 
@@ -81,7 +98,7 @@ export async function getTransactionActionKey (transaction, methodData) {
       case TOKEN_METHOD_TRANSFER_FROM:
         return TRANSFER_FROM_ACTION_KEY
       default:
-        return name
+        return undefined
     }
   } else {
     return SEND_ETHER_ACTION_KEY
@@ -108,7 +125,9 @@ export function getLatestSubmittedTxWithNonce (transactions = [], nonce = '0x0')
 
 export async function isSmartContractAddress (address) {
   const code = await global.eth.getCode(address)
-  return code && code !== '0x'
+  // Geth will return '0x', and ganache-core v2.2.1 will return '0x0'
+  const codeIsEmpty = !code || code === '0x' || code === '0x0'
+  return !codeIsEmpty
 }
 
 export function sumHexes (...args) {
@@ -119,4 +138,22 @@ export function sumHexes (...args) {
   })
 
   return ethUtil.addHexPrefix(total)
+}
+
+/**
+ * Returns a status key for a transaction. Requires parsing the txMeta.txReceipt on top of
+ * txMeta.status because txMeta.status does not reflect on-chain errors.
+ * @param {Object} transaction - The txMeta object of a transaction.
+ * @param {Object} transaction.txReceipt - The transaction receipt.
+ * @returns {string}
+ */
+export function getStatusKey (transaction) {
+  const { txReceipt: { status } = {} } = transaction
+
+  // There was an on-chain failure
+  if (status === '0x0') {
+    return 'failed'
+  }
+
+  return transaction.status
 }
