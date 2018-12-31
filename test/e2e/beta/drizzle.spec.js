@@ -269,18 +269,17 @@ describe('MetaMask', function () {
 
       await delay(regularDelayMs)
       const approveButton = await findElement(driver, By.xpath(`//button[contains(text(), 'Connect')]`))
-      assert.fail()
-      // await approveButton.click()
+      await approveButton.click()
     })
 
-    // it('should be able to detect our eth address', async () => {
-    //   // Check if address exposed
-    //   await driver.switchTo().window(dapp)
-    //   await delay(regularDelayMs)
+    it('should be able to detect our eth address', async () => {
+      // Check if address exposed
+      await driver.switchTo().window(dapp)
+      await delay(largeDelayMs * 2)
 
-    //   const addressElement = await findElement(driver, By.css(`.pure-u-1-1 h4`))
-    //   const addressText = await addressElement.getText()
-    //   assert(addressText.match(/^0x[a-fA-F0-9]{40}$/))
-    // })
+      const addressElement = await findElement(driver, By.css(`.pure-u-1-1 h4`))
+      const addressText = await addressElement.getText()
+      assert(addressText.match(/^0x[a-fA-F0-9]{40}$/))
+    })
   })
 })
