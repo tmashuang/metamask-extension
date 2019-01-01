@@ -10,6 +10,6 @@ sudo npm install -g truffle --unsafe-perm
 truffle unbox drizzle
 echo "Deploying contracts for Drizzle test..."
 truffle compile && truffle migrate
-npm start >> /dev/null 2>&1 &
+BROWSER=none npm start >> /dev/null 2>&1 &
 cd ../../../../
 mocha test/e2e/beta/drizzle.spec
