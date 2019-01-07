@@ -312,7 +312,7 @@ function getTokenAddressFromTokenObject (token) {
  * @param {String} [address] - address to checksum
  * @param {String} [network] - network id
  * @returns {String} - checksummed address
- * 
+ *
  */
 function checksumAddress (address, network) {
   const checksummed = address ? ethUtil.toChecksumAddress(address) : ''

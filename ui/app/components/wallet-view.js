@@ -125,7 +125,7 @@ WalletView.prototype.render = function () {
     showAccountDetailModal,
     hideSidebar,
     identities,
-    network
+    network,
   } = this.props
   // temporary logs + fake extra wallets
 

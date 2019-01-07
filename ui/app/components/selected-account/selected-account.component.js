@@ -17,7 +17,7 @@ class SelectedAccount extends Component {
   static propTypes = {
     selectedAddress: PropTypes.string,
     selectedIdentity: PropTypes.object,
-    network: PropTypes.string
+    network: PropTypes.string,
   }
 
   render () {

@@ -62,7 +62,7 @@ export default class SendToRow extends Component {
           inError={inError}
           name={'address'}
           network={network}
-          onChange={({ toAddress, nickname, toError }) => this.handleToChange(toAddress, nickname, toError, this.props.networ)}
+          onChange={({ toAddress, nickname, toError }) => this.handleToChange(toAddress, nickname, toError, this.props.network)}
           openDropdown={() => openToDropdown()}
           placeholder={this.context.t('recipientAddress')}
           to={to}

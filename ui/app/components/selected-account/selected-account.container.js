@@ -7,7 +7,7 @@ const mapStateToProps = state => {
   return {
     selectedAddress: selectors.getSelectedAddress(state),
     selectedIdentity: selectors.getSelectedIdentity(state),
-    network: state.metamask.network
+    network: state.metamask.network,
   }
 }
 
