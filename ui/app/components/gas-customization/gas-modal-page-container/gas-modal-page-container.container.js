@@ -40,6 +40,7 @@ import {
   getEstimatedGasTimes,
   getRenderableBasicEstimateData,
   getBasicGasEstimateBlockTime,
+  isCustomPriceSafe,
 } from '../../../selectors/custom-gas'
 import {
   submittedPendingTransactionsSelector,
@@ -75,7 +76,7 @@ const mapStateToProps = (state, ownProps) => {
 
   const customGasTotal = calcGasTotal(customModalGasLimitInHex, customModalGasPriceInHex)
 
-  const gasButtonInfo = getRenderableBasicEstimateData(state)
+  const gasButtonInfo = getRenderableBasicEstimateData(state, customModalGasLimitInHex)
 
   const currentCurrency = getCurrentCurrency(state)
   const conversionRate = getConversionRate(state)
@@ -107,6 +108,7 @@ const mapStateToProps = (state, ownProps) => {
     newTotalFiat,
     currentTimeEstimate: getRenderableTimeEstimate(customGasPrice, gasPrices, estimatedTimes),
     blockTime: getBasicGasEstimateBlockTime(state),
+    customPriceIsSafe: isCustomPriceSafe(state),
     gasPriceButtonGroupProps: {
       buttonDataLoading,
       defaultActiveButtonIndex: getDefaultActiveButtonIndex(gasButtonInfo, customModalGasPriceInHex),
@@ -167,7 +169,7 @@ const mapDispatchToProps = dispatch => {
 }
 
 const mergeProps = (stateProps, dispatchProps, ownProps) => {
-  const { gasPriceButtonGroupProps, isConfirm, isSpeedUp, txId } = stateProps
+  const { gasPriceButtonGroupProps, isConfirm, txId, isSpeedUp, insufficientBalance, customGasPrice } = stateProps
   const {
     updateCustomGasPrice: dispatchUpdateCustomGasPrice,
     hideGasButtonGroup: dispatchHideGasButtonGroup,
@@ -208,6 +210,7 @@ const mergeProps = (stateProps, dispatchProps, ownProps) => {
         dispatchHideSidebar()
       }
     },
+    disableSave: insufficientBalance || (isSpeedUp && customGasPrice === 0),
   }
 }
 
@@ -232,7 +235,7 @@ function getTxParams (state, transactionId) {
   const { txParams: pendingTxParams } = pendingTransaction || {}
   return txData.txParams || pendingTxParams || {
     from: send.from,
-    gas: send.gasLimit,
+    gas: send.gasLimit || '0x5208',
     gasPrice: send.gasPrice || getFastPriceEstimateInHexWEI(state, true),
     to: send.to,
     value: getSelectedToken(state) ? '0x0' : send.amount,

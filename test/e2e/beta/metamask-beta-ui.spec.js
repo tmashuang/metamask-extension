@@ -69,6 +69,7 @@ describe('MetaMask', function () {
 
   beforeEach(async function () {
     await driver.executeScript(
+      'window.origFetch = window.fetch.bind(window);' +
       'window.fetch = ' +
       '(...args) => { ' +
       'if (args[0] === "https://ethgasstation.info/json/ethgasAPI.json") { return ' +
@@ -77,7 +78,7 @@ describe('MetaMask', function () {
       'Promise.resolve({ json: () => Promise.resolve(JSON.parse(\'' + fetchMockResponses.ethGasPredictTable + '\')) }); } else if ' +
       '(args[0] === "https://dev.blockscale.net/api/gasexpress.json") { return ' +
       'Promise.resolve({ json: () => Promise.resolve(JSON.parse(\'' + fetchMockResponses.gasExpress + '\')) }); } ' +
-      'return window.fetch(...args); }'
+      'return window.origFetch(...args); }'
     )
   })
 
@@ -766,6 +767,22 @@ describe('MetaMask', function () {
       windowHandles = await driver.getAllWindowHandles()
       const popup = windowHandles[2]
       await driver.switchTo().window(popup)
+      await delay(regularDelayMs)
+
+      const configureGas = await driver.wait(until.elementLocated(By.css('.confirm-detail-row__header-text--edit')), 10000)
+      await configureGas.click()
+      await delay(regularDelayMs)
+
+      const advancedTabButton = await driver.wait(until.elementLocated(By.xpath(`//li[contains(text(), 'Advanced')]`)), 10000)
+      await advancedTabButton.click()
+      await delay(tinyDelayMs)
+
+      const [gasPriceInput, gasLimitInput] = await findElements(driver, By.css('.advanced-tab__gas-edit-row__input'))
+      assert(gasPriceInput.getAttribute('value'), 20)
+      assert(gasLimitInput.getAttribute('value'), 4700000)
+
+      const saveButton = await findElement(driver, By.xpath(`//button[contains(text(), 'Save')]`))
+      await saveButton.click()
       await delay(regularDelayMs)
 
       const confirmButton = await findElement(driver, By.xpath(`//button[contains(text(), 'Confirm')]`))

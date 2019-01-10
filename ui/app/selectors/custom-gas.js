@@ -2,6 +2,7 @@ import { pipe, partialRight } from 'ramda'
 import {
   conversionUtil,
   multiplyCurrencies,
+  conversionGreaterThan,
 } from '../conversion-util'
 import {
   getCurrentCurrency,
@@ -38,6 +39,8 @@ const selectors = {
   getRenderableBasicEstimateData,
   getRenderableEstimateDataForSmallButtonsFromGWEI,
   priceEstimateToWei,
+  getSafeLowEstimate,
+  isCustomPriceSafe,
 }
 
 module.exports = selectors
@@ -94,6 +97,39 @@ function getDefaultActiveButtonIndex (gasButtonInfo, customGasPriceInHex, gasPri
   return gasButtonInfo.findIndex(({ priceInHexWei }) => {
     return priceInHexWei === addHexPrefix(customGasPriceInHex || gasPrice)
   })
+}
+
+function getSafeLowEstimate (state) {
+  const {
+    gas: {
+      basicEstimates: {
+        safeLow,
+      },
+    },
+  } = state
+
+  return safeLow
+}
+
+function isCustomPriceSafe (state) {
+  const safeLow = getSafeLowEstimate(state)
+  const customGasPrice = getCustomGasPrice(state)
+
+  if (!customGasPrice) {
+    return true
+  }
+
+  const customPriceSafe = conversionGreaterThan(
+    {
+      value: customGasPrice,
+      fromNumericBase: 'hex',
+      fromDenomination: 'WEI',
+      toDenomination: 'GWEI',
+    },
+    { value: safeLow, fromNumericBase: 'dec' }
+  )
+
+  return customPriceSafe
 }
 
 function getBasicGasEstimateBlockTime (state) {
@@ -185,11 +221,10 @@ function getGasPriceInHexWei (price) {
   )(price)
 }
 
-function getRenderableBasicEstimateData (state) {
+function getRenderableBasicEstimateData (state, gasLimit) {
   if (getBasicGasEstimateLoadingStatus(state)) {
     return []
   }
-  const gasLimit = state.metamask.send.gasLimit || getCustomGasLimit(state)
   const conversionRate = state.metamask.conversionRate
   const currentCurrency = getCurrentCurrency(state)
   const {
@@ -234,7 +269,7 @@ function getRenderableEstimateDataForSmallButtonsFromGWEI (state) {
   if (getBasicGasEstimateLoadingStatus(state)) {
     return []
   }
-  const gasLimit = state.metamask.send.gasLimit || getCustomGasLimit(state)
+  const gasLimit = state.metamask.send.gasLimit || getCustomGasLimit(state) || '0x5208'
   const conversionRate = state.metamask.conversionRate
   const currentCurrency = getCurrentCurrency(state)
   const {

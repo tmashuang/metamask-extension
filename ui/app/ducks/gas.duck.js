@@ -4,6 +4,9 @@ import {
   loadLocalStorageData,
   saveLocalStorageData,
 } from '../../lib/local-storage-helpers'
+import {
+  decGWEIToHexWEI,
+} from '../helpers/conversions.util'
 
 // Actions
 const BASIC_GAS_ESTIMATE_LOADING_FINISHED = 'metamask/gas/BASIC_GAS_ESTIMATE_LOADING_FINISHED'
@@ -20,12 +23,13 @@ const SET_CUSTOM_GAS_TOTAL = 'metamask/gas/SET_CUSTOM_GAS_TOTAL'
 const SET_PRICE_AND_TIME_ESTIMATES = 'metamask/gas/SET_PRICE_AND_TIME_ESTIMATES'
 const SET_API_ESTIMATES_LAST_RETRIEVED = 'metamask/gas/SET_API_ESTIMATES_LAST_RETRIEVED'
 const SET_BASIC_API_ESTIMATES_LAST_RETRIEVED = 'metamask/gas/SET_BASIC_API_ESTIMATES_LAST_RETRIEVED'
+const SET_BASIC_PRICE_ESTIMATES_LAST_RETRIEVED = 'metamask/gas/SET_BASIC_PRICE_ESTIMATES_LAST_RETRIEVED'
 
 // TODO: determine if this approach to initState is consistent with conventional ducks pattern
 const initState = {
   customData: {
     price: null,
-    limit: '0x5208',
+    limit: null,
   },
   basicEstimates: {
     average: null,
@@ -46,6 +50,7 @@ const initState = {
   basicPriceAndTimeEstimates: [],
   priceAndTimeEstimatesLastRetrieved: 0,
   basicPriceAndTimeEstimatesLastRetrieved: 0,
+  basicPriceEstimatesLastRetrieved: 0,
   errors: {},
 }
 
@@ -126,6 +131,11 @@ export default function reducer ({ gas: gasState = initState }, action = {}) {
         ...newState,
         basicPriceAndTimeEstimatesLastRetrieved: action.value,
       }
+    case SET_BASIC_PRICE_ESTIMATES_LAST_RETRIEVED:
+      return {
+        ...newState,
+        basicPriceEstimatesLastRetrieved: action.value,
+      }
     case RESET_CUSTOM_DATA:
       return {
         ...newState,
@@ -164,10 +174,17 @@ export function gasEstimatesLoadingFinished () {
 }
 
 export function fetchBasicGasEstimates () {
-  return (dispatch) => {
+  return (dispatch, getState) => {
+    const {
+      basicPriceEstimatesLastRetrieved,
+      basicPriceAndTimeEstimates,
+    } = getState().gas
+    const timeLastRetrieved = basicPriceEstimatesLastRetrieved || loadLocalStorageData('BASIC_PRICE_ESTIMATES_LAST_RETRIEVED') || 0
+
     dispatch(basicGasEstimatesLoadingStarted())
 
-    return fetch('https://dev.blockscale.net/api/gasexpress.json', {
+    const promiseToFetch = Date.now() - timeLastRetrieved > 75000
+    ? fetch('https://dev.blockscale.net/api/gasexpress.json', {
       'headers': {},
       'referrer': 'https://dev.blockscale.net/api/',
       'referrerPolicy': 'no-referrer-when-downgrade',
@@ -192,10 +209,24 @@ export function fetchBasicGasEstimates () {
           blockTime,
           blockNum,
         }
-        dispatch(setBasicGasEstimateData(basicEstimates))
-        dispatch(basicGasEstimatesLoadingFinished())
+
+        const timeRetrieved = Date.now()
+        dispatch(setBasicPriceEstimatesLastRetrieved(timeRetrieved))
+        saveLocalStorageData(timeRetrieved, 'BASIC_PRICE_ESTIMATES_LAST_RETRIEVED')
+        saveLocalStorageData(basicEstimates, 'BASIC_PRICE_ESTIMATES')
+
         return basicEstimates
       })
+    : Promise.resolve(basicPriceAndTimeEstimates.length
+        ? basicPriceAndTimeEstimates
+        : loadLocalStorageData('BASIC_PRICE_ESTIMATES')
+      )
+
+    return promiseToFetch.then(basicEstimates => {
+      dispatch(setBasicGasEstimateData(basicEstimates))
+      dispatch(basicGasEstimatesLoadingFinished())
+      return basicEstimates
+    })
   }
 }
 
@@ -403,6 +434,17 @@ export function fetchGasEstimates (blockTime) {
   }
 }
 
+export function setCustomGasPriceForRetry (newPrice) {
+  return (dispatch) => {
+    if (newPrice !== '0x0') {
+      dispatch(setCustomGasPrice(newPrice))
+    } else {
+      const { fast } = loadLocalStorageData('BASIC_PRICE_ESTIMATES')
+      dispatch(setCustomGasPrice(decGWEIToHexWEI(fast)))
+    }
+  }
+}
+
 export function setBasicGasEstimateData (basicGasEstimateData) {
   return {
     type: SET_BASIC_GAS_ESTIMATE_DATA,
@@ -455,6 +497,13 @@ export function setApiEstimatesLastRetrieved (retrievalTime) {
 export function setBasicApiEstimatesLastRetrieved (retrievalTime) {
   return {
     type: SET_BASIC_API_ESTIMATES_LAST_RETRIEVED,
+    value: retrievalTime,
+  }
+}
+
+export function setBasicPriceEstimatesLastRetrieved (retrievalTime) {
+  return {
+    type: SET_BASIC_PRICE_ESTIMATES_LAST_RETRIEVED,
     value: retrievalTime,
   }
 }

@@ -2,6 +2,32 @@
 
 ## Current Develop Branch
 
+## 5.3.0 Wed Jan 02 2019
+
+- [#5978](https://github.com/MetaMask/metamask-extension/pull/5978): Fix etherscan links on notifications
+- [#5980](https://github.com/MetaMask/metamask-extension/pull/5980): Fix drizzle tests
+- [#5922](https://github.com/MetaMask/metamask-extension/pull/5922): Prevent users from changing the From field in the send screen
+- [#5932](https://github.com/MetaMask/metamask-extension/pull/5932): Fix displayed time and date in the activity log. Remove vreme library, add luxon library.
+- [#5924](https://github.com/MetaMask/metamask-extension/pull/5924): transactions - throw an error if a transaction is generated while the network is loading
+- [#5893](https://github.com/MetaMask/metamask-extension/pull/5893): Add loading network screen
+
+## 5.2.2 Wed Dec 12 2018
+
+- [#5925](https://github.com/MetaMask/metamask-extension/pull/5925): Fix speed up button not showing for transactions with the lowest nonce
+- [#5923](https://github.com/MetaMask/metamask-extension/pull/5923): Update the Phishing Warning notice text to not use inline URLs
+- [#5919](https://github.com/MetaMask/metamask-extension/pull/5919): Fix some styling and translations in the gas customization modal
+
+## 5.2.1 Wed Dec 12 2018
+
+- [#5917] bugfix: Ensures that advanced tab gas limit reflects tx gas limit
+
+## 5.2.0 Mon Dec 11 2018
+
+- [#5704] Implements new gas customization features for sending, confirming and speeding up transactions
+- [#5886] Groups transactions - speed up, cancel and original - by nonce in the transaction history list
+- [#5892] bugfix: eliminates infinite spinner issues caused by switching quickly from a loading network that ultimately fails to resolve
+- [$5902] bugfix: provider crashes caused caching issues in `json-rpc-engine`. Fixed in (https://github.com/MetaMask/json-rpc-engine/commit/6de511afbd03ccef4550ea43ff4010b7d7a84039)
+
 ## 5.1.0 Mon Dec 03 2018
 
 - [#5860](https://github.com/MetaMask/metamask-extension/pull/5860): Fixed an infinite spinner bug.
@@ -11,6 +37,7 @@
 
 ## 5.0.4 Thu Nov 29 2018
 
+- [#5878](https://github.com/MetaMask/metamask-extension/pull/5878): Formats 32-length byte strings passed to personal_sign as hex, rather than UTF8.
 - [#5840](https://github.com/MetaMask/metamask-extension/pull/5840): transactions/tx-gas-utils - add the acctual response for eth_getCode for NO_CONTRACT_ERROR's && add a debug object to simulationFailed
 - [#5848](https://github.com/MetaMask/metamask-extension/pull/5848): Soften accusatory language on phishing warning
 - [#5835](https://github.com/MetaMask/metamask-extension/pull/5835): Open full-screen UI on install
