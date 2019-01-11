@@ -648,6 +648,9 @@
   "invalidAddressRecipient": {
     "message": "Recipient address is invalid"
   },
+  "invalidAddressRecipientNotEthNetwork": {
+    "message": "Not ETH network, set to lowercase"
+  },
   "invalidGasParams": {
     "message": "Invalid Gas Parameters"
   },

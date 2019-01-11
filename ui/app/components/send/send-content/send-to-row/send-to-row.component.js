@@ -3,7 +3,6 @@ import PropTypes from 'prop-types'
 import SendRowWrapper from '../send-row-wrapper/'
 import EnsInput from '../../../ens-input'
 import { getToErrorObject } from './send-to-row.utils.js'
-import { checksumAddress } from '../../../../util'
 
 export default class SendToRow extends Component {
 
@@ -27,9 +26,8 @@ export default class SendToRow extends Component {
   }
 
   handleToChange (to, nickname = '', toError, network) {
-    to = checksumAddress(to, network)
     const { hasHexData, updateSendTo, updateSendToError, updateGas } = this.props
-    const toErrorObject = getToErrorObject(to, toError, hasHexData)
+    const toErrorObject = getToErrorObject(to, toError, hasHexData, network)
     updateSendTo(to, nickname)
     updateSendToError(toErrorObject)
     if (toErrorObject.to === null) {

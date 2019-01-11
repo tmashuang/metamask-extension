@@ -64,9 +64,7 @@ module.exports = {
 }
 
 function isEthNetwork (netId) {
-  if (!netId) return false
-
-  if (netId === '1' || netId === '3' || netId === '4' || netId === '42') {
+  if (!netId || netId === '1' || netId === '3' || netId === '4' || netId === '42') {
     return true
   }
 
@@ -94,9 +92,10 @@ function miniAddressSummary (address) {
   return checked ? checked.slice(0, 4) + '...' + checked.slice(-4) : '...'
 }
 
-function isValidAddress (address) {
+function isValidAddress (address, network) {
   var prefixed = ethUtil.addHexPrefix(address)
   if (address === '0x0000000000000000000000000000000000000000') return false
+  if (!isEthNetwork(network)) return (ethUtil.isValidAddress(prefixed) && address === address.toLowerCase())
   return (isAllOneCase(prefixed) && ethUtil.isValidAddress(prefixed)) || ethUtil.isValidChecksumAddress(prefixed)
 }
 
