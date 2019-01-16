@@ -11,6 +11,8 @@ sleep 5
 pushd "$(mktemp -d)"
 npm install --no-package-lock truffle
 truffle="$(npm bin)/truffle"
+mkdir test-drizzle
+cd test-drizzle
 $truffle unbox drizzle
 echo "Deploying contracts for Drizzle test..."
 $truffle compile
