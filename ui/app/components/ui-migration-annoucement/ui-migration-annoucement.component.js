@@ -20,7 +20,7 @@ export default class UiMigrationAnnouncement extends PureComponent {
     const { onClose, shouldShowAnnouncement } = this.props
 
     if (!shouldShowAnnouncement) {
-      return null;
+      return null
     }
 
     return (
