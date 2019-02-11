@@ -65,6 +65,7 @@ describe('MetaMaskController', function () {
     // add sinon method spies
     sandbox.spy(metamaskController.keyringController, 'createNewVaultAndKeychain')
     sandbox.spy(metamaskController.keyringController, 'createNewVaultAndRestore')
+    console.log(Object.keys(metamaskController))
   })
 
   afterEach(function () {

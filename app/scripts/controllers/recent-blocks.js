@@ -36,7 +36,7 @@ class RecentBlocksController {
     this.blockTracker = blockTracker
     this.ethQuery = new EthQuery(provider)
     this.historyLength = opts.historyLength || 40
-
+    if (!networkController) { throw new Error('RecentBlocksController requires access to networkController') }
     const initState = extend({
       recentBlocks: [],
     }, opts.initState)

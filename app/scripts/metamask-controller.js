@@ -115,6 +115,7 @@ module.exports = class MetamaskController extends EventEmitter {
     // rpc provider
     this.initializeProvider()
     this.provider = this.networkController.getProviderAndBlockTracker().provider
+    debugger
     this.blockTracker = this.networkController.getProviderAndBlockTracker().blockTracker
 
     // token exchange rate tracker
@@ -126,6 +127,7 @@ module.exports = class MetamaskController extends EventEmitter {
     this.recentBlocksController = new RecentBlocksController({
       blockTracker: this.blockTracker,
       provider: this.provider,
+      networkController: this.networkController,
     })
 
     // account tracker watches balances, nonces, and any code at their address.
