@@ -302,6 +302,7 @@ function allNull (obj) {
 }
 
 function getTokenAddressFromTokenObject (token) {
+  console.log(Object.values(token)[0])
   return Object.values(token)[0].address.toLowerCase()
 }
 

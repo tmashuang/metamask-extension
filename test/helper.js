@@ -4,7 +4,7 @@ import Enzyme from 'enzyme'
 import Adapter from 'enzyme-adapter-react-15'
 
 nock.disableNetConnect()
-nock.enableNetConnect('localhost')
+nock.enableNetConnect(/(localhost|shapeshift)/)
 
 Enzyme.configure({ adapter: new Adapter() })
 // disallow promises from swallowing errors

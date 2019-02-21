@@ -163,7 +163,6 @@ var actions = {
   cancelPersonalMsg,
   signTypedMsg,
   cancelTypedMsg,
-  sendTx: sendTx,
   signTx: signTx,
   signTokenTx: signTokenTx,
   updateTransaction,
@@ -236,7 +235,7 @@ var actions = {
   showAddTokenPage,
   showAddSuggestedTokenPage,
   addToken,
-  addTokens,
+  // addTokens,
   removeToken,
   updateTokens,
   removeSuggestedTokens,
@@ -1138,26 +1137,6 @@ function clearSend () {
   }
 }
 
-
-function sendTx (txData) {
-  log.info(`actions - sendTx: ${JSON.stringify(txData.txParams)}`)
-  return (dispatch, getState) => {
-    log.debug(`actions calling background.approveTransaction`)
-    background.approveTransaction(txData.id, (err) => {
-      if (err) {
-        dispatch(actions.txError(err))
-        return log.error(err.message)
-      }
-      dispatch(actions.completedTx(txData.id))
-
-      if (global.METAMASK_UI_TYPE === ENVIRONMENT_TYPE_NOTIFICATION &&
-        !hasUnconfirmedTransactions(getState())) {
-        return global.platform.closeCurrentWindow()
-      }
-    })
-  }
-}
-
 function signTokenTx (tokenAddress, toAddress, amount, txData) {
   return dispatch => {
     dispatch(actions.showLoadingIndication())
@@ -1762,25 +1741,25 @@ function removeToken (address) {
   }
 }
 
-function addTokens (tokens) {
-  return dispatch => {
-    if (Array.isArray(tokens)) {
-      dispatch(actions.setSelectedToken(getTokenAddressFromTokenObject(tokens[0])))
-      return Promise.all(tokens.map(({ address, symbol, decimals }) => (
-        dispatch(addToken(address, symbol, decimals))
-      )))
-    } else {
-      dispatch(actions.setSelectedToken(getTokenAddressFromTokenObject(tokens)))
-      return Promise.all(
-        Object
-        .entries(tokens)
-        .map(([_, { address, symbol, decimals }]) => (
-          dispatch(addToken(address, symbol, decimals))
-        ))
-      )
-    }
-  }
-}
+// function addTokens (tokens) {
+//   return dispatch => {
+//     if (Array.isArray(tokens)) {
+//       dispatch(actions.setSelectedToken(getTokenAddressFromTokenObject(tokens[0])))
+//       return Promise.all(tokens.map(({ address, symbol, decimals }) => (
+//         dispatch(addToken(address, symbol, decimals))
+//       )))
+//     } else {
+//       dispatch(actions.setSelectedToken(getTokenAddressFromTokenObject(tokens)))
+//       return Promise.all(
+//         Object
+//         .entries(tokens)
+//         .map(([_, { address, symbol, decimals }]) => (
+//           dispatch(addToken(address, symbol, decimals))
+//         ))
+//       )
+//     }
+//   }
+// }
 
 function removeSuggestedTokens () {
   return (dispatch) => {

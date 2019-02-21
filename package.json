@@ -99,7 +99,7 @@
     "c3": "^0.6.7",
     "classnames": "^2.2.5",
     "clone": "^2.1.2",
-    "copy-to-clipboard": "^3.0.8",
+    "copy-to-clipboard": "github:tmashuang/copy-to-clipboard#master",
     "currency-formatter": "^1.4.2",
     "d3": "^5.7.0",
     "debounce": "1.1.0",
