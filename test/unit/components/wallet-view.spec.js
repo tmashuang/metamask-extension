@@ -140,7 +140,7 @@ describe('Wallet View', () => {
 
     it('adjusts store address to checksum for Identicon ', () => {
       identiconProps = wrapper.find(Identicon).first().instance().selector.props
-      assert.equal(identiconProps.address, '0x0DCD5D886577d5081B0c52e242Ef29E70Be3E7bc')
+      assert.equal(identiconProps.address, '0x0dcd5d886577d5081b0c52e242ef29e70be3e7bc')
     })
 
     it('sets Identicon to blockie from store state', () => {
@@ -151,7 +151,7 @@ describe('Wallet View', () => {
   describe('Button Wallet Address', () => {
     it('shows checksummed, shortened address', () => {
       const addressCopyButton = wrapper.find('.wallet-view__address')
-      assert.equal(addressCopyButton.text(), '0x0DCD...E7bc')
+      assert.equal(addressCopyButton.text(), '0x0dcd...e7bc')
     })
 
   })

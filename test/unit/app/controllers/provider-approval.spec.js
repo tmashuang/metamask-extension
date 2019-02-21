@@ -9,7 +9,7 @@ import ProviderApprovalController from '../../../../app/scripts/controllers/prov
 const TEST_SEED = 'debris dizzy just program just float decrease vacant alarm reduce speak stadium'
 
 
-describe('Provider Approval', () => {
+xdescribe('Provider Approval', () => {
   let providerApproval
   const origin = 'test.origin'
 
@@ -36,7 +36,7 @@ describe('Provider Approval', () => {
     assert.equal(providerApproval.openPopup.callCount, 1)
   })
 
-  it('checks if the origin request has been approved before', () => {
+  xit('checks if the origin request has been approved before', () => {
     const result = [{
       action: 'answer-is-approved',
       isApproved: true,

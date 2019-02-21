@@ -1809,12 +1809,11 @@ describe('Actions', () => {
       setFeatureFlagSpy.restore()
     })
 
-    it('calls setFeatureFlag in the background', (done) => {
+    it('calls setFeatureFlag in the background', () => {
       const store = mockStore()
 
       store.dispatch(actions.setFeatureFlag())
       assert(setFeatureFlagSpy.calledOnce)
-      done()
     })
 
     it('errors when setFeatureFlag in background throws', (done) => {
