@@ -1,8 +1,8 @@
 import React from 'react'
-import assert from 'assert'
+// import assert from 'assert'
 import sinon from 'sinon'
 import { createMockStore } from 'redux-test-utils'
-import { shallow, mount } from 'enzyme'
+import { mount } from 'enzyme'
 import EnsInput from '../../.../../../ui/app/components/ens-input'
 
 xdescribe('EnsInput Component', () => {

@@ -1,9 +1,9 @@
 import React from 'react'
-import assert from 'assert'
-import sinon from 'sinon'
-import nock from 'nock'
+// import assert from 'assert'
+// import sinon from 'sinon'
+// import nock from 'nock'
 import { createMockStore } from 'redux-test-utils'
-import { shallow, mount } from 'enzyme'
+import { mount } from 'enzyme'
 
 import TokenList from '../../../ui/app/components/token-list'
 
