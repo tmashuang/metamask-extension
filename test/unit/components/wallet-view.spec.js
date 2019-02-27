@@ -19,6 +19,9 @@ describe('Wallet View', () => {
       },
     },
     metamask: {
+      provider: {
+        type: 'test',
+      },
       useBlockie: false,
       network: 22,
       identities: {
@@ -102,7 +105,7 @@ describe('Wallet View', () => {
 
     it('displays primary currency converted from eth value', () => {
       const test = wrapper.find('.currency-display-component')
-      assert.equal(test.last().text(), '$100.00USD')
+      assert.equal(test.last().text(), '1ETH')
     })
   })
 
