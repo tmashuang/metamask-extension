@@ -63,6 +63,7 @@ var actions = {
   CREATE_NEW_VAULT_IN_PROGRESS: 'CREATE_NEW_VAULT_IN_PROGRESS',
   SHOW_CREATE_VAULT: 'SHOW_CREATE_VAULT',
   SHOW_RESTORE_VAULT: 'SHOW_RESTORE_VAULT',
+  fetchInfoToSync,
   FORGOT_PASSWORD: 'FORGOT_PASSWORD',
   forgotPassword: forgotPassword,
   markPasswordForgotten,
@@ -315,6 +316,7 @@ var actions = {
   updatePreferences,
   UPDATE_PREFERENCES: 'UPDATE_PREFERENCES',
   setUseNativeCurrencyAsPrimaryCurrencyPreference,
+  setShowFiatConversionOnTestnetsPreference,
 
   // Migration of users to new UI
   setCompletedUiMigration,
@@ -631,6 +633,21 @@ function requestRevealSeedWords (password) {
       dispatch(actions.displayWarning(error.message))
       throw new Error(error.message)
     }
+  }
+}
+
+function fetchInfoToSync () {
+  return dispatch => {
+    log.debug(`background.fetchInfoToSync`)
+    return new Promise((resolve, reject) => {
+      background.fetchInfoToSync((err, result) => {
+        if (err) {
+          dispatch(actions.displayWarning(err.message))
+          return reject(err)
+        }
+        resolve(result)
+      })
+    })
   }
 }
 
@@ -2431,6 +2448,10 @@ function updatePreferences (value) {
 
 function setUseNativeCurrencyAsPrimaryCurrencyPreference (value) {
   return setPreference('useNativeCurrencyAsPrimaryCurrency', value)
+}
+
+function setShowFiatConversionOnTestnetsPreference (value) {
+  return setPreference('showFiatInTestnets', value)
 }
 
 function setCompletedOnboarding () {
