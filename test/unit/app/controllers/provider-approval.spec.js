@@ -9,14 +9,16 @@ import ProviderApprovalController from '../../../../app/scripts/controllers/prov
 const TEST_SEED = 'debris dizzy just program just float decrease vacant alarm reduce speak stadium'
 
 
-xdescribe('Provider Approval', () => {
+describe('Provider Approval', () => {
   let providerApproval
-  const origin = 'test.origin'
 
   beforeEach(() => {
-    const network = {providerStore: new ObservableStore({ type: 'mainnet' })}
+    const network = {providerStore: new ObservableStore({ type: 'test' })}
 
     providerApproval = new ProviderApprovalController({
+      store: new ObservableStore({
+        providerRequests: [],
+      }),
       publicConfigStore: new ObservableStore({
         selectedAddress: 'test',
       }),
@@ -36,22 +38,10 @@ xdescribe('Provider Approval', () => {
     assert.equal(providerApproval.openPopup.callCount, 1)
   })
 
-  xit('checks if the origin request has been approved before', () => {
-    const result = [{
-      action: 'answer-is-approved',
-      isApproved: true,
-      caching: true,
-    }, { active: true }]
-
-    providerApproval.approveProviderRequest(origin)
-    providerApproval._handleIsApproved(origin)
-    assert.deepEqual(providerApproval.platform.sendMessage.getCall(1).args, result)
-  })
-
   it('checks if the keyring is unlocked, returns false if no keyring is initialized', () => {
     const result = [
       { action: 'answer-is-unlocked', isUnlocked: false },
-      { active: true },
+      { id: undefined },
     ]
 
     providerApproval._handleIsUnlocked()
@@ -63,7 +53,7 @@ xdescribe('Provider Approval', () => {
 
     const result = [
       { action: 'answer-is-unlocked', isUnlocked: true },
-      { active: true },
+      { id: undefined },
     ]
 
     providerApproval.keyringController.createNewVaultAndRestore(password, TEST_SEED)
@@ -74,7 +64,7 @@ xdescribe('Provider Approval', () => {
   it('enables privacy mode automatically when privacy mode in preferences is undefined, returns selected address from publicConfig', () => {
     const result = [
       { action: 'approve-legacy-provider-request', selectedAddress: 'test' },
-      { active: true },
+      { id: undefined },
     ]
 
     providerApproval._handlePrivacyRequest()
@@ -82,54 +72,47 @@ xdescribe('Provider Approval', () => {
   })
 
   it('adds origin to approvedOrigins in providerApproval', () => {
-    providerApproval.approveProviderRequest(origin)
+    providerApproval._handleProviderRequest('test.origin', 'Title', 'Image', false, 1)
+    providerApproval.approveProviderRequest(1)
+
     assert.deepEqual(providerApproval.approvedOrigins, { 'test.origin': true })
   })
 
 
   it('clear approved origin from approvedOrigins if rejected', () => {
-    // Approved two origin
-    providerApproval.approveProviderRequest(origin)
-    providerApproval.approveProviderRequest('test2.origin')
+    providerApproval._handleProviderRequest('test.origin', 'Title', 'Image', false, 1)
+    providerApproval.rejectProviderRequest(1)
 
-    // Reject first approved origin
-    providerApproval.rejectProviderRequest(origin)
-
-    assert.deepEqual(providerApproval.approvedOrigins, { 'test2.origin': true })
-    assert.equal(providerApproval.closePopup.callCount, 3)
+    assert.deepEqual(providerApproval.approvedOrigins, {})
   })
 
   it('sets empty object/clear approvedOrigins', () => {
-    // Approved two origin
-    providerApproval.approveProviderRequest(origin)
-    providerApproval.approveProviderRequest('test2.origin')
+    // Approved two origins
+    providerApproval._handleProviderRequest('test.origin', 'Title', 'Image', false, 1)
+    providerApproval.approveProviderRequest(1)
+    providerApproval._handleProviderRequest('test.origin2', 'Title2', 'Image2', false, 2)
+    providerApproval.approveProviderRequest(2)
 
+    assert.equal(Object.keys(providerApproval.approvedOrigins).length, 2)
     providerApproval.clearApprovedOrigins()
     assert.deepEqual(providerApproval.approvedOrigins, {})
   })
 
   it('returns true if privacyMode is not set', () => {
-    const expose = providerApproval.shouldExposeAccounts(origin)
+    providerApproval._handleProviderRequest('test.origin', 'Title', 'Image', false, 1)
+    providerApproval.approveProviderRequest(1)
+
+    const expose = providerApproval.shouldExposeAccounts('test.origin')
     assert.equal(expose, true)
   })
 
   it('returns true if privacyMode is set to false', () => {
+    providerApproval._handleProviderRequest('test.origin', 'Title', 'Image', false, 1)
+    providerApproval.approveProviderRequest(1)
+
     providerApproval.preferencesController.store.updateState({featureFlags: { privacyMode: false }})
-    const expose = providerApproval.shouldExposeAccounts(origin)
-    assert.equal(expose, true)
-  })
 
-  it('returns undefined if origin is not in approvedOrigins, and privacyMode is set to true', () => {
-    providerApproval.preferencesController.store.updateState({featureFlags: { privacyMode: true }})
-    const expose = providerApproval.shouldExposeAccounts(origin)
-    assert.equal(expose, undefined)
-  })
-
-  it('returns true if origin in approvedOrigins, and privacyMode is set to true', () => {
-    providerApproval.preferencesController.store.updateState({featureFlags: { privacyMode: true }})
-    providerApproval.approveProviderRequest(origin)
-
-    const expose = providerApproval.shouldExposeAccounts(origin)
+    const expose = providerApproval.shouldExposeAccounts('test.origin')
     assert.equal(expose, true)
   })
 

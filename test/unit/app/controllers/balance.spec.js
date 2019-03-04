@@ -17,7 +17,7 @@ const accounts = {
   },
 }
 
-describe('', () => {
+describe('Balance Controller', () => {
 
   let balanceController
 
