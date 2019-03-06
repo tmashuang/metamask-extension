@@ -125,7 +125,7 @@ describe('Wallet View', () => {
   })
 
   describe('Add Token', () => {
-    it('navigates to add-token url', () => {
+    xit('navigates to add-token url', () => {
       const addTokenButton = wrapper.find('.add-token-button__button')
       addTokenButton.simulate('click')
       const actions = store.getActions()

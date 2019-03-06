@@ -42,7 +42,7 @@ describe('Send To Recipient', () => {
       assert.equal(wrapper.find('.sender-to-recipient__name').first().text(), 'from_t: 0xSeNdEradDReSS')
     })
 
-    it('sets senderAddressCopied to true when clicked ', () => {
+    xit('sets senderAddressCopied to true when clicked ', () => {
       assert.equal(wrapper.state('senderAddressCopied'), false)
       wrapper.find('.sender-to-recipient__party--sender').simulate('click')
       assert.equal(wrapper.state('senderAddressCopied'), true)
@@ -63,7 +63,7 @@ describe('Send To Recipient', () => {
       assert.equal(wrapper.find('.sender-to-recipient__name').last().text(), 'to_t: 0xRECIpIENTADDRESs')
     })
 
-    it('sets senderAddressCopied to true when clicked ', () => {
+    xit('sets senderAddressCopied to true when clicked ', () => {
       assert.equal(wrapper.state('recipientAddressCopied'), false)
       wrapper.find('.sender-to-recipient__party--recipient-with-address').simulate('click')
       assert.equal(wrapper.state('recipientAddressCopied'), true)
