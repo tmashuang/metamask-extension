@@ -2,11 +2,11 @@ import React from 'react'
 import assert from 'assert'
 import { shallow } from 'enzyme'
 import withTokenTracker from '../with-token-tracker.component'
-import TokenBalance from '../../../components/token-balance/token-balance.component'
+import TokenBalance from '../../../../components/ui/token-balance/token-balance.component'
 // import sinon from 'sinon'
 import TokenTracker from 'eth-token-tracker'
 
-const { createTestProviderTools } = require('../../../../../test/stub/provider')
+const { createTestProviderTools } = require('../../../../../../test/stub/provider')
 const provider = createTestProviderTools({ scaffold: {}}).provider
 
 describe('WithTokenTracker HOC', () => {

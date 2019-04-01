@@ -3,7 +3,7 @@ const {
   calcTokenAmount,
   getSymbolAndDecimals,
   tokenInfoGetter,
-} = require('../../../../ui/app/token-util')
+} = require('../../../../ui/app/helpers/utils/token-util')
 
 const Eth = require('ethjs')
 

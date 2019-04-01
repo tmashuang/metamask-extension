@@ -22,7 +22,9 @@ describe('Provider Approval', () => {
         selectedAddress: 'test',
       }),
       keyringController: new KeyringController({}),
-      preferencesController: new PreferencesController({ network }),
+      preferencesController: new PreferencesController({
+        network,
+      }),
       platform: {
         sendMessage: sinon.spy(),
       },
@@ -66,6 +68,7 @@ describe('Provider Approval', () => {
       { id: undefined },
     ]
 
+    providerApproval.preferencesController.setFeatureFlag('privacyMode', false)
     providerApproval._handlePrivacyRequest()
     assert.deepEqual(providerApproval.platform.sendMessage.getCall(0).args, result)
   })
