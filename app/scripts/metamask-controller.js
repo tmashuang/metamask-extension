@@ -25,7 +25,6 @@ const {setupMultiplex} = require('./lib/stream-utils.js')
 const KeyringController = require('eth-keyring-controller')
 const NetworkController = require('./controllers/network')
 const PreferencesController = require('./controllers/preferences')
-const CurrencyController = require('./controllers/currency')
 const ShapeShiftController = require('./controllers/shapeshift')
 const InfuraController = require('./controllers/infura')
 const BlacklistController = require('./controllers/blacklist')
@@ -55,7 +54,7 @@ const HW_WALLETS_KEYRINGS = [TrezorKeyring.type, LedgerBridgeKeyring.type]
 const EthQuery = require('eth-query')
 const ethUtil = require('ethereumjs-util')
 const sigUtil = require('eth-sig-util')
-const { AddressBookController } = require('gaba')
+const { AddressBookController, CurrencyRateController } = require('gaba')
 const backEndMetaMetricsEvent = require('./lib/backend-metametrics')
 
 
@@ -100,11 +99,7 @@ module.exports = class MetamaskController extends EventEmitter {
     })
 
     // currency controller
-    this.currencyController = new CurrencyController({
-      initState: initState.CurrencyController,
-    })
-    this.currencyController.updateConversionRate()
-    this.currencyController.scheduleConversionInterval()
+    this.currencyRateController = new CurrencyRateController(undefined, initState.CurrencyController)
 
     // infura controller
     this.infuraController = new InfuraController({
@@ -122,7 +117,7 @@ module.exports = class MetamaskController extends EventEmitter {
 
     // token exchange rate tracker
     this.tokenRatesController = new TokenRatesController({
-      currency: this.currencyController.store,
+      currency: this.currencyRateController,
       preferences: this.preferencesController.store,
     })
 
@@ -224,8 +219,7 @@ module.exports = class MetamaskController extends EventEmitter {
     })
     this.networkController.on('networkDidChange', () => {
       this.balancesController.updateAllBalances()
-      const currentCurrency = this.currencyController.getCurrentCurrency()
-      this.setCurrentCurrency(currentCurrency, function () {})
+      this.setCurrentCurrency(this.currencyRateController.state.currentCurrency, function () {})
     })
     this.balancesController.updateAllBalances()
 
@@ -255,7 +249,7 @@ module.exports = class MetamaskController extends EventEmitter {
       KeyringController: this.keyringController.store,
       PreferencesController: this.preferencesController.store,
       AddressBookController: this.addressBookController,
-      CurrencyController: this.currencyController.store,
+      CurrencyController: this.currencyRateController,
       ShapeShiftController: this.shapeshiftController.store,
       NetworkController: this.networkController.store,
       InfuraController: this.infuraController.store,
@@ -276,7 +270,7 @@ module.exports = class MetamaskController extends EventEmitter {
       PreferencesController: this.preferencesController.store,
       RecentBlocksController: this.recentBlocksController.store,
       AddressBookController: this.addressBookController,
-      CurrencyController: this.currencyController.store,
+      CurrencyController: this.currencyRateController,
       ShapeshiftController: this.shapeshiftController.store,
       InfuraController: this.infuraController.store,
       ProviderApprovalController: this.providerApprovalController.store,
@@ -1583,18 +1577,14 @@ module.exports = class MetamaskController extends EventEmitter {
    * @param {string} currencyCode - The code of the preferred currency.
    * @param {Function} cb - A callback function returning currency info.
    */
-  setCurrentCurrency (currencyCode, cb) {
+  async setCurrentCurrency (currencyCode, cb) {
     const { ticker } = this.networkController.getNetworkConfig()
     try {
-      this.currencyController.setNativeCurrency(ticker)
-      this.currencyController.setCurrentCurrency(currencyCode)
-      this.currencyController.updateConversionRate()
-      const data = {
-        nativeCurrency: ticker || 'ETH',
-        conversionRate: this.currencyController.getConversionRate(),
-        currentCurrency: this.currencyController.getCurrentCurrency(),
-        conversionDate: this.currencyController.getConversionDate(),
-      }
+      this.currencyRateController.configure({
+        nativeCurrency: ticker,
+        currentCurrency: currencyCode,
+      })
+      const data = await this.currencyRateController.updateExchangeRate()
       cb(null, data)
     } catch (err) {
       cb(err)
