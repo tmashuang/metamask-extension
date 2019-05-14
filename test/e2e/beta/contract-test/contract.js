@@ -37,7 +37,7 @@ web3.currentProvider.enable().then(() => {
   const createToken = document.getElementById('createToken')
   const transferTokens = document.getElementById('transferTokens')
   const approveTokens = document.getElementById('approveTokens')
-  const createTokenWithoutGas = document.getElementById('createTokenWithoutGas')
+  // const createTokenWithoutGas = document.getElementById('createTokenWithoutGas')
   const transferTokensWithoutGas = document.getElementById('transferTokensWithoutGas')
   const approveTokensWithoutGas = document.getElementById('approveTokensWithoutGas')
 
