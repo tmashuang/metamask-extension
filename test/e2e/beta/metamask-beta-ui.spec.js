@@ -1271,6 +1271,106 @@ describe('MetaMask', function () {
     })
   })
 
+  describe('Tranfers a custom token from dapp when no gas value is specified', () => {
+    it('transfers an already created token, without specifying gas', async () => {
+      const windowHandles = await driver.getAllWindowHandles()
+      const extension = windowHandles[0]
+      const dapp = await switchToWindowWithTitle(driver, 'E2E Test Dapp', windowHandles)
+      await closeAllWindowHandlesExcept(driver, [extension, dapp])
+      await delay(regularDelayMs)
+
+      await driver.switchTo().window(dapp)
+      await delay(tinyDelayMs)
+
+      const transferTokens = await findElement(driver, By.xpath(`//button[contains(text(), 'Transfer Tokens Without Gas')]`))
+      await transferTokens.click()
+
+      await closeAllWindowHandlesExcept(driver, extension)
+      await driver.switchTo().window(extension)
+      await delay(regularDelayMs)
+
+      await driver.wait(async () => {
+        const pendingTxes = await findElements(driver, By.css('.transaction-list__pending-transactions .transaction-list-item'))
+        return pendingTxes.length === 1
+      }, 10000)
+
+      const [txListItem] = await findElements(driver, By.css('.transaction-list-item'))
+      const [txListValue] = await findElements(driver, By.css('.transaction-list-item__amount--primary'))
+      await driver.wait(until.elementTextMatches(txListValue, /-7\s*TST/))
+      await txListItem.click()
+      await delay(regularDelayMs)
+    })
+
+    it('submits the transaction', async function () {
+      await delay(regularDelayMs)
+      const confirmButton = await findElement(driver, By.xpath(`//button[contains(text(), 'Confirm')]`))
+      await confirmButton.click()
+      await delay(regularDelayMs)
+    })
+
+    it('finds the transaction in the transactions list', async function () {
+      await driver.wait(async () => {
+        const confirmedTxes = await findElements(driver, By.css('.transaction-list__completed-transactions .transaction-list-item'))
+        return confirmedTxes.length === 4
+      }, 10000)
+
+      const txValues = await findElements(driver, By.css('.transaction-list-item__amount--primary'))
+      await driver.wait(until.elementTextMatches(txValues[0], /-7\s*TST/))
+      const txStatuses = await findElements(driver, By.css('.transaction-list-item__action'))
+      await driver.wait(until.elementTextMatches(txStatuses[0], /Transfer/))
+    })
+  })
+
+  describe('Approves a custom token from dapp when no gas value is specified', () => {
+    it('approves an already created token', async () => {
+      const windowHandles = await driver.getAllWindowHandles()
+      const extension = windowHandles[0]
+      const dapp = await switchToWindowWithTitle(driver, 'E2E Test Dapp', windowHandles)
+      await closeAllWindowHandlesExcept(driver, [extension, dapp])
+      await delay(regularDelayMs)
+
+      await driver.switchTo().window(dapp)
+      await delay(tinyDelayMs)
+
+      const transferTokens = await findElement(driver, By.xpath(`//button[contains(text(), 'Transfer Tokens Without Gas')]`))
+      await transferTokens.click()
+
+      await closeAllWindowHandlesExcept(driver, extension)
+      await driver.switchTo().window(extension)
+      await delay(regularDelayMs)
+
+      await driver.wait(async () => {
+        const pendingTxes = await findElements(driver, By.css('.transaction-list__pending-transactions .transaction-list-item'))
+        return pendingTxes.length === 1
+      }, 10000)
+
+      const [txListItem] = await findElements(driver, By.css('.transaction-list-item'))
+      const [txListValue] = await findElements(driver, By.css('.transaction-list-item__amount--primary'))
+      await driver.wait(until.elementTextMatches(txListValue, /-7\s*TST/))
+      await txListItem.click()
+      await delay(regularDelayMs)
+    })
+
+    it('submits the transaction', async function () {
+      await delay(regularDelayMs)
+      const confirmButton = await findElement(driver, By.xpath(`//button[contains(text(), 'Confirm')]`))
+      await confirmButton.click()
+      await delay(regularDelayMs)
+    })
+
+    it('finds the transaction in the transactions list', async function () {
+      await driver.wait(async () => {
+        const confirmedTxes = await findElements(driver, By.css('.transaction-list__completed-transactions .transaction-list-item'))
+        return confirmedTxes.length === 5
+      }, 10000)
+
+      const txValues = await findElements(driver, By.css('.transaction-list-item__amount--primary'))
+      await driver.wait(until.elementTextMatches(txValues[0], /-7\s*TST/))
+      const txStatuses = await findElements(driver, By.css('.transaction-list-item__action'))
+      await driver.wait(until.elementTextMatches(txStatuses[0], /Approve/))
+    })
+  })
+
   describe('Hide token', () => {
     it('hides the token when clicked', async () => {
       const [hideTokenEllipsis] = await findElements(driver, By.css('.token-list-item__ellipsis'))
