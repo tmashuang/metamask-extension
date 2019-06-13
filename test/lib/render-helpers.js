@@ -34,8 +34,8 @@ function mountWithRouter (node) {
   }
 
   const createContext = () => ({
-    context: { router, t: () => {} },
-    childContextTypes: { router: shape({}), t: () => {} },
+    context: { router, t: (str) => { str }, tOrKey: (str) => { str }, metricsEvent: () => {} },
+    childContextTypes: { router: shape({}), t: (str) => { str }, tOrKey: (str) => { str }, metricsEvent: () => {} },
   })
 
   return mount(node, createContext())

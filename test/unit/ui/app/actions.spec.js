@@ -1,3 +1,4 @@
+/* eslint-disable */
 // Used to inspect long objects
 // util.inspect({JSON}, false, null))
 // const util = require('util')
