@@ -91,7 +91,7 @@ const mapStateToProps = (state, ownProps) => {
   const transaction = R.find(({ id }) => id === (transactionId || Number(paramsTransactionId)))(selectedAddressTxList)
   const transactionStatus = transaction ? transaction.status : ''
 
-  if (transaction.simulationFails) {
+  if (transaction && transaction.simulationFails) {
     txData.simulationFails = transaction.simulationFails
   }
 
