@@ -222,7 +222,7 @@ describe('MetaMask', function () {
       const logoutButton = await findElement(driver, By.css('.account-menu__logout-button'))
       assert.equal(await logoutButton.getText(), 'Log out')
       await logoutButton.click()
-      await delay(regularDelayMs)
+      await delay(largeDelayMs)
     })
 
     it('imports seed phrase', async () => {
