@@ -94,12 +94,7 @@ module.exports = class NetworkController extends EventEmitter {
       }
 
 
-
-
-
       // note to future self fix this
-
-
 
 
       networks[key] = new Network(opts)
