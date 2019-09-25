@@ -1,5 +1,4 @@
 const EventEmitter = require('events')
-const extend = require('xtend')
 const ObservableStore = require('obs-store')
 const Network = require('./network')
 const { createSwappableProxy, createEventEmitterProxy } = require('swappable-obj-proxy')
@@ -241,8 +240,8 @@ module.exports = class NetworkController extends EventEmitter {
 
   _setProviderAndBlockTracker ({ provider, blockTracker }) {
     // update or intialize proxies
-      this._providerProxy.setTarget(provider)
-      this._blockTrackerProxy.setTarget(blockTracker)
+    this._providerProxy.setTarget(provider)
+    this._blockTrackerProxy.setTarget(blockTracker)
     // set new provider and blockTracker
     this._provider = provider
     this._blockTracker = blockTracker
