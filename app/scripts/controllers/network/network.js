@@ -16,6 +16,7 @@ module.exports = class Network {
     // parse options
     this.providerConfig = opts
     this.type = opts.type
+    this.onRequest = opts.onRequest
     if (opts.rpcUrl) this.rpcUrl = opts.rpcUrl
     if (opts.chainId) this.chainId = opts.chainId
     this.networkStore = new ObservableStore('loading')
@@ -129,7 +130,10 @@ module.exports = class Network {
 
   _configureInfuraProvider ({ type }) {
     log.info('NetworkController - configureInfuraProvider', type)
-    const networkClient = createInfuraClient({ network: type })
+    const networkClient = createInfuraClient({
+      network: type,
+      onRequest: this.onRequest,
+    })
     return this._addMetaMaskMiddleware(networkClient)
   }
 

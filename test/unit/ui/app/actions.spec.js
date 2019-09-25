@@ -35,15 +35,13 @@ describe('Actions', () => {
   const password = 'a-fake-password'
   const importPrivkey = '4cfd3e90fc78b0f86bf7524722150bb8da9c60cd532564d7ff43f5716514f553'
 
-  before((done) => {
-
+  before(function (done) {
+    // this.timeout(1000 * 10)
     nock('https://api.infura.io')
       .persist()
       .get(/.*/)
       .reply(200)
-
     metamaskController = new MetaMaskController({
-      provider,
       keyringController: new KeyringController({}),
       showUnapprovedTx: noop,
       showUnconfirmedMessage: noop,
@@ -58,6 +56,12 @@ describe('Actions', () => {
       },
       initState: clone(firstTimeState),
     })
+
+    metamaskController.threeBoxController = {
+      new3Box: sinon.spy(),
+      getThreeBoxAddress: sinon.spy(),
+      getThreeBoxSyncingState: sinon.spy(),
+    }
 
     metamaskController.createNewVaultAndRestore(password, TEST_SEED)
 

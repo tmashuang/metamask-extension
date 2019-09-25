@@ -89,6 +89,8 @@ module.exports = class NetworkController extends EventEmitter {
 
       if (isInfura(key)) {
         if (key === this.selectedNetworkConfig.type) opts.initialize = true
+        const network = config.type.split(':')[1]
+        opts.onRequest = (req) => this.emit('rpc-req', { network, req })
       } else {
         if (key === this.selectedNetworkConfig.rpcUrl) opts.initialize = true
       }
@@ -239,16 +241,8 @@ module.exports = class NetworkController extends EventEmitter {
 
   _setProviderAndBlockTracker ({ provider, blockTracker }) {
     // update or intialize proxies
-    if (this._providerProxy) {
       this._providerProxy.setTarget(provider)
-    } else {
-      this._providerProxy = createSwappableProxy(provider)
-    }
-    if (this._blockTrackerProxy) {
       this._blockTrackerProxy.setTarget(blockTracker)
-    } else {
-      this._blockTrackerProxy = createEventEmitterProxy(blockTracker, { eventFilter: 'skipInternal' })
-    }
     // set new provider and blockTracker
     this._provider = provider
     this._blockTracker = blockTracker

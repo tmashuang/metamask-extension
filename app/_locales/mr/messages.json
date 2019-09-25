@@ -1,27 +1,19 @@
 {
+  "appName": {
+    "message": "MetaMask",
+    "description": "The name of the application"
+  },
   "reject": {
     "message": "नाकारा"
   },
   "about": {
     "message": "बद्दल"
   },
-  "accept": {
-    "message": "स्वीकारा"
-  },
   "account": {
     "message": "खाते"
   },
-  "add": {
-    "message": "जोडा"
-  },
-  "address": {
-    "message": "पत्ता"
-  },
   "advanced": {
     "message": "प्रगत"
-  },
-  "available": {
-    "message": "उपलब्ध"
   },
   "back": {
     "message": "मागील"
@@ -50,12 +42,6 @@
   "connect": {
     "message": "कनेक्‍ट करा"
   },
-  "connecting": {
-    "message": "कनेक्ट करीत आहे..."
-  },
-  "continue": {
-    "message": "सुरू ठेवा"
-  },
   "copy": {
     "message": "कॉपी करा"
   },
@@ -64,12 +50,6 @@
   },
   "create": {
     "message": "तयार करा"
-  },
-  "createDen": {
-    "message": "तयार करा"
-  },
-  "customize": {
-    "message": "सानुकूल करा"
   },
   "delete": {
     "message": "हटवा"
@@ -88,9 +68,6 @@
   },
   "fast": {
     "message": "जलद"
-  },
-  "fastest": {
-    "message": "सर्वात जलद"
   },
   "forgetDevice": {
     "message": "हे डिव्हाइस विसरा"
@@ -115,14 +92,8 @@
   "loading": {
     "message": "लोड करीत आहे..."
   },
-  "min": {
-    "message": "किमान"
-  },
   "next": {
     "message": "पुढील"
-  },
-  "notFound": {
-    "message": "आढळली नाही"
   },
   "origin": {
     "message": "मूळ"
@@ -154,17 +125,11 @@
   "search": {
     "message": "शोधा"
   },
-  "select": {
-    "message": "निवडा"
-  },
   "send": {
     "message": "पाठवा"
   },
   "settings": {
     "message": "सेटिंग्ज"
-  },
-  "status": {
-    "message": "स्थिती"
   },
   "submit": {
     "message": "सबमिट करा"
@@ -183,8 +148,5 @@
   },
   "viewAccount": {
     "message": "खाते पहा"
-  },
-  "warning": {
-    "message": "चेतावणी"
   }
 }

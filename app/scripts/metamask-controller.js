@@ -29,6 +29,7 @@ const AppStateController = require('./controllers/app-state')
 const InfuraController = require('./controllers/infura')
 const CachedBalancesController = require('./controllers/cached-balances')
 const OnboardingController = require('./controllers/onboarding')
+const ThreeBoxController = require('./controllers/threebox')
 const RecentBlocksController = require('./controllers/recent-blocks')
 const IncomingTransactionsController = require('./controllers/incoming-transactions')
 const MessageManager = require('./lib/message-manager')
@@ -198,6 +199,16 @@ module.exports = class MetamaskController extends EventEmitter {
 
     this.addressBookController = new AddressBookController(undefined, initState.AddressBookController)
 
+    this.threeBoxController = new ThreeBoxController({
+      preferencesController: this.preferencesController,
+      addressBookController: this.addressBookController,
+      keyringController: this.keyringController,
+      initState: initState.ThreeBoxController,
+      getKeyringControllerState: this.keyringController.memStore.getState.bind(this.keyringController.memStore),
+      getSelectedAddress: this.preferencesController.getSelectedAddress.bind(this.preferencesController),
+      version,
+    })
+
     // tx mgmt
     this.txController = new TransactionController({
       initState: initState.TransactionController || initState.TransactionManager,
@@ -273,6 +284,7 @@ module.exports = class MetamaskController extends EventEmitter {
       OnboardingController: this.onboardingController.store,
       ProviderApprovalController: this.providerApprovalController.store,
       IncomingTransactionsController: this.incomingTransactionsController.store,
+      ThreeBoxController: this.threeBoxController.store,
     })
 
     this.memStore = new ComposableObservableStore(null, {
@@ -297,6 +309,8 @@ module.exports = class MetamaskController extends EventEmitter {
       ProviderApprovalController: this.providerApprovalController.store,
       ProviderApprovalControllerMemStore: this.providerApprovalController.memStore,
       IncomingTransactionsController: this.incomingTransactionsController.store,
+      // ThreeBoxController
+      ThreeBoxController: this.threeBoxController.store,
     })
     this.memStore.subscribe(this.sendUpdate.bind(this))
   }
@@ -367,7 +381,7 @@ module.exports = class MetamaskController extends EventEmitter {
       const result = {
         isUnlocked,
         isEnabled,
-        selectedAddress: isReady ? selectedAddress : undefined,
+        selectedAddress: isReady ? selectedAddress : null,
         networkVersion: network,
         onboardingcomplete: completedOnboarding,
         chainId: selectChainId({ network, provider }),
@@ -411,6 +425,7 @@ module.exports = class MetamaskController extends EventEmitter {
     const networkController = this.networkController
     const providerApprovalController = this.providerApprovalController
     const onboardingController = this.onboardingController
+    const threeBoxController = this.threeBoxController
 
     return {
       // etc
@@ -516,6 +531,14 @@ module.exports = class MetamaskController extends EventEmitter {
 
       // onboarding controller
       setSeedPhraseBackedUp: nodeify(onboardingController.setSeedPhraseBackedUp, onboardingController),
+
+      // 3Box
+      setThreeBoxSyncingPermission: nodeify(threeBoxController.setThreeBoxSyncingPermission, threeBoxController),
+      restoreFromThreeBox: nodeify(threeBoxController.restoreFromThreeBox, threeBoxController),
+      setRestoredFromThreeBoxToFalse: nodeify(threeBoxController.setRestoredFromThreeBoxToFalse, threeBoxController),
+      getThreeBoxLastUpdated: nodeify(threeBoxController.getLastUpdated, threeBoxController),
+      turnThreeBoxSyncingOn: nodeify(threeBoxController.turnThreeBoxSyncingOn, threeBoxController),
+      initializeThreeBox: nodeify(this.initializeThreeBox, this),
     }
   }
 
@@ -575,13 +598,13 @@ module.exports = class MetamaskController extends EventEmitter {
       this.preferencesController.setAddresses([])
       // create new vault
       const vault = await keyringController.createNewVaultAndRestore(password, seed)
-
       const ethQuery = new EthQuery(this.provider)
       accounts = await keyringController.getAccounts()
       lastBalance = await this.getBalance(accounts[accounts.length - 1], ethQuery)
 
       const primaryKeyring = keyringController.getKeyringsByType('HD Key Tree')[0]
       if (!primaryKeyring) {
+
         throw new Error('MetamaskController - No HD Key Tree found')
       }
 
@@ -596,6 +619,7 @@ module.exports = class MetamaskController extends EventEmitter {
       this.preferencesController.setAddresses(accounts)
       this.selectFirstIdentity()
       releaseLock()
+
       return vault
     } catch (err) {
       releaseLock()
@@ -717,6 +741,19 @@ module.exports = class MetamaskController extends EventEmitter {
 
     await this.preferencesController.syncAddresses(accounts)
     await this.txController.pendingTxTracker.updatePendingTxs()
+
+    const threeBoxFeatureFlagTurnedOn = this.preferencesController.getFeatureFlags().threeBox
+
+    if (threeBoxFeatureFlagTurnedOn) {
+      const threeBoxSyncingAllowed = this.threeBoxController.getThreeBoxSyncingState()
+      if (threeBoxSyncingAllowed && !this.threeBoxController.box) {
+        await this.threeBoxController.new3Box()
+        this.threeBoxController.turnThreeBoxSyncingOn()
+      } else if (threeBoxSyncingAllowed && this.threeBoxController.box) {
+        this.threeBoxController.turnThreeBoxSyncingOn()
+      }
+    }
+
     return this.keyringController.fullUpdate()
   }
 
@@ -1661,6 +1698,10 @@ module.exports = class MetamaskController extends EventEmitter {
    */
   async delCustomRpc (rpcUrl) {
     await this.networkController.removeNetwork(rpcUrl)
+  }
+
+  async initializeThreeBox () {
+    await this.threeBoxController.new3Box()
   }
 
   /**

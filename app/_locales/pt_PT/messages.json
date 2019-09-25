@@ -1,30 +1,22 @@
 {
+  "appName": {
+    "message": "MetaMask",
+    "description": "The name of the application"
+  },
   "reject": {
     "message": "Rejeitar"
   },
   "about": {
     "message": "Acerca de"
   },
-  "accept": {
-    "message": "Aceitar"
-  },
   "account": {
     "message": "Conta"
-  },
-  "add": {
-    "message": "Adicionar"
-  },
-  "address": {
-    "message": "Endereço"
   },
   "advanced": {
     "message": "Avançadas"
   },
   "amount": {
     "message": "Quantia"
-  },
-  "available": {
-    "message": "Disponível"
   },
   "back": {
     "message": "Anterior"
@@ -53,12 +45,6 @@
   "connect": {
     "message": "Ligar"
   },
-  "connecting": {
-    "message": "A ligar..."
-  },
-  "continue": {
-    "message": "Continuar"
-  },
   "copiedExclamation": {
     "message": "Copiado!"
   },
@@ -70,12 +56,6 @@
   },
   "create": {
     "message": "Criar"
-  },
-  "createDen": {
-    "message": "Criar"
-  },
-  "customize": {
-    "message": "Personalizar"
   },
   "delete": {
     "message": "Eliminar"
@@ -100,9 +80,6 @@
   },
   "fast": {
     "message": "Rápido"
-  },
-  "fastest": {
-    "message": "A mais rápida"
   },
   "forgetDevice": {
     "message": "Esquecer este dispositivo"
@@ -134,14 +111,8 @@
   "loading": {
     "message": "A carregar..."
   },
-  "min": {
-    "message": "Mínimo"
-  },
   "next": {
     "message": "Seguinte"
-  },
-  "notFound": {
-    "message": "Não encontrado"
   },
   "origin": {
     "message": "Origem"
@@ -176,27 +147,14 @@
   "slow": {
     "message": "Lento"
   },
-  "saveAsFile": {
-    "message": "Gravar como Ficheiro",
-    "description": "Account export process"
-  },
   "search": {
     "message": "Pesquisar"
-  },
-  "select": {
-    "message": "Selecionar"
   },
   "send": {
     "message": "Enviar"
   },
   "settings": {
     "message": "Definições"
-  },
-  "showQRCode": {
-    "message": "Mostre o código QR"
-  },
-  "status": {
-    "message": "Estado"
   },
   "submit": {
     "message": "Submeter"
@@ -206,9 +164,6 @@
   },
   "tryAgain": {
     "message": "Tentar novamente"
-  },
-  "unavailable": {
-    "message": "Indisponível"
   },
   "unknown": {
     "message": "Desconhecido"
@@ -221,9 +176,6 @@
   },
   "viewAccount": {
     "message": "Ver Conta"
-  },
-  "warning": {
-    "message": "Aviso"
   },
   "welcomeBack": {
     "message": "Bem-vindo de volta!"
