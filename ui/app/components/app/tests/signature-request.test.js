@@ -44,10 +44,6 @@ describe('Signature Request', () => {
     props.clearConfirmTransaction.resetHistory()
   })
 
-  xit('', () => {
-    console.log(wrapper.debug())
-  })
-
   it('cancel', (done) => {
     const cancelButton = wrapper.find('.button.btn-default.btn--large.request-signature__footer__cancel-button')
     cancelButton.simulate('click')
