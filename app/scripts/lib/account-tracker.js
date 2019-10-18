@@ -225,7 +225,7 @@ class AccountTracker {
 
   /**
    * Updates current address balances from balanceChecker deployed contract instance
-   * @param {*} addresses
+   * @param {*} addresses-
    * @param {*} deployedContractAddress
    */
   async _updateAccountsViaBalanceChecker (addresses, deployedContractAddress) {
