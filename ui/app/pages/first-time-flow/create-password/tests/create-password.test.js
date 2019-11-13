@@ -14,7 +14,7 @@ import NewAccount from '../new-account'
 import ImportWithSeedPhrase from '../import-with-seed-phrase'
 import CreatePassword from '../index'
 
-describe.only('Create Password', () => {
+describe('Create Password', () => {
 
   it('pushes initialized seed phrase route when isInitialized is true', () => {
 
