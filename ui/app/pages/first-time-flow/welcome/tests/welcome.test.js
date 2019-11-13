@@ -2,7 +2,8 @@ import React from 'react'
 import assert from 'assert'
 import sinon from 'sinon'
 import configureMockStore from 'redux-mock-store'
-import { mountWithRouter } from '../../../../../../test/lib/render-helpers'
+import { mountWithRouter, stubComponent } from '../../../../../../test/lib/render-helpers'
+import Mascot from '../../../../components/ui/mascot'
 import Welcome from '../index'
 
 describe('Welcome', () => {
@@ -11,6 +12,8 @@ describe('Welcome', () => {
   }
 
   const store = configureMockStore()(mockStore)
+
+  stubComponent(Mascot)
 
   it('routes to select action when participateInMetaMetrics is not initialized', () => {
 
