@@ -410,8 +410,10 @@ describe('Actions', () => {
 
       const addNewAccountSpy = sinon.spy(background, 'addNewAccount')
 
-      store.dispatch(actions.addNewAccount())
-      assert(addNewAccountSpy.calledOnce)
+      return store.dispatch(actions.addNewAccount())
+        .then(() => {
+          assert(addNewAccountSpy.calledOnce)
+        })
     })
 
   })
@@ -428,15 +430,16 @@ describe('Actions', () => {
       checkHardwareStatusSpy.restore()
     })
 
-    it('calls checkHardwareStatus in background', async () => {
+    it('calls checkHardwareStatus in background', (done) => {
 
       const store = mockStore()
 
-      store.dispatch(await actions.checkHardwareStatus('ledger', `m/44'/60'/0'/0`))
+      store.dispatch(actions.checkHardwareStatus('ledger', `m/44'/60'/0'/0`))
       assert.equal(checkHardwareStatusSpy.calledOnce, true)
+      done()
     })
 
-    it('shows loading indicator and displays error', async () => {
+    it('shows loading indicator and displays error', () => {
       const store = mockStore()
 
       const expectedActions = [
@@ -448,12 +451,11 @@ describe('Actions', () => {
         callback(new Error('error'))
       })
 
-      try {
-        await store.dispatch(actions.checkHardwareStatus())
-        assert.fail('Should have thrown error')
-      } catch (_) {
-        assert.deepEqual(store.getActions(), expectedActions)
-      }
+      return store.dispatch(actions.checkHardwareStatus())
+        .catch(() => {
+          assert.deepEqual(store.getActions(), expectedActions)
+        })
+
     })
   })
 
@@ -478,7 +480,7 @@ describe('Actions', () => {
 
     })
 
-    it('shows loading indicator and displays error', async () => {
+    it('shows loading indicator and displays error', () => {
       const store = mockStore()
 
       const expectedActions = [
@@ -490,12 +492,11 @@ describe('Actions', () => {
         callback(new Error('error'))
       })
 
-      try {
-        await store.dispatch(actions.forgetDevice())
-        assert.fail('Should have thrown error')
-      } catch (_) {
-        assert.deepEqual(store.getActions(), expectedActions)
-      }
+      return store.dispatch(actions.forgetDevice())
+        .catch(() => {
+          assert.deepEqual(store.getActions(), expectedActions)
+        })
+
     })
   })
 
@@ -520,7 +521,7 @@ describe('Actions', () => {
 
     })
 
-    it('shows loading indicator and displays error', async () => {
+    it('shows loading indicator and displays error', () => {
       const store = mockStore()
 
       const expectedActions = [
@@ -532,12 +533,11 @@ describe('Actions', () => {
         callback(new Error('error'))
       })
 
-      try {
-        await store.dispatch(actions.connectHardware())
-        assert.fail('Should have thrown error')
-      } catch (_) {
-        assert.deepEqual(store.getActions(), expectedActions)
-      }
+      return store.dispatch(actions.connectHardware())
+        .catch(() => {
+          assert.deepEqual(store.getActions(), expectedActions)
+        })
+
     })
   })
 
@@ -562,7 +562,7 @@ describe('Actions', () => {
 
     })
 
-    it('shows loading indicator and displays error', async() => {
+    it('shows loading indicator and displays error', () => {
       const store = mockStore()
 
       const expectedActions = [
@@ -574,12 +574,11 @@ describe('Actions', () => {
         callback(new Error('error'))
       })
 
-      try {
-        await store.dispatch(actions.unlockHardwareWalletAccount())
-        assert.fail('Should have thrown error')
-      } catch (error) {
-        assert.deepEqual(store.getActions(), expectedActions)
-      }
+      return store.dispatch(actions.unlockHardwareWalletAccount())
+        .catch(() => {
+          assert.deepEqual(store.getActions(), expectedActions)
+        })
+
     })
   })
 
