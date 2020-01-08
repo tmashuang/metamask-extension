@@ -1,6 +1,7 @@
 const assert = require('assert')
 const sinon = require('sinon')
 const ethUtil = require('ethereumjs-util')
+const { hexToBn } = require('../../app/scripts/lib/util')
 
 const path = require('path')
 const util = require(path.join(__dirname, '..', '..', 'ui', 'app', 'helpers', 'utils', 'util.js'))
@@ -102,6 +103,12 @@ describe('util', function () {
       const hashed = ethUtil.toChecksumAddress(address.toLowerCase())
       assert.equal(hashed, address, 'example is hashed correctly')
       assert.ok(result, 'is valid by our check')
+    })
+
+    it('returns false for unrecoverable address', () => {
+      const address = '0x0000000000000000000000000000000000000000'
+      const result = util.isValidAddress(address)
+      assert.equal(result, false)
     })
   })
 
@@ -235,6 +242,7 @@ describe('util', function () {
         assert.equal(result.toString(10), '1111000000000000000', 'accepts decimals')
       })
     })
+
     describe('#isHex', function () {
       it('should return true when given a hex string', function () {
         const result = util.isHex('c3ab8ff13720e8ad9047dd39466b3c8974e592c2fa383d4a3960714caef0c4f2')
@@ -256,5 +264,14 @@ describe('util', function () {
         assert(result)
       })
     })
+
+    describe('#isValidENSAddress', () => {
+      it('returns array with ENS matches', () => {
+        const ENSAddress = 'longstring.eth'
+        const result = util.isValidENSAddress(ENSAddress)
+        assert.equal(result[0], ENSAddress)
+      })
+    })
+
   })
 })
