@@ -31,22 +31,13 @@ module.exports = {
 
 
 async function prepareExtensionForTesting ({ responsive } = {}) {
-  const browser = process.env.SELENIUM_BROWSER
+  const browser = process.env.BROWSER
   const extensionPath = `dist/${browser}`
   const { driver, extensionId, extensionUrl } = await buildWebDriver({ browser, extensionPath, responsive })
 
-  // Depending on the state of the application built into the above directory (extPath) and the value of
-  // METAMASK_DEBUG we will see different post-install behaviour and possibly some extra windows. Here we
-  // are closing any extraneous windows to reset us to a single window before continuing.
-
-  // wait an extra long time so any slow popups can trigger
-  await delay(4 * largeDelayMs)
-
-  const [tab1] = await driver.getAllWindowHandles()
-  await closeAllWindowHandlesExcept(driver, [tab1])
-  await driver.switchTo().window(tab1)
-  await driver.get(extensionUrl)
-
+  const pages = await driver.pages()
+  await driver.waitForTarget(target => target.url() === extensionUrl)
+  await pages[0].close()
   return { driver, extensionId, extensionUrl }
 }
 
@@ -101,18 +92,20 @@ async function checkBrowserForConsoleErrors (driver) {
 }
 
 async function verboseReportOnFailure (driver, test) {
-  let artifactDir
-  if (process.env.SELENIUM_BROWSER === 'chrome') {
-    artifactDir = `./test-artifacts/chrome/${test.title}`
-  } else if (process.env.SELENIUM_BROWSER === 'firefox') {
-    artifactDir = `./test-artifacts/firefox/${test.title}`
-  }
+  let screenshot
+
+  const artifactDir = `./test-artifacts/${test.title}`
   const filepathBase = `${artifactDir}/test-failure`
   await pify(mkdirp)(artifactDir)
-  const screenshot = await driver.takeScreenshot()
-  await pify(fs.writeFile)(`${filepathBase}-screenshot.png`, screenshot, { encoding: 'base64' })
-  const htmlSource = await driver.getPageSource()
-  await pify(fs.writeFile)(`${filepathBase}-dom.html`, htmlSource)
+
+  switch (process.env.BROWSER) {
+    case 'chrome':
+      screenshot = await driver.screenshot({ path: `${filepathBase}-screenshot.png`, fullPage: true })
+      await pify(fs.writeFile)(`${filepathBase}-screenshot.png`, screenshot, { encoding: 'base64' })
+      break
+    default:
+      break
+  }
 }
 
 function delay (time) {
@@ -181,17 +174,26 @@ async function switchToWindowWithTitle (driver, title, windowHandles) {
  * @param {Array?} windowHandles the full list of window handles
  * @returns {Promise<void>}
  */
-async function closeAllWindowHandlesExcept (driver, exceptions, windowHandles) {
+async function closeAllWindowHandlesExcept (driver, exceptions, pages) {
   exceptions = typeof exceptions === 'string' ? [ exceptions ] : exceptions
-  windowHandles = windowHandles || await driver.getAllWindowHandles()
-  const lastWindowHandle = windowHandles.pop()
-  if (!exceptions.includes(lastWindowHandle)) {
-    await driver.switchTo().window(lastWindowHandle)
-    await delay(1000)
-    await driver.close()
-    await delay(1000)
+  // windowHandles = windowHandles || await driver.getAllWindowHandles()
+  // const lastWindowHandle = windowHandles.pop()
+  // if (!exceptions.includes(lastWindowHandle)) {
+  //   await driver.switchTo().window(lastWindowHandle)
+  //   await delay(1000)
+  //   await driver.close()
+  //   await delay(1000)
+  // }
+  pages = pages || await driver.pages()
+  const lastPage = pages.pop()
+  const title = await lastPage.title()
+  if (!exceptions.includes(title)) {
+    await lastPage.bringToFront()
+    await lastPage.waitFor(2000)
+    await lastPage.close()
+    await lastPage.waitFor(2000)
   }
-  return windowHandles.length && await closeAllWindowHandlesExcept(driver, exceptions, windowHandles)
+  return pages.length && await closeAllWindowHandlesExcept(driver, exceptions, pages)
 }
 
 async function assertElementNotPresent (webdriver, driver, by) {

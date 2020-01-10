@@ -1,4 +1,6 @@
 const { Builder } = require('selenium-webdriver')
+const puppeteer = require('puppeteer')
+// import puppeteer from 'puppeteer'
 const chrome = require('selenium-webdriver/chrome')
 
 /**
@@ -7,19 +9,20 @@ const chrome = require('selenium-webdriver/chrome')
 class ChromeDriver {
   static async build ({ extensionPath, responsive }) {
     const args = [
+      `--disable-extensions-except=${extensionPath}`,
       `load-extension=${extensionPath}`,
     ]
     if (responsive) {
       args.push('--auto-open-devtools-for-tabs')
     }
-    const options = new chrome.Options()
-      .addArguments(args)
-    const driver = new Builder()
-      .forBrowser('chrome')
-      .setChromeOptions(options)
-      .build()
+
+    const driver = await puppeteer.launch({
+      headless: false,
+      defaultViewport: null,
+      args,
+    })
     const chromeDriver = new ChromeDriver(driver)
-    const extensionId = await chromeDriver.getExtensionIdByName('MetaMask')
+    const extensionId = await chromeDriver.getExtensionId()
 
     return {
       driver,
@@ -40,23 +43,12 @@ class ChromeDriver {
    * @param {string} extensionName the extension name
    * @return {Promise<string|undefined>} the extension ID
    */
-  async getExtensionIdByName (extensionName) {
-    await this._driver.get('chrome://extensions')
-    return await this._driver.executeScript(`
-      const extensions = document.querySelector("extensions-manager").shadowRoot
-        .querySelector("extensions-item-list").shadowRoot
-        .querySelectorAll("extensions-item")
-
-      for (let i = 0; i < extensions.length; i++) {
-        const extension = extensions[i].shadowRoot
-        const name = extension.querySelector('#name').textContent
-        if (name === "${extensionName}") {
-          return extensions[i].getAttribute("id")
-        }
-      }
-
-      return undefined
-    `)
+  async getExtensionId () {
+    const targets = await this._driver.targets()
+    const backgroundPageTarget = await targets.find(target => target.type() === 'background_page')
+    const url = await backgroundPageTarget.url()
+    const extensionId = url.split('/')[2]
+    return extensionId
   }
 }
 
