@@ -2,7 +2,7 @@ import React from 'react'
 import assert from 'assert'
 import sinon from 'sinon'
 import { shallow } from 'enzyme'
-import AccountDetailsModal from '../account-details-modal'
+import AccountDetailsModal from '../index'
 
 describe('Account Details Modal', () => {
   let wrapper

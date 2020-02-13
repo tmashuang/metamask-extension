@@ -1,0 +1,25 @@
+TODOS:
+  Testing Files
+  Coverage None:
+  ✔ ui/app/components/app/modals/loading-network-error @done(20-02-10 20:32)
+  ☐ ui/app/components/app/modals/qr-scanner
+  Find way to stub the BrowserQRCodeReader w/ proxyquire
+
+  Cover Low >50%:
+    ☐ ui/app/components/app/modals/new-account-modal
+  ☐ ui/app/components/app/modals/cancel-transaction
+  ☐ ui/app/components/app/modals/deposit-ether-modal
+  ☐ ui/app/components/app/modals/add-to-addressbook-modal
+  ☐ ui/app/components/app/modals/transaction-confirmed
+  ☐ ui/app/components/app/modals/metametrics-opt-in-modal
+  ☐ ui/app/components/app/modals/account-details-modal
+
+  Work In-Progress:
+  ☐ ui/app/pages/settings/networks-tab/network-form/tests/network-form.test.js
+
+
+  Unused/Dead Code:
+    Shapeshift
+  ☐ ui/app/components/app/shift-list-item/shift-list-item.component.js
+  ☐ ui/app/components/ui/eth-balance/eth-balance.container.js
+  ☐ ui/app/components/app/transaction-list/transaction-list.component.js#L126
