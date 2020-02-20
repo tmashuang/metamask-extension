@@ -1,14 +1,13 @@
 import React from 'react'
 import { Provider } from 'react-redux'
+import thunk from 'redux-thunk'
 import assert from 'assert'
 import sinon from 'sinon'
 import configureMockStore from 'redux-mock-store'
-import { mount, shallow } from 'enzyme'
-import { mountWithRouter, shallowWithRouter } from '../../../../../../test/lib/render-helpers'
+import { mountWithRouter } from '../../../../../../test/lib/render-helpers'
 import TransactionList from '../index'
-import thunk from 'redux-thunk'
 
-describe.only('Transaction List', () => {
+describe('Transaction List', () => {
   let wrapper
 
   const propTx1 = {
@@ -25,12 +24,15 @@ describe.only('Transaction List', () => {
     primaryTransaction: {},
   }
 
+  const blockTime = 'mockBlockTime'
+
   const props = {
     updateNetworkNonce: sinon.stub().resolves(),
-    fetchGasEstimates: sinon.stub(),
-    fetchBasicGasAndTimeEstimates: sinon.stub(),
-    pendingTransactions: [],
-    completedTransactions: [],
+    fetchGasEstimates: sinon.stub().resolves(),
+    fetchBasicGasAndTimeEstimates: sinon.stub().resolves({ blockTime }),
+    pendingTransactions: [propTx1],
+    completedTransactions: [propTx2],
+    transactionTimeFeatureActive: true,
   }
 
   const mockStore = {
@@ -88,24 +90,16 @@ describe.only('Transaction List', () => {
     sinon.restore()
   })
 
-  // it('', () => {
-  //   console.log(wrapper.debug())
-  // })
 
-  it('renders', () => {
+  it('renders and calls fetchBasicGasAndTimeEstimates/fetchGasEstimates for blockTime on mount', () => {
     assert.equal(wrapper.length, 1)
+
+    setImmediate(() => {
+      assert(props.fetchBasicGasAndTimeEstimates.calledOnce)
+      assert(props.fetchGasEstimates.calledOnce)
+      assert.equal(props.fetchGasEstimates.getCall(0).args[0], blockTime)
+    })
   })
 
-  it('renders empty tranasction when no transactions in props', () => {
-    const noTransactions = wrapper.find('.transaction-list__empty-text')
-
-    assert.equal(noTransactions.length, 1)
-  })
-
-  it('', () => {
-    wrapper.find('TransactionList').setProps({ pendingTransactions: [propTx1], completedTransactions: [propTx2] })
-
-    console.log(wrapper.debug())
-  })
 
 })
