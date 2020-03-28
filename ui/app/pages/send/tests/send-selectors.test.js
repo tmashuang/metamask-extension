@@ -90,8 +90,8 @@ describe('send selectors', function () {
     })
   })
 
-  // describe('autoAddToBetaUI()', () => {
-  //   it('should', () => {
+  // describe('autoAddToBetaUI()', function () {
+  //   it('should', function () {
   //     assert.deepEqual(
   //       autoAddToBetaUI(mockState),
 

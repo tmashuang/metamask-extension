@@ -2,7 +2,7 @@ import React from 'react'
 import assert from 'assert'
 import sinon from 'sinon'
 import { mount } from 'enzyme'
-import AdvancedTabContent from '../index'
+import AdvancedGasInputs from '../index'
 
 describe('Advanced Gas Inputs', function () {
   let wrapper, clock
@@ -23,7 +23,7 @@ describe('Advanced Gas Inputs', function () {
     clock = sinon.useFakeTimers()
 
     wrapper = mount(
-      <AdvancedTabContent.WrappedComponent
+      <AdvancedGasInputs.WrappedComponent
         {...props}
       />, {
         context: {

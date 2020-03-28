@@ -3,11 +3,11 @@ import PropTypes from 'prop-types'
 import Select from 'react-select'
 
 // Subviews
-import JsonImportView from './json.js'
+import JsonImportSubview from './json.js'
 
 import PrivateKeyImportView from './private-key.js'
 
-export default class AccountImportSubview extends Component {
+export default class NewAccountImportForm extends Component {
   static contextTypes = {
     t: PropTypes.func,
   }
@@ -30,9 +30,9 @@ export default class AccountImportSubview extends Component {
       case this.context.t('privateKey'):
         return <PrivateKeyImportView />
       case this.context.t('jsonFile'):
-        return <JsonImportView />
+        return <JsonImportSubview />
       default:
-        return <JsonImportView />
+        return <JsonImportSubview />
     }
   }
 

@@ -1,170 +1,136 @@
 import React from 'react'
+import { Provider } from 'react-redux'
+import sinon from 'sinon'
 import assert from 'assert'
-import { shallow } from 'enzyme'
-import TransactionListItemDetails from '../transaction-list-item-details.component'
-import Button from '../../../ui/button'
-import SenderToRecipient from '../../../ui/sender-to-recipient'
-import TransactionBreakdown from '../../transaction-breakdown'
-import TransactionActivityLog from '../../transaction-activity-log'
+import configureMockStore from 'redux-mock-store'
+import { mountWithRouter } from '../../../../../../test/lib/render-helpers'
+import proxyquire from 'proxyquire'
 
-describe('TransactionListItemDetails Component', function () {
-  it('should render properly', function () {
-    const transaction = {
-      history: [],
-      id: 1,
-      status: 'confirmed',
-      txParams: {
-        from: '0x1',
-        gas: '0x5208',
-        gasPrice: '0x3b9aca00',
-        nonce: '0xa4',
-        to: '0x2',
-        value: '0x2386f26fc10000',
-      },
-    }
+const clipboardSpy = sinon.spy()
 
-    const transactionGroup = {
-      transactions: [transaction],
-      primaryTransaction: transaction,
-      initialTransaction: transaction,
-    }
+const TransactionListItemDetails = proxyquire('../transaction-list-item-details.component.js', {
+  'copy-to-clipboard': clipboardSpy,
+}).default
 
-    const wrapper = shallow(
-      <TransactionListItemDetails
-        recipientAddress="0x1"
-        senderAddress="0x2"
-        tryReverseResolveAddress={() => {}}
-        transactionGroup={transactionGroup}
-        senderNickname="sender-nickname"
-        recipientNickname="recipient-nickname"
-      />,
-      { context: { t: (str1, str2) => (str2 ? str1 + str2 : str1) } }
-    )
+describe('TransactionListItemDetails clicking props', function () {
 
-    assert.ok(wrapper.hasClass('transaction-list-item-details'))
-    assert.equal(wrapper.find(Button).length, 2)
-    assert.equal(wrapper.find(SenderToRecipient).length, 1)
-    assert.equal(wrapper.find(TransactionBreakdown).length, 1)
-    assert.equal(wrapper.find(TransactionActivityLog).length, 1)
-  })
+  let wrapper
 
-  it('should render a retry button', function () {
-    const transaction = {
-      history: [],
-      id: 1,
-      status: 'confirmed',
-      txParams: {
-        from: '0x1',
-        gas: '0x5208',
-        gasPrice: '0x3b9aca00',
-        nonce: '0xa4',
-        to: '0x2',
-        value: '0x2386f26fc10000',
-      },
-    }
+  const openWindowSpy = sinon.spy()
 
-    const transactionGroup = {
-      transactions: [transaction],
-      primaryTransaction: transaction,
-      initialTransaction: transaction,
+  const transaction = {
+    history: [],
+    hash: '0xHash',
+    metamaskNetworkId: '4',
+    id: 101,
+    status: 'confirmed',
+    txParams: {
+      from: '0x1',
+      gas: '0x5208',
+      gasPrice: '0x3b9aca00',
       nonce: '0xa4',
-      hasRetried: false,
-      hasCancelled: false,
-    }
+      to: '0x2',
+      value: '0x2386f26fc10000',
+    },
+  }
 
-    const wrapper = shallow(
-      <TransactionListItemDetails
-        recipientAddress="0x1"
-        senderAddress="0x2"
-        tryReverseResolveAddress={() => {}}
-        transactionGroup={transactionGroup}
-        showSpeedUp
-        senderNickname="sender-nickname"
-        recipientNickname="recipient-nickname"
-      />,
-      { context: { t: (str1, str2) => (str2 ? str1 + str2 : str1) } }
-    )
 
-    assert.ok(wrapper.hasClass('transaction-list-item-details'))
-    assert.equal(wrapper.find(Button).length, 3)
-  })
+  const transactionGroup = {
+    transactions: [transaction],
+    primaryTransaction: transaction,
+    initialTransaction: transaction,
+  }
 
-  it('should disable the Copy Tx ID and View In Etherscan buttons when tx hash is missing', function () {
-    const transaction = {
-      history: [],
-      id: 1,
-      status: 'confirmed',
-      txParams: {
-        from: '0x1',
-        gas: '0x5208',
-        gasPrice: '0x3b9aca00',
-        nonce: '0xa4',
-        to: '0x2',
-        value: '0x2386f26fc10000',
+
+  const props = {
+    transactionGroup,
+    recipientAddress: '0x2',
+    senderAddress: '0x1',
+    tryReverseResolveAddress: sinon.stub(),
+    onCancel: sinon.spy(),
+    onRetry: sinon.spy(),
+    senderNickname: '',
+    recipientNickname: '',
+    showSpeedUp: true,
+    showRetry: true,
+    cancelDisabled: false,
+    showCancel: true,
+  }
+
+  const mockStore = {
+    metamask: {
+      currentCurrency: 'test',
+      conversionRate: 1,
+      provider: {
+        type: 'test',
       },
-    }
-
-    const transactionGroup = {
-      transactions: [transaction],
-      primaryTransaction: transaction,
-      initialTransaction: transaction,
-    }
-
-    const wrapper = shallow(
-      <TransactionListItemDetails
-        recipientAddress="0x1"
-        senderAddress="0x2"
-        tryReverseResolveAddress={() => {}}
-        transactionGroup={transactionGroup}
-        senderNickname="sender-nickname"
-        recipientNickname="recipient-nickname"
-      />,
-      { context: { t: (str1, str2) => (str2 ? str1 + str2 : str1) } }
-    )
-
-    assert.ok(wrapper.hasClass('transaction-list-item-details'))
-    const buttons = wrapper.find(Button)
-    assert.strictEqual(buttons.at(0).prop('disabled'), true)
-    assert.strictEqual(buttons.at(1).prop('disabled'), true)
-  })
-
-  it('should render functional Copy Tx ID and View In Etherscan buttons when tx hash exists', function () {
-    const transaction = {
-      history: [],
-      id: 1,
-      status: 'confirmed',
-      hash: '0xaa',
-      txParams: {
-        from: '0x1',
-        gas: '0x5208',
-        gasPrice: '0x3b9aca00',
-        nonce: '0xa4',
-        to: '0x2',
-        value: '0x2386f26fc10000',
+      preferences: {
+        showFiatInTestnets: false,
       },
-    }
+    },
+  }
 
-    const transactionGroup = {
-      transactions: [transaction],
-      primaryTransaction: transaction,
-      initialTransaction: transaction,
-    }
+  const store = configureMockStore()(mockStore)
 
-    const wrapper = shallow(
-      <TransactionListItemDetails
-        recipientAddress="0x1"
-        senderAddress="0x2"
-        tryReverseResolveAddress={() => {}}
-        transactionGroup={transactionGroup}
-        senderNickname="sender-nickname"
-        recipientNickname="recipient-nickname"
-      />,
-      { context: { t: (str1, str2) => (str2 ? str1 + str2 : str1) } }
+  beforeEach(function () {
+
+    global.platform = { openWindow: openWindowSpy }
+
+    wrapper = mountWithRouter(
+      <Provider store={store}>
+        <TransactionListItemDetails {...props} />, {},
+      </Provider>
     )
-
-    assert.ok(wrapper.hasClass('transaction-list-item-details'))
-    const buttons = wrapper.find(Button)
-    assert.strictEqual(buttons.at(0).prop('disabled'), false)
-    assert.strictEqual(buttons.at(1).prop('disabled'), false)
   })
+
+  afterEach(function () {
+    props.onRetry.resetHistory()
+    props.onCancel.resetHistory()
+  })
+
+  after(function () {
+    sinon.restore()
+  })
+
+  it('calls onRetry from props with transaction id when speed up button is clicked', function () {
+    const buttons = wrapper.find('.transaction-list-item-details__header-button')
+    const speedUp = buttons.at(1)
+
+    speedUp.simulate('click')
+
+    assert(props.onRetry.calledOnce)
+    assert.equal(props.onRetry.getCall(0).args[0], transaction.id)
+  })
+
+
+  it('calls onCancel from props with transaction id when cancel button is clicked', function () {
+    const buttons = wrapper.find('.transaction-list-item-details__header-button')
+    const cancel = buttons.at(3)
+
+    cancel.simulate('click')
+
+    assert(props.onCancel.calledOnce)
+    assert.equal(props.onCancel.getCall(0).args[0], transaction.id)
+  })
+
+  it('calls copyToClipboard with transaction hash', function () {
+    const buttons = wrapper.find('.transaction-list-item-details__header-button')
+    const copyTxHash = buttons.at(5)
+
+    copyTxHash.simulate('click')
+
+    assert(clipboardSpy.calledOnce)
+    assert.equal(clipboardSpy.getCall(0).args[0], transaction.hash)
+  })
+
+  it('clicks etherscan copy icon to open window', function () {
+    const buttons = wrapper.find('.transaction-list-item-details__header-button')
+    const etherscan = buttons.at(7)
+
+    etherscan.simulate('click')
+
+    assert(openWindowSpy.calledOnce)
+    assert.equal(openWindowSpy.getCall(0).args[0].url, 'https://rinkeby.etherscan.io/tx/0xHash')
+  })
+
 })
