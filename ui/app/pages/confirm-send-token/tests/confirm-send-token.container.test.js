@@ -35,10 +35,10 @@ describe('Confirm Send', function () {
   })
 
   describe('mapDispatchToProps()', function () {
-    let dispatchSpy
+
     let mapDispatchToPropsObject
 
-    const props = {
+    const params = {
       txData: {
         id: 1,
         metamaskNetworkId: '66',
@@ -70,8 +70,7 @@ describe('Confirm Send', function () {
     }
 
     beforeEach(function () {
-      dispatchSpy = sinon.spy()
-      mapDispatchToPropsObject = mapDispatchToProps(dispatchSpy)
+      mapDispatchToPropsObject = mapDispatchToProps()
     })
 
     afterEach(function () {
@@ -84,7 +83,7 @@ describe('Confirm Send', function () {
 
     it('dispatches setSelectedToken when editTransaction is dispatched', function () {
 
-      mapDispatchToPropsObject.editTransaction(props)
+      mapDispatchToPropsObject.editTransaction(params)
 
       assert(actionSpies.setSelectedToken.calledOnce)
       assert.equal(actionSpies.setSelectedToken.getCall(0).args[0], '0x617b3f8050a0bd94b6b1da02b4384ee5b4df13f4')
@@ -92,7 +91,7 @@ describe('Confirm Send', function () {
     })
 
     it('dispatches updateSend when editTransaction is dispatched', function () {
-      mapDispatchToPropsObject.editTransaction(props)
+      mapDispatchToPropsObject.editTransaction(params)
 
       assert(actionSpies.updateSend.calledOnce)
       assert.deepEqual(
@@ -112,7 +111,7 @@ describe('Confirm Send', function () {
     })
 
     it('dispatches clearConfirmTransaction and showSendTokenPage when editTransaction is dispatched', function () {
-      mapDispatchToPropsObject.editTransaction(props)
+      mapDispatchToPropsObject.editTransaction(params)
 
       assert(duckActionSpies.clearConfirmTransaction.calledOnce)
       assert(actionSpies.showSendTokenPage.calledOnce)
