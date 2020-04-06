@@ -103,6 +103,7 @@ export default class TypedMessageManager extends EventEmitter {
    */
   addUnapprovedMessage (msgParams, req, version) {
     msgParams.version = version
+    console.log(msgParams)
     this.validateParams(msgParams)
     // add origin from request
     if (req) {
