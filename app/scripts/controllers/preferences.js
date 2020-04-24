@@ -11,9 +11,6 @@ class PreferencesController {
    * @property {object} store The stored object containing a users preferences, stored in local storage
 	 * @property {array} store.frequentRpcList A list of custom rpcs to provide the user
    * @property {string} store.currentAccountTab Indicates the selected tab in the ui
-   * @property {array} store.tokens The tokens the user wants display in their token lists
-   * @property {object} store.accountTokens The tokens stored per account and then per network type
-   * @property {object} store.assetImages Contains assets objects related to assets added
    * @property {boolean} store.useBlockie The users preference for blockie identicons within the UI
    * @property {boolean} store.useNonceField The users preference for nonce field within the UI
    * @property {object} store.featureFlags A key-boolean map, where keys refer to features and booleans to whether the
@@ -146,24 +143,6 @@ class PreferencesController {
   }
 
 
-  getSuggestedTokens () {
-    return this.store.getState().suggestedTokens
-  }
-
-  getAssetImages () {
-    return this.store.getState().assetImages
-  }
-
-  addSuggestedERC20Asset (tokenOpts) {
-    this._validateERC20AssetParams(tokenOpts)
-    const suggested = this.getSuggestedTokens()
-    const { rawAddress, symbol, decimals, image } = tokenOpts
-    const address = normalizeAddress(rawAddress)
-    const newEntry = { address, symbol, decimals, image }
-    suggested[address] = newEntry
-    this.store.updateState({ suggestedTokens: suggested })
-  }
-
   /**
    * Add new methodData to state, to avoid requesting this information again through Infura
    *
@@ -220,12 +199,11 @@ class PreferencesController {
    */
   removeAddress (address) {
     const identities = this.store.getState().identities
-    const accountTokens = this.store.getState().accountTokens
     if (!identities[address]) {
       throw new Error(`${address} can't be deleted cause it was not found`)
     }
     delete identities[address]
-    this.store.updateState({ identities, accountTokens })
+    this.store.updateState({ identities })
 
     // If the selected account is no longer valid,
     // select an arbitrary other account:
@@ -315,7 +293,6 @@ class PreferencesController {
    * Setter for the `selectedAddress` property
    *
    * @param {string} _address - A new hex address for an account
-   * @returns {Promise<void>} - Promise resolves with tokens
    *
    */
   setSelectedAddress (_address) {
