@@ -77,7 +77,7 @@ export default class AssetList extends Component {
   render () {
     const { setSelectedToken } = this.props
     return (
-      <>
+      <div className="token__list">
         {this.renderWalletBalance()}
         <TokenList
           onTokenClick={(tokenAddress) => {
@@ -92,7 +92,7 @@ export default class AssetList extends Component {
           }}
         />
         {this.renderAddToken()}
-      </>
+      </div>
     )
   }
 }
