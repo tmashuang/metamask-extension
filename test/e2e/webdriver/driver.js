@@ -2,15 +2,19 @@ const { promises: fs } = require('fs')
 const { until, error: webdriverError } = require('selenium-webdriver')
 const { strict: assert } = require('assert')
 
+const puppeteer = require('puppeteer')
+
+
 class Driver {
   /**
    * @param {!ThenableWebDriver} driver - A {@code WebDriver} instance
    * @param {string} browser - The type of browser this driver is controlling
    * @param {number} timeout
    */
-  constructor (driver, browser, extensionUrl, timeout = 10000) {
+  constructor (driver, page, browser, extensionUrl, timeout = 10000) {
     this.driver = driver
     this.browser = browser
+    this.page = page
     this.extensionUrl = extensionUrl
     this.timeout = timeout
   }
@@ -97,7 +101,7 @@ class Driver {
   // Navigation
 
   async navigate (page = Driver.PAGES.HOME) {
-    return await this.driver.get(`${this.extensionUrl}/${page}.html`)
+    return await this.driver.goto(`${this.extensionUrl}/${page}.html`)
   }
 
   // Metrics

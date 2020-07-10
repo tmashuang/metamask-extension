@@ -1,23 +1,32 @@
 const { Browser } = require('selenium-webdriver')
-const Driver = require('./driver')
-const ChromeDriver = require('./chrome')
+// const Driver = require('./driver')
+// const ChromeDriver = require('./chrome')
+const ChromeDriver = require('./puppeteer-wip')
 const FirefoxDriver = require('./firefox')
 const fetchMockResponses = require('../../data/fetch-mocks.json')
 
 async function buildWebDriver ({ responsive, port } = {}) {
-  const browser = process.env.SELENIUM_BROWSER
+  const browser = process.env.BROWSER
   const extensionPath = `dist/${browser}`
+  const slowMo = 25
 
-  const { driver: seleniumDriver, extensionId, extensionUrl } = await buildBrowserWebDriver(browser, { extensionPath, responsive, port })
-  setupFetchMocking(seleniumDriver)
-  const driver = new Driver(seleniumDriver, browser, extensionUrl)
-  await driver.navigate()
+  const {
+    driver,
+    extensionPage,
+    extensionId,
+    extensionUrl,
+  } = await buildBrowserWebDriver(browser, { extensionPath, responsive, port, slowMo })
+  // const driver = new Driver(puppeteerDriver, browser, extensionUrl)
+  // await driver.navigate()
+  await setupFetchMocking(extensionPage)
 
-  await driver.delay(1000)
+  // await driver.delay(1000)
 
   return {
     driver,
+    extensionPage,
     extensionId,
+    extensionUrl,
   }
 }
 
@@ -64,7 +73,7 @@ async function setupFetchMocking (driver) {
   // fetchMockResponses are parsed last minute to ensure that objects are uniquely instantiated
   const fetchMockResponsesJson = JSON.stringify(fetchMockResponses)
   // eval the fetchMocking script in the browser
-  await driver.executeScript(`(${fetchMocking})(${fetchMockResponsesJson})`)
+  await driver.evaluate(`(${fetchMocking})(${fetchMockResponsesJson})`)
 }
 
 module.exports = {
