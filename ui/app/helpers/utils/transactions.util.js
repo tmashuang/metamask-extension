@@ -215,14 +215,15 @@ export function sumHexes (...args) {
  * @returns {string}
  */
 export function getStatusKey (transaction) {
-  const { txReceipt: { status: receiptStatus } = {}, type, status } = transaction
-
+  const { txReceipt: { status: receiptStatus } = {}, type } = transaction
+  let status = transaction.status
   // There was an on-chain failure
   if (receiptStatus === '0x0') {
     return 'failed'
   }
 
   if (status === TRANSACTION_STATUS_CONFIRMED && type === TRANSACTION_TYPE_CANCEL) {
+    status = TRANSACTION_TYPE_CANCEL
     return 'cancelled'
   }
 
