@@ -1,13 +1,29 @@
 import React from 'react'
+import { Provider } from 'react-redux'
 import { mount } from 'enzyme'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Router } from 'react-router-dom'
 import PropTypes from 'prop-types'
 
 export function mountWithStore (component, store) {
-  const context = {
-    store,
-  }
-  return mount(component, { context })
+
+  const createContext = () => ({
+    context: {
+      t: (str) => str,
+      metricsEvent: () => {},
+    },
+    childContextTypes: {
+      t: PropTypes.func,
+      metricsEvent: PropTypes.func,
+    },
+  })
+
+  const Wrapper = () => (
+    <Provider store={store}>
+      {component}
+    </Provider>
+  )
+
+  return mount(<Wrapper />, createContext())
 }
 
 export function mountWithRouter (component, store = {}, pathname = '/') {
@@ -28,13 +44,11 @@ export function mountWithRouter (component, store = {}, pathname = '/') {
       router,
       t: (str) => str,
       metricsEvent: () => {},
-      store,
     },
     childContextTypes: {
       router: PropTypes.object,
       t: PropTypes.func,
       metricsEvent: PropTypes.func,
-      store: PropTypes.object,
     },
   })
 
@@ -45,4 +59,23 @@ export function mountWithRouter (component, store = {}, pathname = '/') {
   )
 
   return mount(<Wrapper />, createContext())
+}
+
+export function mountWithRouterHook (component, history = { push: () => {}, location: {}, listen: () => {} }) {
+
+  const store = component.props.store
+
+  const Wrapper = () => (
+    <Router history={history}>
+      {store ? (
+        <Provider store={store}>
+          { component }
+        </Provider>
+      ) : (
+        component
+      )}
+    </Router>
+  )
+
+  return mount(<Wrapper />)
 }
