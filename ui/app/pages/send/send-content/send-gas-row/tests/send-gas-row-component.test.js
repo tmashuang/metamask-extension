@@ -13,11 +13,11 @@ const propsMethodSpies = {
   resetGasButtons: sinon.spy(),
 }
 
-describe('SendGasRow Component', function () {
+describe('SendGasRow Component', () => {
   let wrapper
 
-  describe('render', function () {
-    beforeEach(function () {
+  describe('render', () => {
+    beforeEach(() => {
       wrapper = shallow((
         <SendGasRow
           conversionRate={20}
@@ -36,15 +36,15 @@ describe('SendGasRow Component', function () {
       ), { context: { t: (str) => str + '_t', metricsEvent: () => ({}) } })
     })
 
-    afterEach(function () {
+    afterEach(() => {
       propsMethodSpies.resetGasButtons.resetHistory()
     })
 
-    it('should render a SendRowWrapper component', function () {
+    it('should render a SendRowWrapper component', () => {
       assert.equal(wrapper.find(SendRowWrapper).length, 1)
     })
 
-    it('should pass the correct props to SendRowWrapper', function () {
+    it('should pass the correct props to SendRowWrapper', () => {
       const {
         label,
         showError,
@@ -56,11 +56,14 @@ describe('SendGasRow Component', function () {
       assert.equal(errorType, 'gasFee')
     })
 
-    it('should render a GasFeeDisplay as a child of the SendRowWrapper', function () {
-      assert(wrapper.find(SendRowWrapper).childAt(0).is(GasFeeDisplay))
-    })
+    it(
+      'should render a GasFeeDisplay as a child of the SendRowWrapper',
+      () => {
+        assert(wrapper.find(SendRowWrapper).childAt(0).is(GasFeeDisplay))
+      }
+    )
 
-    it('should render the GasFeeDisplay', function () {
+    it('should render the GasFeeDisplay', () => {
       const {
         gasLoadingError,
         gasTotal,
@@ -73,30 +76,36 @@ describe('SendGasRow Component', function () {
       assert.equal(propsMethodSpies.resetGasButtons.callCount, 1)
     })
 
-    it('should render the GasPriceButtonGroup if gasButtonGroupShown is true', function () {
-      wrapper.setProps({ gasButtonGroupShown: true })
-      const rendered = wrapper.find(SendRowWrapper).childAt(0)
-      assert.equal(rendered.children().length, 2)
+    it(
+      'should render the GasPriceButtonGroup if gasButtonGroupShown is true',
+      () => {
+        wrapper.setProps({ gasButtonGroupShown: true })
+        const rendered = wrapper.find(SendRowWrapper).childAt(0)
+        assert.equal(rendered.children().length, 2)
 
-      const gasPriceButtonGroup = rendered.childAt(0)
-      assert(gasPriceButtonGroup.is(GasPriceButtonGroup))
-      assert(gasPriceButtonGroup.hasClass('gas-price-button-group--small'))
-      assert.equal(gasPriceButtonGroup.props().showCheck, false)
-      assert.equal(gasPriceButtonGroup.props().someGasPriceButtonGroupProp, 'foo')
-      assert.equal(gasPriceButtonGroup.props().anotherGasPriceButtonGroupProp, 'bar')
-    })
+        const gasPriceButtonGroup = rendered.childAt(0)
+        assert(gasPriceButtonGroup.is(GasPriceButtonGroup))
+        assert(gasPriceButtonGroup.hasClass('gas-price-button-group--small'))
+        assert.equal(gasPriceButtonGroup.props().showCheck, false)
+        assert.equal(gasPriceButtonGroup.props().someGasPriceButtonGroupProp, 'foo')
+        assert.equal(gasPriceButtonGroup.props().anotherGasPriceButtonGroupProp, 'bar')
+      }
+    )
 
-    it('should render an advanced options button if gasButtonGroupShown is true', function () {
-      wrapper.setProps({ gasButtonGroupShown: true })
-      const rendered = wrapper.find(SendRowWrapper).childAt(0)
-      assert.equal(rendered.children().length, 2)
+    it(
+      'should render an advanced options button if gasButtonGroupShown is true',
+      () => {
+        wrapper.setProps({ gasButtonGroupShown: true })
+        const rendered = wrapper.find(SendRowWrapper).childAt(0)
+        assert.equal(rendered.children().length, 2)
 
-      const advancedOptionsButton = rendered.childAt(1)
-      assert.equal(advancedOptionsButton.text(), 'advancedOptions_t')
+        const advancedOptionsButton = rendered.childAt(1)
+        assert.equal(advancedOptionsButton.text(), 'advancedOptions_t')
 
-      assert.equal(propsMethodSpies.showCustomizeGasModal.callCount, 0)
-      advancedOptionsButton.props().onClick()
-      assert.equal(propsMethodSpies.showCustomizeGasModal.callCount, 1)
-    })
+        assert.equal(propsMethodSpies.showCustomizeGasModal.callCount, 0)
+        advancedOptionsButton.props().onClick()
+        assert.equal(propsMethodSpies.showCustomizeGasModal.callCount, 1)
+      }
+    )
   })
 })

@@ -37,11 +37,11 @@ const mockGasPriceButtonGroupProps = {
   showCheck: true,
 }
 
-describe('BasicTabContent Component', function () {
-  describe('render', function () {
+describe('BasicTabContent Component', () => {
+  describe('render', () => {
     let wrapper
 
-    beforeEach(function () {
+    beforeEach(() => {
       wrapper = shallow((
         <BasicTabContent
           gasPriceButtonGroupProps={mockGasPriceButtonGroupProps}
@@ -49,15 +49,15 @@ describe('BasicTabContent Component', function () {
       ))
     })
 
-    it('should have a title', function () {
+    it('should have a title', () => {
       assert(wrapper.find('.basic-tab-content').childAt(0).hasClass('basic-tab-content__title'))
     })
 
-    it('should render a GasPriceButtonGroup compenent', function () {
+    it('should render a GasPriceButtonGroup compenent', () => {
       assert.equal(wrapper.find(GasPriceButtonGroup).length, 1)
     })
 
-    it('should pass correct props to GasPriceButtonGroup', function () {
+    it('should pass correct props to GasPriceButtonGroup', () => {
       const {
         buttonDataLoading,
         className,
@@ -75,13 +75,16 @@ describe('BasicTabContent Component', function () {
       assert.equal(JSON.stringify(handleGasPriceSelection), JSON.stringify(mockGasPriceButtonGroupProps.handleGasPriceSelection))
     })
 
-    it('should render a loading component instead of the GasPriceButtonGroup if gasPriceButtonGroupProps.loading is true', function () {
-      wrapper.setProps({
-        gasPriceButtonGroupProps: { ...mockGasPriceButtonGroupProps, loading: true },
-      })
+    it(
+      'should render a loading component instead of the GasPriceButtonGroup if gasPriceButtonGroupProps.loading is true',
+      () => {
+        wrapper.setProps({
+          gasPriceButtonGroupProps: { ...mockGasPriceButtonGroupProps, loading: true },
+        })
 
-      assert.equal(wrapper.find(GasPriceButtonGroup).length, 0)
-      assert.equal(wrapper.find(Loading).length, 1)
-    })
+        assert.equal(wrapper.find(GasPriceButtonGroup).length, 0)
+        assert.equal(wrapper.find(Loading).length, 1)
+      }
+    )
   })
 })

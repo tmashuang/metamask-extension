@@ -3,8 +3,8 @@ import assert from 'assert'
 import { shallow } from 'enzyme'
 import TransactionBreakdown from '../transaction-breakdown.component'
 
-describe('TransactionBreakdown Component', function () {
-  it('should render properly', function () {
+describe('TransactionBreakdown Component', () => {
+  it('should render properly', () => {
     const transaction = {
       history: [],
       id: 1,

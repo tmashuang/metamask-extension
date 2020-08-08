@@ -4,8 +4,8 @@ import sinon from 'sinon'
 import { mount } from 'enzyme'
 import TransactionConfirmed from '../index'
 
-describe('Transaction Confirmed', function () {
-  it('clicks ok to submit and hide modal', function () {
+describe('Transaction Confirmed', () => {
+  it('clicks ok to submit and hide modal', () => {
     const props = {
       onSubmit: sinon.spy(),
       hideModal: sinon.spy(),

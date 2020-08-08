@@ -8,19 +8,19 @@ import * as metricEventHook from '../useMetricEvent'
 import { showSidebar } from '../../store/actions'
 import { useRetryTransaction } from '../useRetryTransaction'
 
-describe('useRetryTransaction', function () {
-  describe('when transaction meets retry enabled criteria', function () {
+describe('useRetryTransaction', () => {
+  describe('when transaction meets retry enabled criteria', () => {
     const dispatch = sinon.spy(() => Promise.resolve({ blockTime: 0 }))
     const trackEvent = sinon.spy()
     const event = { preventDefault: () => {}, stopPropagation: () => {} }
 
-    before(function () {
+    beforeAll(() => {
       sinon.stub(reactRedux, 'useDispatch').returns(dispatch)
       sinon.stub(methodDataHook, 'useMethodData').returns({})
       sinon.stub(metricEventHook, 'useMetricEvent').returns(trackEvent)
     })
 
-    afterEach(function () {
+    afterEach(() => {
       dispatch.resetHistory()
       trackEvent.resetHistory()
     })
@@ -34,14 +34,14 @@ describe('useRetryTransaction', function () {
       hasRetried: false,
     }
 
-    it('retryTransaction function should track metrics', function () {
+    it('retryTransaction function should track metrics', () => {
       const { result } = renderHook(() => useRetryTransaction(retryEnabledTransaction, true))
       const retry = result.current
       retry(event)
       assert.equal(trackEvent.calledOnce, true)
     })
 
-    it('retryTransaction function should show retry sidebar', async function () {
+    it('retryTransaction function should show retry sidebar', async () => {
       const { result } = renderHook(() => useRetryTransaction(retryEnabledTransaction, true))
       const retry = result.current
       await retry(event)
@@ -59,7 +59,7 @@ describe('useRetryTransaction', function () {
       )
     })
 
-    after(function () {
+    afterAll(() => {
       sinon.restore()
     })
   })

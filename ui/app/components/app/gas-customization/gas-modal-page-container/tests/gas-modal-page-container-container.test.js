@@ -1,5 +1,4 @@
 import assert from 'assert'
-import proxyquire from 'proxyquire'
 import sinon from 'sinon'
 
 let mapStateToProps
@@ -26,33 +25,40 @@ const sendActionSpies = {
   hideGasButtonGroup: sinon.spy(),
 }
 
-proxyquire('../gas-modal-page-container.container.js', {
-  'react-redux': {
-    connect: (ms, md, mp) => {
-      mapStateToProps = ms
-      mapDispatchToProps = md
-      mergeProps = mp
-      return () => ({})
-    },
-  },
-  '../../../../selectors': {
-    getBasicGasEstimateLoadingStatus: (s) => `mockBasicGasEstimateLoadingStatus:${Object.keys(s).length}`,
-    getRenderableBasicEstimateData: (s) => `mockRenderableBasicEstimateData:${Object.keys(s).length}`,
-    getDefaultActiveButtonIndex: (a, b) => a + b,
-    getCurrentEthBalance: (state) => state.metamask.balance || '0x0',
-    getSendToken: () => null,
-    getTokenBalance: (state) => state.metamask.send.tokenBalance || '0x0',
-  },
-  '../../../../store/actions': actionSpies,
-  '../../../../ducks/gas/gas.duck': gasActionSpies,
-  '../../../../ducks/confirm-transaction/confirm-transaction.duck': confirmTransactionActionSpies,
-  '../../../../ducks/send/send.duck': sendActionSpies,
-})
+jest.mock('react-redux', () => ({
+  connect: (ms, md, mp) => {
+    mapStateToProps = ms
+    mapDispatchToProps = md
+    mergeProps = mp
+    return () => ({})
+  }
+}));
 
-describe('gas-modal-page-container container', function () {
+jest.mock('../../../../selectors', () => ({
+  getBasicGasEstimateLoadingStatus: (s) => `mockBasicGasEstimateLoadingStatus:${Object.keys(s).length}`,
+  getRenderableBasicEstimateData: (s) => `mockRenderableBasicEstimateData:${Object.keys(s).length}`,
+  getDefaultActiveButtonIndex: (a, b) => a + b,
+  getCurrentEthBalance: (state) => state.metamask.balance || '0x0',
+  getSendToken: () => null,
+  getTokenBalance: (state) => state.metamask.send.tokenBalance || '0x0'
+}));
 
-  describe('mapStateToProps()', function () {
-    it('should map the correct properties to props', function () {
+jest.mock('../../../../store/actions', () => actionSpies);
+jest.mock('../../../../ducks/gas/gas.duck', () => gasActionSpies);
+
+jest.mock(
+  '../../../../ducks/confirm-transaction/confirm-transaction.duck',
+  () => confirmTransactionActionSpies
+);
+
+jest.mock('../../../../ducks/send/send.duck', () => sendActionSpies);
+
+require('../gas-modal-page-container.container.js')
+
+describe('gas-modal-page-container container', () => {
+
+  describe('mapStateToProps()', () => {
+    it('should map the correct properties to props', () => {
       const baseMockState = {
         appState: {
           modal: {
@@ -253,31 +259,31 @@ describe('gas-modal-page-container container', function () {
 
   })
 
-  describe('mapDispatchToProps()', function () {
+  describe('mapDispatchToProps()', () => {
     let dispatchSpy
     let mapDispatchToPropsObject
 
-    beforeEach(function () {
+    beforeEach(() => {
       dispatchSpy = sinon.spy()
       mapDispatchToPropsObject = mapDispatchToProps(dispatchSpy)
     })
 
-    afterEach(function () {
+    afterEach(() => {
       actionSpies.hideModal.resetHistory()
       gasActionSpies.setCustomGasPrice.resetHistory()
       gasActionSpies.setCustomGasLimit.resetHistory()
     })
 
-    describe('hideGasButtonGroup()', function () {
-      it('should dispatch a hideGasButtonGroup action', function () {
+    describe('hideGasButtonGroup()', () => {
+      it('should dispatch a hideGasButtonGroup action', () => {
         mapDispatchToPropsObject.hideGasButtonGroup()
         assert(dispatchSpy.calledOnce)
         assert(sendActionSpies.hideGasButtonGroup.calledOnce)
       })
     })
 
-    describe('cancelAndClose()', function () {
-      it('should dispatch a hideModal action', function () {
+    describe('cancelAndClose()', () => {
+      it('should dispatch a hideModal action', () => {
         mapDispatchToPropsObject.cancelAndClose()
         assert(dispatchSpy.calledTwice)
         assert(actionSpies.hideModal.calledOnce)
@@ -285,15 +291,18 @@ describe('gas-modal-page-container container', function () {
       })
     })
 
-    describe('updateCustomGasPrice()', function () {
-      it('should dispatch a setCustomGasPrice action with the arg passed to updateCustomGasPrice hex prefixed', function () {
-        mapDispatchToPropsObject.updateCustomGasPrice('ffff')
-        assert(dispatchSpy.calledOnce)
-        assert(gasActionSpies.setCustomGasPrice.calledOnce)
-        assert.equal(gasActionSpies.setCustomGasPrice.getCall(0).args[0], '0xffff')
-      })
+    describe('updateCustomGasPrice()', () => {
+      it(
+        'should dispatch a setCustomGasPrice action with the arg passed to updateCustomGasPrice hex prefixed',
+        () => {
+          mapDispatchToPropsObject.updateCustomGasPrice('ffff')
+          assert(dispatchSpy.calledOnce)
+          assert(gasActionSpies.setCustomGasPrice.calledOnce)
+          assert.equal(gasActionSpies.setCustomGasPrice.getCall(0).args[0], '0xffff')
+        }
+      )
 
-      it('should dispatch a setCustomGasPrice action', function () {
+      it('should dispatch a setCustomGasPrice action', () => {
         mapDispatchToPropsObject.updateCustomGasPrice('0xffff')
         assert(dispatchSpy.calledOnce)
         assert(gasActionSpies.setCustomGasPrice.calledOnce)
@@ -301,8 +310,8 @@ describe('gas-modal-page-container container', function () {
       })
     })
 
-    describe('updateCustomGasLimit()', function () {
-      it('should dispatch a setCustomGasLimit action', function () {
+    describe('updateCustomGasLimit()', () => {
+      it('should dispatch a setCustomGasLimit action', () => {
         mapDispatchToPropsObject.updateCustomGasLimit('0x10')
         assert(dispatchSpy.calledOnce)
         assert(gasActionSpies.setCustomGasLimit.calledOnce)
@@ -310,36 +319,42 @@ describe('gas-modal-page-container container', function () {
       })
     })
 
-    describe('setGasData()', function () {
-      it('should dispatch a setGasPrice and setGasLimit action with the correct props', function () {
-        mapDispatchToPropsObject.setGasData('ffff', 'aaaa')
-        assert(dispatchSpy.calledTwice)
-        assert(actionSpies.setGasPrice.calledOnce)
-        assert(actionSpies.setGasLimit.calledOnce)
-        assert.equal(actionSpies.setGasLimit.getCall(0).args[0], 'ffff')
-        assert.equal(actionSpies.setGasPrice.getCall(0).args[0], 'aaaa')
-      })
+    describe('setGasData()', () => {
+      it(
+        'should dispatch a setGasPrice and setGasLimit action with the correct props',
+        () => {
+          mapDispatchToPropsObject.setGasData('ffff', 'aaaa')
+          assert(dispatchSpy.calledTwice)
+          assert(actionSpies.setGasPrice.calledOnce)
+          assert(actionSpies.setGasLimit.calledOnce)
+          assert.equal(actionSpies.setGasLimit.getCall(0).args[0], 'ffff')
+          assert.equal(actionSpies.setGasPrice.getCall(0).args[0], 'aaaa')
+        }
+      )
     })
 
-    describe('updateConfirmTxGasAndCalculate()', function () {
-      it('should dispatch a updateGasAndCalculate action with the correct props', function () {
-        mapDispatchToPropsObject.updateConfirmTxGasAndCalculate('ffff', 'aaaa')
-        assert.equal(dispatchSpy.callCount, 3)
-        assert(actionSpies.setGasPrice.calledOnce)
-        assert(actionSpies.setGasLimit.calledOnce)
-        assert.equal(actionSpies.setGasLimit.getCall(0).args[0], 'ffff')
-        assert.equal(actionSpies.setGasPrice.getCall(0).args[0], 'aaaa')
-      })
+    describe('updateConfirmTxGasAndCalculate()', () => {
+      it(
+        'should dispatch a updateGasAndCalculate action with the correct props',
+        () => {
+          mapDispatchToPropsObject.updateConfirmTxGasAndCalculate('ffff', 'aaaa')
+          assert.equal(dispatchSpy.callCount, 3)
+          assert(actionSpies.setGasPrice.calledOnce)
+          assert(actionSpies.setGasLimit.calledOnce)
+          assert.equal(actionSpies.setGasLimit.getCall(0).args[0], 'ffff')
+          assert.equal(actionSpies.setGasPrice.getCall(0).args[0], 'aaaa')
+        }
+      )
     })
 
   })
 
-  describe('mergeProps', function () {
+  describe('mergeProps', () => {
     let stateProps
     let dispatchProps
     let ownProps
 
-    beforeEach(function () {
+    beforeEach(() => {
       stateProps = {
         gasPriceButtonGroupProps: {
           someGasPriceButtonGroupProp: 'foo',
@@ -363,7 +378,7 @@ describe('gas-modal-page-container container', function () {
       ownProps = { someOwnProp: 123 }
     })
 
-    afterEach(function () {
+    afterEach(() => {
       dispatchProps.updateCustomGasPrice.resetHistory()
       dispatchProps.hideGasButtonGroup.resetHistory()
       dispatchProps.setGasData.resetHistory()
@@ -373,7 +388,7 @@ describe('gas-modal-page-container container', function () {
       dispatchProps.hideSidebar.resetHistory()
       dispatchProps.hideModal.resetHistory()
     })
-    it('should return the expected props when isConfirm is true', function () {
+    it('should return the expected props when isConfirm is true', () => {
       const result = mergeProps(stateProps, dispatchProps, ownProps)
 
       assert.equal(result.isConfirm, true)
@@ -403,7 +418,7 @@ describe('gas-modal-page-container container', function () {
       assert.equal(dispatchProps.someOtherDispatchProp.callCount, 1)
     })
 
-    it('should return the expected props when isConfirm is false', function () {
+    it('should return the expected props when isConfirm is false', () => {
       const result = mergeProps(Object.assign({}, stateProps, { isConfirm: false }), dispatchProps, ownProps)
 
       assert.equal(result.isConfirm, false)
@@ -434,19 +449,22 @@ describe('gas-modal-page-container container', function () {
       assert.equal(dispatchProps.someOtherDispatchProp.callCount, 1)
     })
 
-    it('should dispatch the expected actions from obSubmit when isConfirm is false and isSpeedUp is true', function () {
-      const result = mergeProps(Object.assign({}, stateProps, { isSpeedUp: true, isConfirm: false }), dispatchProps, ownProps)
+    it(
+      'should dispatch the expected actions from obSubmit when isConfirm is false and isSpeedUp is true',
+      () => {
+        const result = mergeProps(Object.assign({}, stateProps, { isSpeedUp: true, isConfirm: false }), dispatchProps, ownProps)
 
-      result.onSubmit()
+        result.onSubmit()
 
-      assert.equal(dispatchProps.updateConfirmTxGasAndCalculate.callCount, 0)
-      assert.equal(dispatchProps.setGasData.callCount, 0)
-      assert.equal(dispatchProps.hideGasButtonGroup.callCount, 0)
-      assert.equal(dispatchProps.cancelAndClose.callCount, 1)
+        assert.equal(dispatchProps.updateConfirmTxGasAndCalculate.callCount, 0)
+        assert.equal(dispatchProps.setGasData.callCount, 0)
+        assert.equal(dispatchProps.hideGasButtonGroup.callCount, 0)
+        assert.equal(dispatchProps.cancelAndClose.callCount, 1)
 
-      assert.equal(dispatchProps.createSpeedUpTransaction.callCount, 1)
-      assert.equal(dispatchProps.hideSidebar.callCount, 1)
-    })
+        assert.equal(dispatchProps.createSpeedUpTransaction.callCount, 1)
+        assert.equal(dispatchProps.hideSidebar.callCount, 1)
+      }
+    )
   })
 
 })

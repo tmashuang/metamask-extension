@@ -11,10 +11,10 @@ const propsMethodSpies = {
   hideSidebar: sinon.spy(),
 }
 
-describe('Sidebar Component', function () {
+describe('Sidebar Component', () => {
   let wrapper
 
-  beforeEach(function () {
+  beforeEach(() => {
     wrapper = shallow((
       <Sidebar
         sidebarOpen={false}
@@ -25,67 +25,73 @@ describe('Sidebar Component', function () {
     ))
   })
 
-  afterEach(function () {
+  afterEach(() => {
     propsMethodSpies.hideSidebar.resetHistory()
   })
 
-  describe('renderOverlay', function () {
+  describe('renderOverlay', () => {
     let renderOverlay
 
-    beforeEach(function () {
+    beforeEach(() => {
       renderOverlay = shallow(wrapper.instance().renderOverlay())
     })
 
-    it('should render a overlay element', function () {
+    it('should render a overlay element', () => {
       assert(renderOverlay.hasClass('sidebar-overlay'))
     })
 
-    it('should pass the correct onClick function to the element', function () {
+    it('should pass the correct onClick function to the element', () => {
       assert.equal(propsMethodSpies.hideSidebar.callCount, 0)
       renderOverlay.props().onClick()
       assert.equal(propsMethodSpies.hideSidebar.callCount, 1)
     })
   })
 
-  describe('renderSidebarContent', function () {
+  describe('renderSidebarContent', () => {
     let renderSidebarContent
 
-    beforeEach(function () {
+    beforeEach(() => {
       renderSidebarContent = wrapper.instance().renderSidebarContent()
     })
 
-    it('should render sidebar content with the type customize-gas', function () {
+    it('should render sidebar content with the type customize-gas', () => {
       renderSidebarContent = wrapper.instance().renderSidebarContent()
       const renderedSidebarContent = shallow(renderSidebarContent)
       assert(renderedSidebarContent.hasClass('sidebar-left'))
       assert(renderedSidebarContent.childAt(0).is(CustomizeGas))
     })
 
-    it('should not render with an unrecognized type', function () {
+    it('should not render with an unrecognized type', () => {
       wrapper.setProps({ type: 'foobar' })
       renderSidebarContent = wrapper.instance().renderSidebarContent()
       assert.equal(renderSidebarContent, undefined)
     })
   })
 
-  describe('render', function () {
-    it('should render a div with one child', function () {
+  describe('render', () => {
+    it('should render a div with one child', () => {
       assert(wrapper.is('div'))
       assert.equal(wrapper.children().length, 1)
     })
 
-    it('should render the ReactCSSTransitionGroup without any children', function () {
-      assert(wrapper.children().at(0).is(ReactCSSTransitionGroup))
-      assert.equal(wrapper.children().at(0).children().length, 0)
-    })
+    it(
+      'should render the ReactCSSTransitionGroup without any children',
+      () => {
+        assert(wrapper.children().at(0).is(ReactCSSTransitionGroup))
+        assert.equal(wrapper.children().at(0).children().length, 0)
+      }
+    )
 
-    it('should render sidebar content and the overlay if sidebarOpen is true', function () {
-      wrapper.setProps({ sidebarOpen: true })
-      assert.equal(wrapper.children().length, 2)
-      assert(wrapper.children().at(1).hasClass('sidebar-overlay'))
-      assert.equal(wrapper.children().at(0).children().length, 1)
-      assert(wrapper.children().at(0).children().at(0).hasClass('sidebar-left'))
-      assert(wrapper.children().at(0).children().at(0).children().at(0).is(CustomizeGas))
-    })
+    it(
+      'should render sidebar content and the overlay if sidebarOpen is true',
+      () => {
+        wrapper.setProps({ sidebarOpen: true })
+        assert.equal(wrapper.children().length, 2)
+        assert(wrapper.children().at(1).hasClass('sidebar-overlay'))
+        assert.equal(wrapper.children().at(0).children().length, 1)
+        assert(wrapper.children().at(0).children().at(0).hasClass('sidebar-left'))
+        assert(wrapper.children().at(0).children().at(0).children().at(0).is(CustomizeGas))
+      }
+    )
   })
 })

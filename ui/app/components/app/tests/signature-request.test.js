@@ -6,7 +6,7 @@ import configureMockStore from 'redux-mock-store'
 import { mountWithRouter } from '../../../../../test/lib/render-helpers'
 import SignatureRequest from '../signature-request'
 
-describe('Signature Request', function () {
+describe('Signature Request', () => {
   let wrapper
 
   const mockStore = {
@@ -52,7 +52,7 @@ describe('Signature Request', function () {
     },
   }
 
-  beforeEach(function () {
+  beforeEach(() => {
     wrapper = mountWithRouter(
       <Provider store={store}>
         <SignatureRequest.WrappedComponent {...props} />
@@ -60,18 +60,18 @@ describe('Signature Request', function () {
     )
   })
 
-  afterEach(function () {
+  afterEach(() => {
     props.clearConfirmTransaction.resetHistory()
   })
 
-  it('cancel', function () {
+  it('cancel', () => {
     const cancelButton = wrapper.find('button.btn-default')
     cancelButton.simulate('click')
 
     assert(props.cancel.calledOnce)
   })
 
-  it('sign', function () {
+  it('sign', () => {
     const signButton = wrapper.find('button.btn-primary')
     signButton.simulate('click')
 

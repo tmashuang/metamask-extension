@@ -8,11 +8,11 @@ import {
   submittedPendingTransactionsSelector,
 } from '../transactions'
 
-describe('Transaction Selectors', function () {
+describe('Transaction Selectors', () => {
 
-  describe('unapprovedMessagesSelector', function () {
+  describe('unapprovedMessagesSelector', () => {
 
-    it('returns eth sign msg from unapprovedMsgs', function () {
+    it('returns eth sign msg from unapprovedMsgs', () => {
 
       const msg = {
         id: 1,
@@ -40,7 +40,7 @@ describe('Transaction Selectors', function () {
       assert.deepEqual(msgSelector, [msg])
     })
 
-    it('returns personal sign from unapprovedPersonalMsgsSelector', function () {
+    it('returns personal sign from unapprovedPersonalMsgsSelector', () => {
 
       const msg = {
         id: 1,
@@ -68,39 +68,42 @@ describe('Transaction Selectors', function () {
       assert.deepEqual(msgSelector, [msg])
     })
 
-    it('returns typed message from unapprovedTypedMessagesSelector', function () {
+    it(
+      'returns typed message from unapprovedTypedMessagesSelector',
+      () => {
 
-      const msg = {
-        id: 1,
-        msgParams: {
-          data: '0xData',
-          from: '0xAddress',
-          version: 'V3',
-          origin: 'origin',
-        },
-        time: 1,
-        status: 'unapproved',
-        type: 'eth_signTypedData',
-      }
-
-      const state = {
-        metamask: {
-          unapprovedTypedMessages: {
-            1: msg,
+        const msg = {
+          id: 1,
+          msgParams: {
+            data: '0xData',
+            from: '0xAddress',
+            version: 'V3',
+            origin: 'origin',
           },
-        },
+          time: 1,
+          status: 'unapproved',
+          type: 'eth_signTypedData',
+        }
+
+        const state = {
+          metamask: {
+            unapprovedTypedMessages: {
+              1: msg,
+            },
+          },
+        }
+
+        const msgSelector = unapprovedMessagesSelector(state)
+
+        assert(Array.isArray(msgSelector))
+        assert.deepEqual(msgSelector, [msg])
       }
-
-      const msgSelector = unapprovedMessagesSelector(state)
-
-      assert(Array.isArray(msgSelector))
-      assert.deepEqual(msgSelector, [msg])
-    })
+    )
   })
 
-  describe('transactionsSelector', function () {
+  describe('transactionsSelector', () => {
 
-    it('selects the currentNetworkTxList', function () {
+    it('selects the currentNetworkTxList', () => {
 
       const state = {
         metamask: {
@@ -141,70 +144,73 @@ describe('Transaction Selectors', function () {
     })
   })
 
-  describe('nonceSortedTransactionsSelector', function () {
+  describe('nonceSortedTransactionsSelector', () => {
 
-    it('returns transaction group nonce sorted tx from from selectedTxList wit', function () {
+    it(
+      'returns transaction group nonce sorted tx from from selectedTxList wit',
+      () => {
 
-      const tx1 = {
-        id: 0,
-        time: 0,
-        txParams: {
-          from: '0xAddress',
-          to: '0xRecipient',
-          nonce: '0x0',
-        },
-      }
-
-      const tx2 = {
-        id: 1,
-        time: 1,
-        txParams: {
-          from: '0xAddress',
-          to: '0xRecipient',
-          nonce: '0x1',
-        },
-      }
-
-      const state = {
-        metamask: {
-          provider: {
-            nickname: 'mainnet',
+        const tx1 = {
+          id: 0,
+          time: 0,
+          txParams: {
+            from: '0xAddress',
+            to: '0xRecipient',
+            nonce: '0x0',
           },
-          selectedAddress: '0xAddress',
-          featureFlags: {
-            showIncomingTransactions: false,
+        }
+
+        const tx2 = {
+          id: 1,
+          time: 1,
+          txParams: {
+            from: '0xAddress',
+            to: '0xRecipient',
+            nonce: '0x1',
           },
-          currentNetworkTxList: [
-            tx1,
-            tx2,
-          ],
-        },
+        }
+
+        const state = {
+          metamask: {
+            provider: {
+              nickname: 'mainnet',
+            },
+            selectedAddress: '0xAddress',
+            featureFlags: {
+              showIncomingTransactions: false,
+            },
+            currentNetworkTxList: [
+              tx1,
+              tx2,
+            ],
+          },
+        }
+
+        const expectedResult = [
+          {
+            nonce: '0x0',
+            transactions: [ tx1 ],
+            initialTransaction: tx1,
+            primaryTransaction: tx1,
+            hasRetried: false,
+            hasCancelled: false,
+          },
+          {
+            nonce: '0x1',
+            transactions: [ tx2 ],
+            initialTransaction: tx2,
+            primaryTransaction: tx2,
+            hasRetried: false,
+            hasCancelled: false,
+          },
+        ]
+
+        assert.deepEqual(nonceSortedTransactionsSelector(state), expectedResult)
       }
-
-      const expectedResult = [
-        {
-          nonce: '0x0',
-          transactions: [ tx1 ],
-          initialTransaction: tx1,
-          primaryTransaction: tx1,
-          hasRetried: false,
-          hasCancelled: false,
-        },
-        {
-          nonce: '0x1',
-          transactions: [ tx2 ],
-          initialTransaction: tx2,
-          primaryTransaction: tx2,
-          hasRetried: false,
-          hasCancelled: false,
-        },
-      ]
-
-      assert.deepEqual(nonceSortedTransactionsSelector(state), expectedResult)
-    })
+    )
   })
 
-  describe('Sorting Transactions Selectors', function () {
+  describe('Sorting Transactions Selectors', () => {
 
     const submittedTx = {
       id: 0,
@@ -268,7 +274,7 @@ describe('Transaction Selectors', function () {
       },
     }
 
-    it('nonceSortedPendingTransactionsSelector', function () {
+    it('nonceSortedPendingTransactionsSelector', () => {
 
       const expectedResult = [
         {
@@ -300,7 +306,7 @@ describe('Transaction Selectors', function () {
       assert.deepEqual(nonceSortedPendingTransactionsSelector(state), expectedResult)
     })
 
-    it('nonceSortedCompletedTransactionsSelector', function () {
+    it('nonceSortedCompletedTransactionsSelector', () => {
 
       const expectedResult = [
         {
@@ -316,7 +322,7 @@ describe('Transaction Selectors', function () {
       assert.deepEqual(nonceSortedCompletedTransactionsSelector(state), expectedResult)
     })
 
-    it('submittedPendingTransactionsSelector', function () {
+    it('submittedPendingTransactionsSelector', () => {
 
       const expectedResult = [ submittedTx ]
       assert.deepEqual(submittedPendingTransactionsSelector(state), expectedResult)

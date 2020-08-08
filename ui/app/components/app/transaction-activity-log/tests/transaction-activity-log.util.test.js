@@ -1,13 +1,16 @@
 import assert from 'assert'
 import { combineTransactionHistories, getActivities } from '../transaction-activity-log.util'
 
-describe('TransactionActivityLog utils', function () {
-  describe('combineTransactionHistories', function () {
-    it('should return no activities for an empty list of transactions', function () {
-      assert.deepEqual(combineTransactionHistories([]), [])
-    })
+describe('TransactionActivityLog utils', () => {
+  describe('combineTransactionHistories', () => {
+    it(
+      'should return no activities for an empty list of transactions',
+      () => {
+        assert.deepEqual(combineTransactionHistories([]), [])
+      }
+    )
 
-    it('should return activities for an array of transactions', function () {
+    it('should return activities for an array of transactions', () => {
       const transactions = [
         {
           hash: '0xa14f13d36b3901e352ce3a7acb9b47b001e5a3370f06232a0953c6fc6fad91b3',
@@ -126,8 +129,8 @@ describe('TransactionActivityLog utils', function () {
     })
   })
 
-  describe('getActivities', function () {
-    it('should return no activities for an empty history', function () {
+  describe('getActivities', () => {
+    it('should return no activities for an empty history', () => {
       const transaction = {
         history: [],
         id: 1,
@@ -145,7 +148,7 @@ describe('TransactionActivityLog utils', function () {
       assert.deepEqual(getActivities(transaction), [])
     })
 
-    it('should return activities for a transaction\'s history', function () {
+    it('should return activities for a transaction\'s history', () => {
       const transaction = {
         history: [
           {
