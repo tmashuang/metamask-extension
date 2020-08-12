@@ -1,6 +1,7 @@
 import React from 'react'
 import assert from 'assert'
 import { shallow } from 'enzyme'
+import { renderWithProvider } from '../../../../../../test/lib/render-helpers'
 import sinon from 'sinon'
 import * as utils from '../../../../helpers/utils/util'
 import Identicon from '../../../ui/identicon'
