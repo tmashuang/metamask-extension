@@ -36,7 +36,7 @@ describe('Account Details Modal', function () {
   }
 
   before(function () {
-    global.platform = { openWindow: sinon.spy() }
+    global.platform = { openTab: sinon.spy() }
   })
 
   beforeEach(function () {

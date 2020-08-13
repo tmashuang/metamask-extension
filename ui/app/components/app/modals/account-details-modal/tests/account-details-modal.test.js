@@ -35,7 +35,7 @@ describe('Account Details Modal', function () {
   }
 
   before(function () {
-    global.platform = { openWindow: sinon.spy() }
+    global.platform = { openTab: sinon.spy() }
   })
 
   beforeEach(function () {
@@ -65,7 +65,7 @@ describe('Account Details Modal', function () {
     const etherscanLink = modalButton.first()
 
     etherscanLink.simulate('click')
-    assert(global.platform.openWindow.calledOnce)
+    assert(global.platform.openTab.calledOnce)
   })
 
   it('shows export private key modal when clicked', function () {

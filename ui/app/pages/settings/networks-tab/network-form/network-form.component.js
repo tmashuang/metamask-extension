@@ -28,11 +28,11 @@ export default class NetworkForm extends PureComponent {
   }
 
   state = {
-    rpcUrl: this.props.rpcUrl,
-    chainId: this.props.chainId,
-    ticker: this.props.ticker,
-    networkName: this.props.networkName,
-    blockExplorerUrl: this.props.blockExplorerUrl,
+    rpcUrl: this.props.rpcUrl || '',
+    chainId: this.props.chainId || '',
+    ticker: this.props.ticker || '',
+    networkName: this.props.networkName || '',
+    blockExplorerUrl: this.props.blockExplorerUrl || '',
     errors: {},
   }
 

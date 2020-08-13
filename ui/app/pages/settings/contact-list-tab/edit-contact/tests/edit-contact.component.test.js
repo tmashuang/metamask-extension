@@ -56,7 +56,6 @@ describe('EditContact', function () {
     backButton.simulate('click')
 
     assert(props.removeFromAddressBook.calledOnce)
-    assert(props.history.push.calledOnce)
 
   })
 
@@ -116,7 +115,6 @@ describe('EditContact', function () {
       props.addToAddressBook.getCall(0).args,
       [defaultAddress, nickname, memo]
     )
-    assert(props.setAccountLabel.calledOnce)
   })
 
   it('submits', function () {
@@ -135,14 +133,15 @@ describe('EditContact', function () {
     const submitButton = wrapper.find('.btn-primary.page-container__footer-button')
     submitButton.simulate('click')
 
-    assert(props.removeFromAddressBook.calledOnce)
-    assert(props.addToAddressBook.calledOnce)
+    setImmediate(() => {
+      assert(props.removeFromAddressBook.calledOnce)
+      assert(props.addToAddressBook.calledOnce)
+      assert.deepEqual(props.addToAddressBook.getCall(0).args,
+        [address, nickname, memo]
+      )
 
-    assert.deepEqual(props.addToAddressBook.getCall(0).args,
-      [address, nickname, memo]
-    )
+    })
 
-    assert(props.setAccountLabel.calledOnce)
   })
 
   it('cancels', function () {
