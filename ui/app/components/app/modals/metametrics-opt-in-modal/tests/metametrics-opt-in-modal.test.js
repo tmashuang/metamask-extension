@@ -1,12 +1,24 @@
 import assert from 'assert'
 import React from 'react'
 import sinon from 'sinon'
-import { mount } from 'enzyme'
+// import { mount } from 'enzyme'
+import { screen } from '@testing-library/react'
+import configureMockStore from 'redux-mock-store'
+import { renderWithProvider } from '../../../../../../../test/lib/render-helpers'
 import MetaMetricsOptIn from '..'
 import messages from '../../../../../../../app/_locales/en/messages.json'
 
-describe('MetaMetrics Opt In', function () {
+describe.only('MetaMetrics Opt In', function () {
   let wrapper
+
+  const mockState = {
+    metamask: {},
+    appState: {
+      modal: {
+        modalState: {},
+      },
+    },
+  }
 
   const props = {
     setParticipateInMetaMetrics: sinon.stub().resolves(),
@@ -14,23 +26,30 @@ describe('MetaMetrics Opt In', function () {
     participateInMetaMetrics: null,
   }
 
-  beforeEach(function () {
-    wrapper = mount(
-      <MetaMetricsOptIn.WrappedComponent {...props} />, {
-        context: {
-          metricsEvent: () => undefined,
-          t: (key) => messages[key].message,
-        },
-      },
-    )
+  // beforeEach(function () {
+  //   wrapper = mount(
+  //     <MetaMetricsOptIn.WrappedComponent {...props} />, {
+  //       context: {
+  //         metricsEvent: () => undefined,
+  //         t: (key) => messages[key].message,
+  //       },
+  //     },
+  //   )
+  // })
+
+  it('', function () {
+    const store = configureMockStore()(mockState)
+    renderWithProvider(<MetaMetricsOptIn />, store)
+
+    screen.debug()
   })
 
-  afterEach(function () {
-    props.setParticipateInMetaMetrics.resetHistory()
-    props.hideModal.resetHistory()
-  })
+  // afterEach(function () {
+  //   props.setParticipateInMetaMetrics.resetHistory()
+  //   props.hideModal.resetHistory()
+  // })
 
-  it('passes false to setParticipateInMetaMetrics and hides modal', function (done) {
+  xit('passes false to setParticipateInMetaMetrics and hides modal', function (done) {
     const noThanks = wrapper.find('.btn-default.page-container__footer-button')
     noThanks.simulate('click')
 
@@ -42,7 +61,7 @@ describe('MetaMetrics Opt In', function () {
     })
   })
 
-  it('passes true to setParticipateInMetaMetrics and hides modal', function (done) {
+  xit('passes true to setParticipateInMetaMetrics and hides modal', function (done) {
     const affirmAgree = wrapper.find('.btn-primary.page-container__footer-button')
     affirmAgree.simulate('click')
 
