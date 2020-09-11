@@ -5,7 +5,7 @@ import { screen, fireEvent } from '@testing-library/react'
 import configureMockStore from 'redux-mock-store'
 import thunk from 'redux-thunk'
 import * as actions from '../../../../../store/actions'
-import { renderWithProvider } from '../../../../../../../test/lib/render-helpers'
+import render from '../../../../../../../test/lib/render-helpers'
 import ConfirmResetAccount from '..'
 
 describe('Confirm Reset Account', function () {
@@ -24,7 +24,7 @@ describe('Confirm Reset Account', function () {
 
   it('render', function () {
     const store = configureMockStore()(mockState)
-    renderWithProvider(<ConfirmResetAccount />, store)
+    render(<ConfirmResetAccount />, store)
 
     const nevermindButton = screen.getByText(/nevermind/u)
     fireEvent.click(nevermindButton)
@@ -36,7 +36,7 @@ describe('Confirm Reset Account', function () {
     const store = configureMockStore([thunk])(mockState)
 
     const resetAccountSpy = sinon.stub(actions, 'resetAccount').returns(() => Promise.resolve())
-    renderWithProvider(<ConfirmResetAccount />, store)
+    render(<ConfirmResetAccount />, store)
 
     const resetButton = screen.getByText('[reset]')
     fireEvent.click(resetButton)

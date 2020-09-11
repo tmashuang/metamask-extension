@@ -5,7 +5,7 @@ import thunk from 'redux-thunk'
 import configureStore from 'redux-mock-store'
 import { fireEvent } from '@testing-library/react'
 import * as actions from '../../../../../store/actions'
-import { renderWithProvider } from '../../../../../../../test/lib/render-helpers'
+import render from '../../../../../../../test/lib/render-helpers'
 import ConfirmRemoveAccount from '..'
 
 describe('Confirm Remove Account', function () {
@@ -42,7 +42,7 @@ describe('Confirm Remove Account', function () {
   })
 
   it('nevermind', function () {
-    const { getByText } = renderWithProvider(
+    const { getByText } = render(
       <ConfirmRemoveAccount {...props} />, store,
     )
 
@@ -55,7 +55,7 @@ describe('Confirm Remove Account', function () {
   it('remove', function () {
     const removeAccountSpy = sinon.stub(actions, 'removeAccount').returns(() => Promise.resolve())
 
-    const { getByText } = renderWithProvider(
+    const { getByText } = render(
       <ConfirmRemoveAccount {...props} />, store,
     )
 

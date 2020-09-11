@@ -3,7 +3,7 @@ import React from 'react'
 import configureStore from 'redux-mock-store'
 import { screen, fireEvent } from '@testing-library/react'
 import sinon from 'sinon'
-import { renderWithProvider } from '../../../../../../test/lib/render-helpers'
+import render from '../../../../../../test/lib/render-helpers'
 import AccountListItem from '..'
 
 describe('AccountListItem Component', function () {
@@ -53,7 +53,7 @@ describe('AccountListItem Component', function () {
         handleClick: sinon.spy(),
       }
 
-      renderWithProvider(<AccountListItem {...props} />, store)
+      render(<AccountListItem {...props} />, store)
 
       const accountItem = screen.getByText(props.account.name)
       fireEvent.click(accountItem)
@@ -72,7 +72,7 @@ describe('AccountListItem Component', function () {
         handleClick: sinon.spy(),
       }
 
-      renderWithProvider(<AccountListItem {...props} />, store)
+      render(<AccountListItem {...props} />, store)
 
       const accountItem = screen.getByText(props.account.name)
       assert(accountItem)
@@ -87,7 +87,7 @@ describe('AccountListItem Component', function () {
         handleClick: sinon.spy(),
       }
 
-      renderWithProvider(<AccountListItem {...props} />, store)
+      render(<AccountListItem {...props} />, store)
 
       const accountItem = screen.getByText(props.account.address)
       assert(accountItem)

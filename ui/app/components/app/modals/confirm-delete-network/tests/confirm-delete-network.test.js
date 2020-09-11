@@ -4,7 +4,7 @@ import sinon from 'sinon'
 import thunk from 'redux-thunk'
 import configureStore from 'redux-mock-store'
 import { fireEvent } from '@testing-library/react'
-import { renderWithProvider } from '../../../../../../../test/lib/render-helpers'
+import render from '../../../../../../../test/lib/render-helpers'
 import * as actions from '../../../../../store/actions'
 import ConfirmDeleteNetwork from '..'
 
@@ -37,7 +37,7 @@ describe('Confirm Delete Network', function () {
       onConfirm: sinon.spy(),
     }
 
-    const { getByText } = renderWithProvider(
+    const { getByText } = render(
       <ConfirmDeleteNetwork {...props} />, store,
     )
 
@@ -58,7 +58,7 @@ describe('Confirm Delete Network', function () {
       onConfirm: sinon.spy(),
     }
 
-    const { getByText } = renderWithProvider(
+    const { getByText } = render(
       <ConfirmDeleteNetwork {...props} />, store,
     )
 
