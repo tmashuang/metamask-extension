@@ -1,6 +1,5 @@
 import React from 'react'
 import assert from 'assert'
-import proxyquire from 'proxyquire'
 import { shallow } from 'enzyme'
 import sinon from 'sinon'
 import timeout from '../../../../lib/test-timeout'
@@ -10,7 +9,9 @@ import SendHeader from '../send-header/send-header.container'
 import SendContent from '../send-content/send-content.container'
 import SendFooter from '../send-footer/send-footer.container'
 
-describe('Send Component', function () {
+jest.mock('./send.utils', () => utilsMethodStubs);
+
+describe('Send Component', () => {
   let wrapper
 
   const mockBasicGasEstimates = {
@@ -32,16 +33,14 @@ describe('Send Component', function () {
     doesAmountErrorRequireUpdate: sinon.stub().callsFake((obj) => obj.balance !== obj.prevBalance),
   }
 
-  const SendTransactionScreen = proxyquire('../send.component.js', {
-    './send.utils': utilsMethodStubs,
-  }).default
+  const SendTransactionScreen = require('../send.component.js').default
 
-  before(function () {
+  beforeAll(() => {
     sinon.spy(SendTransactionScreen.prototype, 'componentDidMount')
     sinon.spy(SendTransactionScreen.prototype, 'updateGas')
   })
 
-  beforeEach(function () {
+  beforeEach(() => {
     wrapper = shallow((
       <SendTransactionScreen
         amount="mockAmount"
@@ -76,7 +75,7 @@ describe('Send Component', function () {
     ))
   })
 
-  afterEach(function () {
+  afterEach(() => {
     SendTransactionScreen.prototype.componentDidMount.resetHistory()
     SendTransactionScreen.prototype.updateGas.resetHistory()
     utilsMethodStubs.doesAmountErrorRequireUpdate.resetHistory()
@@ -89,23 +88,23 @@ describe('Send Component', function () {
     propsMethodSpies.updateToNicknameIfNecessary.resetHistory()
   })
 
-  after(function () {
+  afterAll(() => {
     sinon.restore()
   })
 
-  it('should call componentDidMount', function () {
+  it('should call componentDidMount', () => {
     assert(SendTransactionScreen.prototype.componentDidMount.calledOnce)
   })
 
-  describe('componentDidMount', function () {
-    it('should call props.fetchBasicGasAndTimeEstimates', function () {
+  describe('componentDidMount', () => {
+    it('should call props.fetchBasicGasAndTimeEstimates', () => {
       propsMethodSpies.fetchBasicGasEstimates.resetHistory()
       assert.equal(propsMethodSpies.fetchBasicGasEstimates.callCount, 0)
       wrapper.instance().componentDidMount()
       assert.equal(propsMethodSpies.fetchBasicGasEstimates.callCount, 1)
     })
 
-    it('should call this.updateGas', async function () {
+    it('should call this.updateGas', async () => {
       SendTransactionScreen.prototype.updateGas.resetHistory()
       propsMethodSpies.updateSendErrors.resetHistory()
       assert.equal(SendTransactionScreen.prototype.updateGas.callCount, 0)
@@ -115,8 +114,8 @@ describe('Send Component', function () {
     })
   })
 
-  describe('componentWillUnmount', function () {
-    it('should call this.props.resetSendState', function () {
+  describe('componentWillUnmount', () => {
+    it('should call this.props.resetSendState', () => {
       propsMethodSpies.resetSendState.resetHistory()
       assert.equal(propsMethodSpies.resetSendState.callCount, 0)
       wrapper.instance().componentWillUnmount()
@@ -124,186 +123,219 @@ describe('Send Component', function () {
     })
   })
 
-  describe('componentDidUpdate', function () {
-    it('should call doesAmountErrorRequireUpdate with the expected params', function () {
-      utilsMethodStubs.getAmountErrorObject.resetHistory()
-      wrapper.instance().componentDidUpdate({
-        from: {
-          balance: '',
-        },
-      })
-      assert(utilsMethodStubs.doesAmountErrorRequireUpdate.calledOnce)
-      assert.deepEqual(
-        utilsMethodStubs.doesAmountErrorRequireUpdate.getCall(0).args[0],
-        {
-          balance: 'mockBalance',
-          gasTotal: 'mockGasTotal',
-          prevBalance: '',
-          prevGasTotal: undefined,
-          prevTokenBalance: undefined,
-          sendToken: { address: 'mockTokenAddress', decimals: 18, symbol: 'TST' },
-          tokenBalance: 'mockTokenBalance',
-        },
-      )
-    })
+  describe('componentDidUpdate', () => {
+    it(
+      'should call doesAmountErrorRequireUpdate with the expected params',
+      () => {
+        utilsMethodStubs.getAmountErrorObject.resetHistory()
+        wrapper.instance().componentDidUpdate({
+          from: {
+            balance: '',
+          },
+        })
+        assert(utilsMethodStubs.doesAmountErrorRequireUpdate.calledOnce)
+        assert.deepEqual(
+          utilsMethodStubs.doesAmountErrorRequireUpdate.getCall(0).args[0],
+          {
+            balance: 'mockBalance',
+            gasTotal: 'mockGasTotal',
+            prevBalance: '',
+            prevGasTotal: undefined,
+            prevTokenBalance: undefined,
+            sendToken: { address: 'mockTokenAddress', decimals: 18, symbol: 'TST' },
+            tokenBalance: 'mockTokenBalance',
+          },
+        )
+      }
+    )
 
-    it('should not call getAmountErrorObject if doesAmountErrorRequireUpdate returns false', function () {
-      utilsMethodStubs.getAmountErrorObject.resetHistory()
-      wrapper.instance().componentDidUpdate({
-        from: {
-          balance: 'mockBalance',
-        },
-      })
-      assert.equal(utilsMethodStubs.getAmountErrorObject.callCount, 0)
-    })
+    it(
+      'should not call getAmountErrorObject if doesAmountErrorRequireUpdate returns false',
+      () => {
+        utilsMethodStubs.getAmountErrorObject.resetHistory()
+        wrapper.instance().componentDidUpdate({
+          from: {
+            balance: 'mockBalance',
+          },
+        })
+        assert.equal(utilsMethodStubs.getAmountErrorObject.callCount, 0)
+      }
+    )
 
-    it('should call getAmountErrorObject if doesAmountErrorRequireUpdate returns true', function () {
-      utilsMethodStubs.getAmountErrorObject.resetHistory()
-      wrapper.instance().componentDidUpdate({
-        from: {
-          balance: 'balanceChanged',
-        },
-      })
-      assert.equal(utilsMethodStubs.getAmountErrorObject.callCount, 1)
-      assert.deepEqual(
-        utilsMethodStubs.getAmountErrorObject.getCall(0).args[0],
-        {
-          amount: 'mockAmount',
-          balance: 'mockBalance',
-          conversionRate: 10,
-          gasTotal: 'mockGasTotal',
-          primaryCurrency: 'mockPrimaryCurrency',
-          sendToken: { address: 'mockTokenAddress', decimals: 18, symbol: 'TST' },
-          tokenBalance: 'mockTokenBalance',
-        },
-      )
-    })
+    it(
+      'should call getAmountErrorObject if doesAmountErrorRequireUpdate returns true',
+      () => {
+        utilsMethodStubs.getAmountErrorObject.resetHistory()
+        wrapper.instance().componentDidUpdate({
+          from: {
+            balance: 'balanceChanged',
+          },
+        })
+        assert.equal(utilsMethodStubs.getAmountErrorObject.callCount, 1)
+        assert.deepEqual(
+          utilsMethodStubs.getAmountErrorObject.getCall(0).args[0],
+          {
+            amount: 'mockAmount',
+            balance: 'mockBalance',
+            conversionRate: 10,
+            gasTotal: 'mockGasTotal',
+            primaryCurrency: 'mockPrimaryCurrency',
+            sendToken: { address: 'mockTokenAddress', decimals: 18, symbol: 'TST' },
+            tokenBalance: 'mockTokenBalance',
+          },
+        )
+      }
+    )
 
-    it('should call getGasFeeErrorObject if doesAmountErrorRequireUpdate returns true and sendToken is truthy', function () {
-      utilsMethodStubs.getGasFeeErrorObject.resetHistory()
-      wrapper.instance().componentDidUpdate({
-        from: {
-          balance: 'balanceChanged',
-        },
-      })
-      assert.equal(utilsMethodStubs.getGasFeeErrorObject.callCount, 1)
-      assert.deepEqual(
-        utilsMethodStubs.getGasFeeErrorObject.getCall(0).args[0],
-        {
-          balance: 'mockBalance',
-          conversionRate: 10,
-          gasTotal: 'mockGasTotal',
-          primaryCurrency: 'mockPrimaryCurrency',
-          sendToken: { address: 'mockTokenAddress', decimals: 18, symbol: 'TST' },
-        },
-      )
-    })
+    it(
+      'should call getGasFeeErrorObject if doesAmountErrorRequireUpdate returns true and sendToken is truthy',
+      () => {
+        utilsMethodStubs.getGasFeeErrorObject.resetHistory()
+        wrapper.instance().componentDidUpdate({
+          from: {
+            balance: 'balanceChanged',
+          },
+        })
+        assert.equal(utilsMethodStubs.getGasFeeErrorObject.callCount, 1)
+        assert.deepEqual(
+          utilsMethodStubs.getGasFeeErrorObject.getCall(0).args[0],
+          {
+            balance: 'mockBalance',
+            conversionRate: 10,
+            gasTotal: 'mockGasTotal',
+            primaryCurrency: 'mockPrimaryCurrency',
+            sendToken: { address: 'mockTokenAddress', decimals: 18, symbol: 'TST' },
+          },
+        )
+      }
+    )
 
-    it('should not call getGasFeeErrorObject if doesAmountErrorRequireUpdate returns false', function () {
-      utilsMethodStubs.getGasFeeErrorObject.resetHistory()
-      wrapper.instance().componentDidUpdate({
-        from: { address: 'mockAddress', balance: 'mockBalance' },
-      })
-      assert.equal(utilsMethodStubs.getGasFeeErrorObject.callCount, 0)
-    })
+    it(
+      'should not call getGasFeeErrorObject if doesAmountErrorRequireUpdate returns false',
+      () => {
+        utilsMethodStubs.getGasFeeErrorObject.resetHistory()
+        wrapper.instance().componentDidUpdate({
+          from: { address: 'mockAddress', balance: 'mockBalance' },
+        })
+        assert.equal(utilsMethodStubs.getGasFeeErrorObject.callCount, 0)
+      }
+    )
 
-    it('should not call getGasFeeErrorObject if doesAmountErrorRequireUpdate returns true but sendToken is falsy', function () {
-      utilsMethodStubs.getGasFeeErrorObject.resetHistory()
-      wrapper.setProps({ sendToken: null })
-      wrapper.instance().componentDidUpdate({
-        from: {
-          balance: 'balanceChanged',
-        },
-      })
-      assert.equal(utilsMethodStubs.getGasFeeErrorObject.callCount, 0)
-    })
+    it(
+      'should not call getGasFeeErrorObject if doesAmountErrorRequireUpdate returns true but sendToken is falsy',
+      () => {
+        utilsMethodStubs.getGasFeeErrorObject.resetHistory()
+        wrapper.setProps({ sendToken: null })
+        wrapper.instance().componentDidUpdate({
+          from: {
+            balance: 'balanceChanged',
+          },
+        })
+        assert.equal(utilsMethodStubs.getGasFeeErrorObject.callCount, 0)
+      }
+    )
 
-    it('should call updateSendErrors with the expected params if sendToken is falsy', function () {
-      propsMethodSpies.updateSendErrors.resetHistory()
-      wrapper.setProps({ sendToken: null })
-      wrapper.instance().componentDidUpdate({
-        from: {
-          balance: 'balanceChanged',
-        },
-      })
-      assert.equal(propsMethodSpies.updateSendErrors.callCount, 1)
-      assert.deepEqual(
-        propsMethodSpies.updateSendErrors.getCall(0).args[0],
-        { amount: 'mockAmountError', gasFee: null },
-      )
-    })
+    it(
+      'should call updateSendErrors with the expected params if sendToken is falsy',
+      () => {
+        propsMethodSpies.updateSendErrors.resetHistory()
+        wrapper.setProps({ sendToken: null })
+        wrapper.instance().componentDidUpdate({
+          from: {
+            balance: 'balanceChanged',
+          },
+        })
+        assert.equal(propsMethodSpies.updateSendErrors.callCount, 1)
+        assert.deepEqual(
+          propsMethodSpies.updateSendErrors.getCall(0).args[0],
+          { amount: 'mockAmountError', gasFee: null },
+        )
+      }
+    )
 
-    it('should call updateSendErrors with the expected params if sendToken is truthy', function () {
-      propsMethodSpies.updateSendErrors.resetHistory()
-      wrapper.setProps({ sendToken: { address: 'mockTokenAddress', decimals: 18, symbol: 'TST' } })
-      wrapper.instance().componentDidUpdate({
-        from: {
-          balance: 'balanceChanged',
-        },
-      })
-      assert.equal(propsMethodSpies.updateSendErrors.callCount, 1)
-      assert.deepEqual(
-        propsMethodSpies.updateSendErrors.getCall(0).args[0],
-        { amount: 'mockAmountError', gasFee: 'mockGasFeeError' },
-      )
-    })
+    it(
+      'should call updateSendErrors with the expected params if sendToken is truthy',
+      () => {
+        propsMethodSpies.updateSendErrors.resetHistory()
+        wrapper.setProps({ sendToken: { address: 'mockTokenAddress', decimals: 18, symbol: 'TST' } })
+        wrapper.instance().componentDidUpdate({
+          from: {
+            balance: 'balanceChanged',
+          },
+        })
+        assert.equal(propsMethodSpies.updateSendErrors.callCount, 1)
+        assert.deepEqual(
+          propsMethodSpies.updateSendErrors.getCall(0).args[0],
+          { amount: 'mockAmountError', gasFee: 'mockGasFeeError' },
+        )
+      }
+    )
 
-    it('should not call updateSendTokenBalance or this.updateGas if network === prevNetwork', function () {
-      SendTransactionScreen.prototype.updateGas.resetHistory()
-      propsMethodSpies.updateSendTokenBalance.resetHistory()
-      wrapper.instance().componentDidUpdate({
-        from: {
-          balance: 'balanceChanged',
-        },
-        network: '3',
-        sendToken: { address: 'mockTokenAddress', decimals: 18, symbol: 'TST' }, // Make sure not to hit updateGas when changing asset
-      })
-      assert.equal(propsMethodSpies.updateSendTokenBalance.callCount, 0)
-      assert.equal(SendTransactionScreen.prototype.updateGas.callCount, 0)
-    })
-
-    it('should not call updateSendTokenBalance or this.updateGas if network === loading', function () {
-      wrapper.setProps({ network: 'loading' })
-      SendTransactionScreen.prototype.updateGas.resetHistory()
-      propsMethodSpies.updateSendTokenBalance.resetHistory()
-      wrapper.instance().componentDidUpdate({
-        from: {
-          balance: 'balanceChanged',
-        },
-        network: '3',
-        sendToken: { address: 'mockTokenAddress', decimals: 18, symbol: 'TST' }, // Make sure not to hit updateGas when changing asset
-      })
-      assert.equal(propsMethodSpies.updateSendTokenBalance.callCount, 0)
-      assert.equal(SendTransactionScreen.prototype.updateGas.callCount, 0)
-    })
-
-    it('should call updateSendTokenBalance and this.updateGas with the correct params', function () {
-      SendTransactionScreen.prototype.updateGas.resetHistory()
-      propsMethodSpies.updateSendTokenBalance.resetHistory()
-      wrapper.instance().componentDidUpdate({
-        from: {
-          balance: 'balanceChanged',
-        },
-        network: '2',
-        sendToken: { address: 'mockTokenAddress', decimals: 18, symbol: 'TST' }, // Make sure not to hit updateGas when changing asset
-      })
-      assert.equal(propsMethodSpies.updateSendTokenBalance.callCount, 1)
-      assert.deepEqual(
-        propsMethodSpies.updateSendTokenBalance.getCall(0).args[0],
-        {
+    it(
+      'should not call updateSendTokenBalance or this.updateGas if network === prevNetwork',
+      () => {
+        SendTransactionScreen.prototype.updateGas.resetHistory()
+        propsMethodSpies.updateSendTokenBalance.resetHistory()
+        wrapper.instance().componentDidUpdate({
+          from: {
+            balance: 'balanceChanged',
+          },
+          network: '3',
           sendToken: { address: 'mockTokenAddress', decimals: 18, symbol: 'TST' }, // Make sure not to hit updateGas when changing asset
-          tokenContract: { method: 'mockTokenMethod' },
-          address: 'mockAddress',
-        },
-      )
-      assert.equal(SendTransactionScreen.prototype.updateGas.callCount, 1)
-      assert.deepEqual(
-        SendTransactionScreen.prototype.updateGas.getCall(0).args,
-        [],
-      )
-    })
+        })
+        assert.equal(propsMethodSpies.updateSendTokenBalance.callCount, 0)
+        assert.equal(SendTransactionScreen.prototype.updateGas.callCount, 0)
+      }
+    )
 
-    it('should call updateGas when sendToken.address is changed', function () {
+    it(
+      'should not call updateSendTokenBalance or this.updateGas if network === loading',
+      () => {
+        wrapper.setProps({ network: 'loading' })
+        SendTransactionScreen.prototype.updateGas.resetHistory()
+        propsMethodSpies.updateSendTokenBalance.resetHistory()
+        wrapper.instance().componentDidUpdate({
+          from: {
+            balance: 'balanceChanged',
+          },
+          network: '3',
+          sendToken: { address: 'mockTokenAddress', decimals: 18, symbol: 'TST' }, // Make sure not to hit updateGas when changing asset
+        })
+        assert.equal(propsMethodSpies.updateSendTokenBalance.callCount, 0)
+        assert.equal(SendTransactionScreen.prototype.updateGas.callCount, 0)
+      }
+    )
+
+    it(
+      'should call updateSendTokenBalance and this.updateGas with the correct params',
+      () => {
+        SendTransactionScreen.prototype.updateGas.resetHistory()
+        propsMethodSpies.updateSendTokenBalance.resetHistory()
+        wrapper.instance().componentDidUpdate({
+          from: {
+            balance: 'balanceChanged',
+          },
+          network: '2',
+          sendToken: { address: 'mockTokenAddress', decimals: 18, symbol: 'TST' }, // Make sure not to hit updateGas when changing asset
+        })
+        assert.equal(propsMethodSpies.updateSendTokenBalance.callCount, 1)
+        assert.deepEqual(
+          propsMethodSpies.updateSendTokenBalance.getCall(0).args[0],
+          {
+            sendToken: { address: 'mockTokenAddress', decimals: 18, symbol: 'TST' }, // Make sure not to hit updateGas when changing asset
+            tokenContract: { method: 'mockTokenMethod' },
+            address: 'mockAddress',
+          },
+        )
+        assert.equal(SendTransactionScreen.prototype.updateGas.callCount, 1)
+        assert.deepEqual(
+          SendTransactionScreen.prototype.updateGas.getCall(0).args,
+          [],
+        )
+      }
+    )
+
+    it('should call updateGas when sendToken.address is changed', () => {
       SendTransactionScreen.prototype.updateGas.resetHistory()
       propsMethodSpies.updateAndSetGasLimit.resetHistory()
       wrapper.instance().componentDidUpdate({
@@ -318,55 +350,64 @@ describe('Send Component', function () {
     })
   })
 
-  describe('updateGas', function () {
-    it('should call updateAndSetGasLimit with the correct params if no to prop is passed', function () {
-      propsMethodSpies.updateAndSetGasLimit.resetHistory()
-      wrapper.instance().updateGas()
-      assert.equal(propsMethodSpies.updateAndSetGasLimit.callCount, 1)
-      assert.deepEqual(
-        propsMethodSpies.updateAndSetGasLimit.getCall(0).args[0],
-        {
-          blockGasLimit: 'mockBlockGasLimit',
-          editingTransactionId: 'mockEditingTransactionId',
-          gasLimit: 'mockGasLimit',
-          gasPrice: 'mockGasPrice',
-          selectedAddress: 'mockSelectedAddress',
-          sendToken: { address: 'mockTokenAddress', decimals: 18, symbol: 'TST' },
-          to: '',
-          value: 'mockAmount',
-          data: undefined,
-        },
-      )
-    })
+  describe('updateGas', () => {
+    it(
+      'should call updateAndSetGasLimit with the correct params if no to prop is passed',
+      () => {
+        propsMethodSpies.updateAndSetGasLimit.resetHistory()
+        wrapper.instance().updateGas()
+        assert.equal(propsMethodSpies.updateAndSetGasLimit.callCount, 1)
+        assert.deepEqual(
+          propsMethodSpies.updateAndSetGasLimit.getCall(0).args[0],
+          {
+            blockGasLimit: 'mockBlockGasLimit',
+            editingTransactionId: 'mockEditingTransactionId',
+            gasLimit: 'mockGasLimit',
+            gasPrice: 'mockGasPrice',
+            selectedAddress: 'mockSelectedAddress',
+            sendToken: { address: 'mockTokenAddress', decimals: 18, symbol: 'TST' },
+            to: '',
+            value: 'mockAmount',
+            data: undefined,
+          },
+        )
+      }
+    )
 
-    it('should call updateAndSetGasLimit with the correct params if a to prop is passed', function () {
-      propsMethodSpies.updateAndSetGasLimit.resetHistory()
-      wrapper.setProps({ to: 'someAddress' })
-      wrapper.instance().updateGas()
-      assert.equal(
-        propsMethodSpies.updateAndSetGasLimit.getCall(0).args[0].to,
-        'someaddress',
-      )
-    })
+    it(
+      'should call updateAndSetGasLimit with the correct params if a to prop is passed',
+      () => {
+        propsMethodSpies.updateAndSetGasLimit.resetHistory()
+        wrapper.setProps({ to: 'someAddress' })
+        wrapper.instance().updateGas()
+        assert.equal(
+          propsMethodSpies.updateAndSetGasLimit.getCall(0).args[0].to,
+          'someaddress',
+        )
+      }
+    )
 
-    it('should call updateAndSetGasLimit with to set to lowercase if passed', function () {
-      propsMethodSpies.updateAndSetGasLimit.resetHistory()
-      wrapper.instance().updateGas({ to: '0xABC' })
-      assert.equal(propsMethodSpies.updateAndSetGasLimit.getCall(0).args[0].to, '0xabc')
-    })
+    it(
+      'should call updateAndSetGasLimit with to set to lowercase if passed',
+      () => {
+        propsMethodSpies.updateAndSetGasLimit.resetHistory()
+        wrapper.instance().updateGas({ to: '0xABC' })
+        assert.equal(propsMethodSpies.updateAndSetGasLimit.getCall(0).args[0].to, '0xabc')
+      }
+    )
   })
 
-  describe('render', function () {
-    it('should render a page-container class', function () {
+  describe('render', () => {
+    it('should render a page-container class', () => {
       assert.equal(wrapper.find('.page-container').length, 1)
     })
 
-    it('should render SendHeader and AddRecipient', function () {
+    it('should render SendHeader and AddRecipient', () => {
       assert.equal(wrapper.find(SendHeader).length, 1)
       assert.equal(wrapper.find(AddRecipient).length, 1)
     })
 
-    it('should pass the history prop to SendHeader and SendFooter', function () {
+    it('should pass the history prop to SendHeader and SendFooter', () => {
       wrapper.setProps({
         to: '0x80F061544cC398520615B5d3e7A3BedD70cd4510',
       })
@@ -381,7 +422,7 @@ describe('Send Component', function () {
       )
     })
 
-    it('should pass showHexData to SendContent', function () {
+    it('should pass showHexData to SendContent', () => {
       wrapper.setProps({
         to: '0x80F061544cC398520615B5d3e7A3BedD70cd4510',
       })
@@ -389,18 +430,18 @@ describe('Send Component', function () {
     })
   })
 
-  describe('validate when input change', function () {
+  describe('validate when input change', () => {
     let clock
 
-    beforeEach(function () {
+    beforeEach(() => {
       clock = sinon.useFakeTimers()
     })
 
-    afterEach(function () {
+    afterEach(() => {
       clock.restore()
     })
 
-    it('should validate when input changes', function () {
+    it('should validate when input changes', () => {
       const instance = wrapper.instance()
       instance.onRecipientInputChange('0x80F061544cC398520615B5d3e7A3BedD70cd4510')
 
@@ -411,7 +452,7 @@ describe('Send Component', function () {
       })
     })
 
-    it('should validate when input changes and has error', function () {
+    it('should validate when input changes and has error', () => {
       const instance = wrapper.instance()
       instance.onRecipientInputChange('0x80F061544cC398520615B5d3e7a3BedD70cd4510')
 
@@ -423,20 +464,23 @@ describe('Send Component', function () {
       })
     })
 
-    it('should validate when input changes and has error on a bad network', function () {
-      wrapper.setProps({ network: 'bad' })
-      const instance = wrapper.instance()
-      instance.onRecipientInputChange('0x80F061544cC398520615B5d3e7a3BedD70cd4510')
+    it(
+      'should validate when input changes and has error on a bad network',
+      () => {
+        wrapper.setProps({ network: 'bad' })
+        const instance = wrapper.instance()
+        instance.onRecipientInputChange('0x80F061544cC398520615B5d3e7a3BedD70cd4510')
 
-      clock.tick(1001)
-      assert.deepEqual(instance.state, {
-        query: '0x80F061544cC398520615B5d3e7a3BedD70cd4510',
-        toError: 'invalidAddressRecipientNotEthNetwork',
-        toWarning: null,
-      })
-    })
+        clock.tick(1001)
+        assert.deepEqual(instance.state, {
+          query: '0x80F061544cC398520615B5d3e7a3BedD70cd4510',
+          toError: 'invalidAddressRecipientNotEthNetwork',
+          toWarning: null,
+        })
+      }
+    )
 
-    it('should synchronously validate when input changes to ""', function () {
+    it('should synchronously validate when input changes to ""', () => {
       wrapper.setProps({ network: 'bad' })
       const instance = wrapper.instance()
       instance.onRecipientInputChange('0x80F061544cC398520615B5d3e7a3BedD70cd4510')
@@ -456,7 +500,7 @@ describe('Send Component', function () {
       })
     })
 
-    it('should warn when send to a known token contract address', function () {
+    it('should warn when send to a known token contract address', () => {
       wrapper.setProps({ address: '0x888', decimals: 18, symbol: '888' })
       const instance = wrapper.instance()
       instance.onRecipientInputChange('0x13cb85823f78Cff38f0B0E90D3e975b8CB3AAd64')

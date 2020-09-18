@@ -1,5 +1,4 @@
 import assert from 'assert'
-import proxyquire from 'proxyquire'
 import sinon from 'sinon'
 
 let mapStateToProps
@@ -13,32 +12,37 @@ const duckActionSpies = {
   updateSendErrors: sinon.spy(),
 }
 
-proxyquire('../amount-max-button.container.js', {
-  'react-redux': {
-    connect: (ms, md) => {
-      mapStateToProps = ms
-      mapDispatchToProps = md
-      return () => ({})
-    },
-  },
-  '../../../../../selectors': {
-    getGasTotal: (s) => `mockGasTotal:${s}`,
-    getSendToken: (s) => `mockSendToken:${s}`,
-    getSendFromBalance: (s) => `mockBalance:${s}`,
-    getTokenBalance: (s) => `mockTokenBalance:${s}`,
-    getSendMaxModeState: (s) => `mockMaxModeOn:${s}`,
-    getBasicGasEstimateLoadingStatus: (s) => `mockButtonDataLoading:${s}`,
-  },
-  './amount-max-button.utils.js': { calcMaxAmount: (mockObj) => mockObj.val + 1 },
-  '../../../../../store/actions': actionSpies,
-  '../../../../../ducks/send/send.duck': duckActionSpies,
-})
+jest.mock('react-redux', () => ({
+  connect: (ms, md) => {
+    mapStateToProps = ms
+    mapDispatchToProps = md
+    return () => ({})
+  }
+}));
 
-describe('amount-max-button container', function () {
+jest.mock('../../../../../selectors', () => ({
+  getGasTotal: (s) => `mockGasTotal:${s}`,
+  getSendToken: (s) => `mockSendToken:${s}`,
+  getSendFromBalance: (s) => `mockBalance:${s}`,
+  getTokenBalance: (s) => `mockTokenBalance:${s}`,
+  getSendMaxModeState: (s) => `mockMaxModeOn:${s}`,
+  getBasicGasEstimateLoadingStatus: (s) => `mockButtonDataLoading:${s}`
+}));
 
-  describe('mapStateToProps()', function () {
+jest.mock('./amount-max-button.utils.js', () => ({
+  calcMaxAmount: (mockObj) => mockObj.val + 1
+}));
 
-    it('should map the correct properties to props', function () {
+jest.mock('../../../../../store/actions', () => actionSpies);
+jest.mock('../../../../../ducks/send/send.duck', () => duckActionSpies);
+
+require('../amount-max-button.container.js')
+
+describe('amount-max-button container', () => {
+
+  describe('mapStateToProps()', () => {
+
+    it('should map the correct properties to props', () => {
       assert.deepEqual(mapStateToProps('mockState'), {
         balance: 'mockBalance:mockState',
         buttonDataLoading: 'mockButtonDataLoading:mockState',
@@ -51,17 +55,17 @@ describe('amount-max-button container', function () {
 
   })
 
-  describe('mapDispatchToProps()', function () {
+  describe('mapDispatchToProps()', () => {
     let dispatchSpy
     let mapDispatchToPropsObject
 
-    beforeEach(function () {
+    beforeEach(() => {
       dispatchSpy = sinon.spy()
       mapDispatchToPropsObject = mapDispatchToProps(dispatchSpy)
     })
 
-    describe('setAmountToMax()', function () {
-      it('should dispatch an action', function () {
+    describe('setAmountToMax()', () => {
+      it('should dispatch an action', () => {
         mapDispatchToPropsObject.setAmountToMax({ val: 11, foo: 'bar' })
         assert(dispatchSpy.calledTwice)
         assert(duckActionSpies.updateSendErrors.calledOnce)
@@ -77,8 +81,8 @@ describe('amount-max-button container', function () {
       })
     })
 
-    describe('setMaxModeTo()', function () {
-      it('should dispatch an action', function () {
+    describe('setMaxModeTo()', () => {
+      it('should dispatch an action', () => {
         mapDispatchToPropsObject.setMaxModeTo('mockVal')
         assert(dispatchSpy.calledOnce)
         assert.equal(

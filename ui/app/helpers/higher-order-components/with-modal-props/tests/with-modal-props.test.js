@@ -19,8 +19,8 @@ const mockState = {
   },
 }
 
-describe('withModalProps', function () {
-  it('should return a component wrapped with modal state props', function () {
+describe('withModalProps', () => {
+  it('should return a component wrapped with modal state props', () => {
     const TestComponent = () => (
       <div className="test">Testing</div>
     )

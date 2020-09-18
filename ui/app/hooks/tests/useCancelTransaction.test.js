@@ -9,20 +9,20 @@ import { showModal } from '../../store/actions'
 import { increaseLastGasPrice } from '../../helpers/utils/confirm-tx.util'
 
 
-describe('useCancelTransaction', function () {
+describe('useCancelTransaction', () => {
   let useSelector
   const dispatch = sinon.spy()
 
-  before(function () {
+  beforeAll(() => {
     sinon.stub(reactRedux, 'useDispatch').returns(dispatch)
   })
 
-  afterEach(function () {
+  afterEach(() => {
     dispatch.resetHistory()
   })
 
-  describe('when account has insufficent balance to cover gas', function () {
-    before(function () {
+  describe('when account has insufficent balance to cover gas', () => {
+    beforeAll(() => {
       useSelector = sinon.stub(reactRedux, 'useSelector')
       useSelector.callsFake((selector) => {
         if (selector === getConversionRate) {
@@ -38,34 +38,40 @@ describe('useCancelTransaction', function () {
       const originalGasPrice = transactionGroup.primaryTransaction.txParams?.gasPrice
       const gasPrice = originalGasPrice && increaseLastGasPrice(originalGasPrice)
       const transactionId = transactionGroup.initialTransaction.id
-      it(`should indicate account has insufficient funds to cover ${gasPrice} gas price`, function () {
-        const { result } = renderHook(() => useCancelTransaction(transactionGroup))
-        assert.equal(result.current[0], false)
-      })
-      it(`should return a function that kicks off cancellation for id ${transactionId}`, function () {
-        const { result } = renderHook(() => useCancelTransaction(transactionGroup))
-        assert.equal(typeof result.current[1], 'function')
-        result.current[1]({ preventDefault: () => {}, stopPropagation: () => {} })
-        assert.equal(
-          dispatch.calledWith(
-            showModal({
-              name: 'CANCEL_TRANSACTION',
-              transactionId,
-              originalGasPrice,
-            }),
-          ),
-          true,
-        )
-      })
+      it(
+        `should indicate account has insufficient funds to cover ${gasPrice} gas price`,
+        () => {
+          const { result } = renderHook(() => useCancelTransaction(transactionGroup))
+          assert.equal(result.current[0], false)
+        }
+      )
+      it(
+        `should return a function that kicks off cancellation for id ${transactionId}`,
+        () => {
+          const { result } = renderHook(() => useCancelTransaction(transactionGroup))
+          assert.equal(typeof result.current[1], 'function')
+          result.current[1]({ preventDefault: () => {}, stopPropagation: () => {} })
+          assert.equal(
+            dispatch.calledWith(
+              showModal({
+                name: 'CANCEL_TRANSACTION',
+                transactionId,
+                originalGasPrice,
+              }),
+            ),
+            true,
+          )
+        }
+      )
     })
-    after(function () {
+    afterAll(() => {
       useSelector.restore()
     })
   })
 
 
-  describe('when account has sufficient balance to cover gas', function () {
-    before(function () {
+  describe('when account has sufficient balance to cover gas', () => {
+    beforeAll(() => {
       useSelector = sinon.stub(reactRedux, 'useSelector')
       useSelector.callsFake((selector) => {
         if (selector === getConversionRate) {
@@ -81,33 +87,39 @@ describe('useCancelTransaction', function () {
       const originalGasPrice = transactionGroup.primaryTransaction.txParams?.gasPrice
       const gasPrice = originalGasPrice && increaseLastGasPrice(originalGasPrice)
       const transactionId = transactionGroup.initialTransaction.id
-      it(`should indicate account has funds to cover ${gasPrice} gas price`, function () {
-        const { result } = renderHook(() => useCancelTransaction(transactionGroup))
-        assert.equal(result.current[0], true)
-      })
-      it(`should return a function that kicks off cancellation for id ${transactionId}`, function () {
-        const { result } = renderHook(() => useCancelTransaction(transactionGroup))
-        assert.equal(typeof result.current[1], 'function')
-        result.current[1]({ preventDefault: () => {}, stopPropagation: () => {} })
-        assert.equal(
-          dispatch.calledWith(
-            showModal({
-              name: 'CANCEL_TRANSACTION',
-              transactionId,
-              originalGasPrice,
-            }),
-          ),
-          true,
-        )
-      })
+      it(
+        `should indicate account has funds to cover ${gasPrice} gas price`,
+        () => {
+          const { result } = renderHook(() => useCancelTransaction(transactionGroup))
+          assert.equal(result.current[0], true)
+        }
+      )
+      it(
+        `should return a function that kicks off cancellation for id ${transactionId}`,
+        () => {
+          const { result } = renderHook(() => useCancelTransaction(transactionGroup))
+          assert.equal(typeof result.current[1], 'function')
+          result.current[1]({ preventDefault: () => {}, stopPropagation: () => {} })
+          assert.equal(
+            dispatch.calledWith(
+              showModal({
+                name: 'CANCEL_TRANSACTION',
+                transactionId,
+                originalGasPrice,
+              }),
+            ),
+            true,
+          )
+        }
+      )
     })
-    after(function () {
+    afterAll(() => {
       useSelector.restore()
     })
   })
 
 
-  after(function () {
+  afterAll(() => {
     sinon.restore()
   })
 })

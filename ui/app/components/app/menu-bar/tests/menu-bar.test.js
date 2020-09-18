@@ -29,8 +29,8 @@ const initState = {
 }
 const mockStore = configureStore()
 
-describe('MenuBar', function () {
-  it('opens account detail menu when account options is clicked', function () {
+describe('MenuBar', () => {
+  it('opens account detail menu when account options is clicked', () => {
     const store = mockStore(initState)
     const wrapper = mountWithRouter(
       <Provider store={store}>
@@ -44,7 +44,7 @@ describe('MenuBar', function () {
     assert.ok(wrapper.exists('AccountOptionsMenu'))
   })
 
-  it('sets accountDetailsMenuOpen to false when closed', function () {
+  it('sets accountDetailsMenuOpen to false when closed', () => {
     const store = mockStore(initState)
     const wrapper = mountWithRouter(
       <Provider store={store}>

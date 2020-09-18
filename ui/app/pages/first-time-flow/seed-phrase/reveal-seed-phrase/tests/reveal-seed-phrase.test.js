@@ -4,7 +4,7 @@ import sinon from 'sinon'
 import { mount } from 'enzyme'
 import RevealSeedPhrase from '../index'
 
-describe('Reveal Seed Phrase', function () {
+describe('Reveal Seed Phrase', () => {
   let wrapper
 
   const TEST_SEED = 'debris dizzy just program just float decrease vacant alarm reduce speak stadium'
@@ -18,7 +18,7 @@ describe('Reveal Seed Phrase', function () {
     setCompletedOnboarding: sinon.spy(),
   }
 
-  beforeEach(function () {
+  beforeEach(() => {
     wrapper = mount(
       <RevealSeedPhrase.WrappedComponent {...props} />, {
         context: {
@@ -29,13 +29,13 @@ describe('Reveal Seed Phrase', function () {
     )
   })
 
-  it('seed phrase', function () {
+  it('seed phrase', () => {
     const seedPhrase = wrapper.find('.reveal-seed-phrase__secret-words--hidden')
     assert.equal(seedPhrase.length, 1)
     assert.equal(seedPhrase.text(), TEST_SEED)
   })
 
-  it('clicks to reveal', function () {
+  it('clicks to reveal', () => {
     const reveal = wrapper.find('.reveal-seed-phrase__secret-blocker')
 
     assert.equal(wrapper.state().isShowingSeedPhrase, false)

@@ -3,8 +3,8 @@ import assert from 'assert'
 import { shallow } from 'enzyme'
 import Card from '../card.component'
 
-describe('Card Component', function () {
-  it('should render a card with a title and child element', function () {
+describe('Card Component', () => {
+  it('should render a card with a title and child element', () => {
     const wrapper = shallow(
       <Card
         title="Test"

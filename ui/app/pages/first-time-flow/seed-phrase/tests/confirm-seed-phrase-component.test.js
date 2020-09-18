@@ -16,8 +16,8 @@ function shallowRender (props = {}, context = {}) {
   )
 }
 
-describe('ConfirmSeedPhrase Component', function () {
-  it('should render correctly', function () {
+describe('ConfirmSeedPhrase Component', () => {
+  it('should render correctly', () => {
     const root = shallowRender({
       seedPhrase: '鼠 牛 虎 兔 龍 蛇 馬 羊 猴 雞 狗 豬',
     })
@@ -29,7 +29,7 @@ describe('ConfirmSeedPhrase Component', function () {
     )
   })
 
-  it('should add/remove selected on click', function () {
+  it('should add/remove selected on click', () => {
     const metricsEventSpy = sinon.spy()
     const pushSpy = sinon.spy()
     const root = shallowRender(
@@ -67,7 +67,7 @@ describe('ConfirmSeedPhrase Component', function () {
     )
   })
 
-  it('should render correctly on hover', function () {
+  it('should render correctly on hover', () => {
     const metricsEventSpy = sinon.spy()
     const pushSpy = sinon.spy()
     const root = shallowRender(
@@ -100,7 +100,7 @@ describe('ConfirmSeedPhrase Component', function () {
     assert.equal(pendingSeeds.at(2).props().seedIndex, 1)
   })
 
-  it('should insert seed in place on drop', function () {
+  it('should insert seed in place on drop', () => {
     const metricsEventSpy = sinon.spy()
     const pushSpy = sinon.spy()
     const root = shallowRender(
@@ -131,7 +131,7 @@ describe('ConfirmSeedPhrase Component', function () {
     assert.deepEqual(root.state().pendingSeedIndices, [2, 0, 1])
   })
 
-  it('should submit correctly', async function () {
+  it('should submit correctly', async () => {
     const originalSeed = ['鼠', '牛', '虎', '兔', '龍', '蛇', '馬', '羊', '猴', '雞', '狗', '豬']
     const metricsEventSpy = sinon.spy()
     const pushSpy = sinon.spy()

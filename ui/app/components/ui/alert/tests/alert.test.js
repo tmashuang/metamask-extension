@@ -4,21 +4,21 @@ import sinon from 'sinon'
 import { shallow } from 'enzyme'
 import Alert from '../index'
 
-describe('Alert', function () {
+describe('Alert', () => {
   let wrapper
 
-  beforeEach(function () {
+  beforeEach(() => {
     wrapper = shallow(
       <Alert />,
     )
   })
 
-  it('renders nothing with no visible boolean in state', function () {
+  it('renders nothing with no visible boolean in state', () => {
     const alert = wrapper.find('.global-alert')
     assert.equal(alert.length, 0)
   })
 
-  it('renders when visible in state is true, and message', function () {
+  it('renders when visible in state is true, and message', () => {
     const errorMessage = 'Error Message'
 
     wrapper.setState({ visible: true, msg: errorMessage })
@@ -30,14 +30,17 @@ describe('Alert', function () {
     assert.equal(errorText.text(), errorMessage)
   })
 
-  it('calls component method when componentWillReceiveProps is called', function () {
-    const animateInSpy = sinon.stub(wrapper.instance(), 'animateIn')
-    const animateOutSpy = sinon.stub(wrapper.instance(), 'animateOut')
+  it(
+    'calls component method when componentWillReceiveProps is called',
+    () => {
+      const animateInSpy = sinon.stub(wrapper.instance(), 'animateIn')
+      const animateOutSpy = sinon.stub(wrapper.instance(), 'animateOut')
 
-    wrapper.setProps({ visible: true })
-    assert(animateInSpy.calledOnce)
+      wrapper.setProps({ visible: true })
+      assert(animateInSpy.calledOnce)
 
-    wrapper.setProps({ visible: false })
-    assert(animateOutSpy.calledOnce)
-  })
+      wrapper.setProps({ visible: false })
+      assert(animateOutSpy.calledOnce)
+    }
+  )
 })

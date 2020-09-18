@@ -1,9 +1,9 @@
 import * as utils from './transactions.util'
 import assert from 'assert'
 
-describe('Transactions utils', function () {
-  describe('getTokenData', function () {
-    it('should return token data', function () {
+describe('Transactions utils', () => {
+  describe('getTokenData', () => {
+    it('should return token data', () => {
       const tokenData = utils.getTokenData('0xa9059cbb00000000000000000000000050a9d56c2b8ba9a5c7f2c08c3d26e0499f23a7060000000000000000000000000000000000000000000000000000000000004e20')
       assert.ok(tokenData)
       const { name, params } = tokenData
@@ -15,13 +15,13 @@ describe('Transactions utils', function () {
       assert.equal(value.type, 'uint256')
     })
 
-    it('should not throw errors when called without arguments', function () {
+    it('should not throw errors when called without arguments', () => {
       assert.doesNotThrow(() => utils.getTokenData())
     })
   })
 
-  describe('getStatusKey', function () {
-    it('should return the correct status', function () {
+  describe('getStatusKey', () => {
+    it('should return the correct status', () => {
       const tests = [
         {
           transaction: {
@@ -55,43 +55,46 @@ describe('Transactions utils', function () {
     })
   })
 
-  describe('getBlockExplorerUrlForTx', function () {
-    it('should return the correct block explorer url for a transaction', function () {
-      const tests = [
-        {
-          expected: 'https://etherscan.io/tx/0xabcd',
-          networkId: '1',
-          hash: '0xabcd',
-        },
-        {
-          expected: 'https://ropsten.etherscan.io/tx/0xdef0',
-          networkId: '3',
-          hash: '0xdef0',
-          rpcPrefs: {},
-        },
-        {
-          // test handling of `blockExplorerUrl` for a custom RPC
-          expected: 'https://block.explorer/tx/0xabcd',
-          networkId: '31',
-          hash: '0xabcd',
-          rpcPrefs: {
-            blockExplorerUrl: 'https://block.explorer',
+  describe('getBlockExplorerUrlForTx', () => {
+    it(
+      'should return the correct block explorer url for a transaction',
+      () => {
+        const tests = [
+          {
+            expected: 'https://etherscan.io/tx/0xabcd',
+            networkId: '1',
+            hash: '0xabcd',
           },
-        },
-        {
-          // test handling of trailing `/` in `blockExplorerUrl` for a custom RPC
-          expected: 'https://another.block.explorer/tx/0xdef0',
-          networkId: '33',
-          hash: '0xdef0',
-          rpcPrefs: {
-            blockExplorerUrl: 'https://another.block.explorer/',
+          {
+            expected: 'https://ropsten.etherscan.io/tx/0xdef0',
+            networkId: '3',
+            hash: '0xdef0',
+            rpcPrefs: {},
           },
-        },
-      ]
+          {
+            // test handling of `blockExplorerUrl` for a custom RPC
+            expected: 'https://block.explorer/tx/0xabcd',
+            networkId: '31',
+            hash: '0xabcd',
+            rpcPrefs: {
+              blockExplorerUrl: 'https://block.explorer',
+            },
+          },
+          {
+            // test handling of trailing `/` in `blockExplorerUrl` for a custom RPC
+            expected: 'https://another.block.explorer/tx/0xdef0',
+            networkId: '33',
+            hash: '0xdef0',
+            rpcPrefs: {
+              blockExplorerUrl: 'https://another.block.explorer/',
+            },
+          },
+        ]
 
-      tests.forEach(({ expected, networkId, hash, rpcPrefs }) => {
-        assert.equal(utils.getBlockExplorerUrlForTx(networkId, hash, rpcPrefs), expected)
-      })
-    })
+        tests.forEach(({ expected, networkId, hash, rpcPrefs }) => {
+          assert.equal(utils.getBlockExplorerUrlForTx(networkId, hash, rpcPrefs), expected)
+        })
+      }
+    )
   })
 })

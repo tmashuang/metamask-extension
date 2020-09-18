@@ -96,9 +96,9 @@ const tests = [
 ]
 
 
-describe('useCurrencyDisplay', function () {
+describe('useCurrencyDisplay', () => {
   tests.forEach(({ input: { value, ...restProps }, result }) => {
-    describe(`when input is { value: ${value}, decimals: ${restProps.numberOfDecimals}, denomation: ${restProps.denomination} }`, function () {
+    describe(`when input is { value: ${value}, decimals: ${restProps.numberOfDecimals}, denomation: ${restProps.denomination} }`, () => {
       const stub = sinon.stub(reactRedux, 'useSelector')
       stub.callsFake((selector) => {
         if (selector === getCurrentCurrency) {
@@ -112,13 +112,13 @@ describe('useCurrencyDisplay', function () {
       const hookReturn = renderHook(() => useCurrencyDisplay(value, restProps))
       const [ displayValue, parts ] = hookReturn.result.current
       stub.restore()
-      it(`should return ${result.displayValue} as displayValue`, function () {
+      it(`should return ${result.displayValue} as displayValue`, () => {
         assert.equal(displayValue, result.displayValue)
       })
-      it(`should return ${result.value} as value`, function () {
+      it(`should return ${result.value} as value`, () => {
         assert.equal(parts.value, result.value)
       })
-      it(`should return ${result.suffix} as suffix`, function () {
+      it(`should return ${result.suffix} as suffix`, () => {
         assert.equal(parts.suffix, result.suffix)
       })
     })

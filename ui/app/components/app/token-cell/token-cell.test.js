@@ -10,7 +10,7 @@ import { MemoryRouter } from 'react-router-dom'
 import TokenCell from '.'
 import Identicon from '../../ui/identicon'
 
-describe('Token Cell', function () {
+describe('Token Cell', () => {
   let wrapper
 
   const state = {
@@ -41,7 +41,7 @@ describe('Token Cell', function () {
 
   let onClick
 
-  beforeEach(function () {
+  beforeEach(() => {
     onClick = sinon.stub()
     wrapper = mount(
       <Provider store={store}>
@@ -59,24 +59,24 @@ describe('Token Cell', function () {
     )
   })
 
-  afterEach(function () {
+  afterEach(() => {
     sinon.restore()
   })
 
-  it('renders Identicon with props from token cell', function () {
+  it('renders Identicon with props from token cell', () => {
     assert.equal(wrapper.find(Identicon).prop('address'), '0xAnotherToken')
     assert.equal(wrapper.find(Identicon).prop('image'), './test-image')
   })
 
-  it('renders token balance and symbol', function () {
+  it('renders token balance and symbol', () => {
     assert.equal(wrapper.find('.list-item__heading').text(), '5.000 TEST')
   })
 
-  it('renders converted fiat amount', function () {
+  it('renders converted fiat amount', () => {
     assert.equal(wrapper.find('.list-item__subheading').text(), '$0.52 USD')
   })
 
-  it('calls onClick when clicked', function () {
+  it('calls onClick when clicked', () => {
     assert.ok(!onClick.called)
     wrapper.simulate('click')
     assert.ok(onClick.called)

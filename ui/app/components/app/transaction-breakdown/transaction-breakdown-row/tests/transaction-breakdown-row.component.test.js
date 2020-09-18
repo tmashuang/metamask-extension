@@ -4,8 +4,8 @@ import { shallow } from 'enzyme'
 import TransactionBreakdownRow from '../transaction-breakdown-row.component'
 import Button from '../../../../ui/button'
 
-describe('TransactionBreakdownRow Component', function () {
-  it('should render text properly', function () {
+describe('TransactionBreakdownRow Component', () => {
+  it('should render text properly', () => {
     const wrapper = shallow(
       <TransactionBreakdownRow
         title="test"
@@ -21,7 +21,7 @@ describe('TransactionBreakdownRow Component', function () {
     assert.equal(wrapper.find('.transaction-breakdown-row__value').text(), 'Test')
   })
 
-  it('should render components properly', function () {
+  it('should render components properly', () => {
     const wrapper = shallow(
       <TransactionBreakdownRow
         title="test"

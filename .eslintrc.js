@@ -21,7 +21,7 @@ module.exports = {
   extends: [
     '@metamask/eslint-config',
     '@metamask/eslint-config/config/nodejs',
-    '@metamask/eslint-config/config/mocha',
+    '@metamask/eslint-config/config/jest',
     'plugin:react/recommended',
     'plugin:react-hooks/recommended',
   ],
@@ -90,7 +90,6 @@ module.exports = {
       'prop': 'parens-new-line',
     }],
     'babel/semi': ['error', 'never'],
-    'mocha/no-setup-in-describe': 'off',
   },
 
   overrides: [{
