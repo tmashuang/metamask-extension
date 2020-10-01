@@ -4,8 +4,8 @@ import sinon from 'sinon'
 import { mount } from 'enzyme'
 import RevealSeedPage from '../reveal-seed'
 
-describe('Reveal Seed Page', function () {
-  it('form submit', function () {
+describe('Reveal Seed Page', () => {
+  it('form submit', () => {
     const props = {
       history: {
         push: sinon.spy(),

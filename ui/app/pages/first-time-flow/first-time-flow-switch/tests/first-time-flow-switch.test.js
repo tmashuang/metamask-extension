@@ -9,16 +9,16 @@ import {
 } from '../../../../helpers/constants/routes'
 import FirstTimeFlowSwitch from '..'
 
-describe('FirstTimeFlowSwitch', function () {
+describe('FirstTimeFlowSwitch', () => {
 
-  it('redirects to /welcome route with no props', function () {
+  it('redirects to /welcome route with no props', () => {
     const wrapper = mountWithRouter(
       <FirstTimeFlowSwitch.WrappedComponent />,
     )
     assert.equal(wrapper.find('Lifecycle').find({ to: { pathname: INITIALIZE_WELCOME_ROUTE } }).length, 1)
   })
 
-  it('redirects to / route when completedOnboarding is true', function () {
+  it('redirects to / route when completedOnboarding is true', () => {
     const props = {
       completedOnboarding: true,
     }
@@ -29,7 +29,7 @@ describe('FirstTimeFlowSwitch', function () {
     assert.equal(wrapper.find('Lifecycle').find({ to: { pathname: DEFAULT_ROUTE } }).length, 1)
   })
 
-  it('redirects to /lock route when isUnlocked is true ', function () {
+  it('redirects to /lock route when isUnlocked is true ', () => {
     const props = {
       completedOnboarding: false,
       isUnlocked: true,
@@ -42,7 +42,7 @@ describe('FirstTimeFlowSwitch', function () {
     assert.equal(wrapper.find('Lifecycle').find({ to: { pathname: LOCK_ROUTE } }).length, 1)
   })
 
-  it('redirects to /welcome route when isInitialized is false', function () {
+  it('redirects to /welcome route when isInitialized is false', () => {
     const props = {
       completedOnboarding: false,
       isUnlocked: false,
@@ -56,7 +56,7 @@ describe('FirstTimeFlowSwitch', function () {
     assert.equal(wrapper.find('Lifecycle').find({ to: { pathname: INITIALIZE_WELCOME_ROUTE } }).length, 1)
   })
 
-  it('redirects to /unlock route when isInitialized is true', function () {
+  it('redirects to /unlock route when isInitialized is true', () => {
     const props = {
       completedOnboarding: false,
       isUnlocked: false,

@@ -1,23 +1,25 @@
 import assert from 'assert'
-import proxyquire from 'proxyquire'
 
 let mapStateToProps
 
-proxyquire('../send-row-error-message.container.js', {
-  'react-redux': {
-    connect: (ms) => {
-      mapStateToProps = ms
-      return () => ({})
-    },
-  },
-  '../../../../../selectors': { getSendErrors: (s) => `mockErrors:${s}` },
-})
+jest.mock('react-redux', () => ({
+  connect: (ms) => {
+    mapStateToProps = ms
+    return () => ({})
+  }
+}));
 
-describe('send-row-error-message container', function () {
+jest.mock('../../../../../selectors', () => ({
+  getSendErrors: (s) => `mockErrors:${s}`
+}));
 
-  describe('mapStateToProps()', function () {
+require('../send-row-error-message.container.js')
 
-    it('should map the correct properties to props', function () {
+describe('send-row-error-message container', () => {
+
+  describe('mapStateToProps()', () => {
+
+    it('should map the correct properties to props', () => {
       assert.deepEqual(mapStateToProps('mockState', { errorType: 'someType' }), {
         errors: 'mockErrors:mockState',
         errorType: 'someType',

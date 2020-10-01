@@ -4,9 +4,9 @@ import sinon from 'sinon'
 import { mountWithRouter } from '../../../../../test/lib/render-helpers'
 import Lock from '..'
 
-describe('Lock', function () {
+describe('Lock', () => {
 
-  it('replaces history with default route when isUnlocked false', function () {
+  it('replaces history with default route when isUnlocked false', () => {
 
     const props = {
       isUnlocked: false,
@@ -23,26 +23,29 @@ describe('Lock', function () {
 
   })
 
-  it('locks and pushes history with default route when isUnlocked true', function (done) {
+  it(
+    'locks and pushes history with default route when isUnlocked true',
+    done => {
 
-    const props = {
-      isUnlocked: true,
-      lockMetamask: sinon.stub(),
-      history: {
-        push: sinon.spy(),
-      },
+      const props = {
+        isUnlocked: true,
+        lockMetamask: sinon.stub(),
+        history: {
+          push: sinon.spy(),
+        },
+      }
+
+      props.lockMetamask.resolves()
+
+      mountWithRouter(
+        <Lock.WrappedComponent {...props} />,
+      )
+
+      assert(props.lockMetamask.calledOnce)
+      setImmediate(() => {
+        assert.equal(props.history.push.getCall(0).args[0], '/')
+        done()
+      })
     }
-
-    props.lockMetamask.resolves()
-
-    mountWithRouter(
-      <Lock.WrappedComponent {...props} />,
-    )
-
-    assert(props.lockMetamask.calledOnce)
-    setImmediate(() => {
-      assert.equal(props.history.push.getCall(0).args[0], '/')
-      done()
-    })
-  })
+  )
 })

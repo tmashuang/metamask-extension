@@ -4,7 +4,7 @@ import sinon from 'sinon'
 import { mount } from 'enzyme'
 import SecurityTab from '..'
 
-describe('Security Tab', function () {
+describe('Security Tab', () => {
   let wrapper
 
   const props = {
@@ -23,7 +23,7 @@ describe('Security Tab', function () {
     usePhishDetect: true,
   }
 
-  beforeEach(function () {
+  beforeEach(() => {
     wrapper = mount(
       <SecurityTab.WrappedComponent {...props} />, {
         context: {
@@ -34,7 +34,7 @@ describe('Security Tab', function () {
     )
   })
 
-  it('navigates to reveal seed words page', function () {
+  it('navigates to reveal seed words page', () => {
     const seedWords = wrapper.find('.button.btn-danger.btn--large')
 
     seedWords.simulate('click')
@@ -42,19 +42,19 @@ describe('Security Tab', function () {
     assert.equal(props.history.push.getCall(0).args[0], '/seed')
   })
 
-  it('toggles incoming txs', function () {
+  it('toggles incoming txs', () => {
     const incomingTxs = wrapper.find({ type: 'checkbox' }).at(0)
     incomingTxs.simulate('click')
     assert(props.setShowIncomingTransactionsFeatureFlag.calledOnce)
   })
 
-  it('toggles phishing detection', function () {
+  it('toggles phishing detection', () => {
     const phishDetect = wrapper.find({ type: 'checkbox' }).at(1)
     phishDetect.simulate('click')
     assert(props.setUsePhishDetect.calledOnce)
   })
 
-  it('toggles metaMetrics', function () {
+  it('toggles metaMetrics', () => {
     const metaMetrics = wrapper.find({ type: 'checkbox' }).at(2)
 
     metaMetrics.simulate('click')

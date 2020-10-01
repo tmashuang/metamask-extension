@@ -4,7 +4,7 @@ import sinon from 'sinon'
 import { mount } from 'enzyme'
 import SettingsTab from '..'
 
-describe('Settings Tab', function () {
+describe('Settings Tab', () => {
   let wrapper
 
   const props = {
@@ -21,7 +21,7 @@ describe('Settings Tab', function () {
     nativeCurrency: 'eth',
     useNativeCurrencyAsPrimaryCurrency: true,
   }
-  beforeEach(function () {
+  beforeEach(() => {
     wrapper = mount(
       <SettingsTab.WrappedComponent {...props} />, {
         context: {
@@ -31,28 +31,28 @@ describe('Settings Tab', function () {
     )
   })
 
-  it('selects currency', async function () {
+  it('selects currency', async () => {
     const selectCurrency = wrapper.find({ placeholder: 'selectCurrency' })
 
     selectCurrency.props().onSelect('eur')
     assert(props.setCurrentCurrency.calledOnce)
   })
 
-  it('selects locale', async function () {
+  it('selects locale', async () => {
     const selectLocale = wrapper.find({ placeholder: 'selectLocale' })
 
     await selectLocale.props().onSelect('ja')
     assert(props.updateCurrentLocale.calledOnce)
   })
 
-  it('sets fiat primary currency', function () {
+  it('sets fiat primary currency', () => {
     const selectFiat = wrapper.find('#fiat-primary-currency')
 
     selectFiat.simulate('change')
     assert(props.setUseNativeCurrencyAsPrimaryCurrencyPreference.calledOnce)
   })
 
-  it('toggles blockies', function () {
+  it('toggles blockies', () => {
     const toggleBlockies = wrapper.find({ type: 'checkbox' })
 
     toggleBlockies.simulate('click')

@@ -5,7 +5,7 @@ import sinon from 'sinon'
 import SendHeader from '../send-header.component'
 import PageContainerHeader from '../../../../components/ui/page-container/page-container-header'
 
-describe('SendHeader Component', function () {
+describe('SendHeader Component', () => {
   let wrapper
 
   const propsMethodSpies = {
@@ -15,11 +15,11 @@ describe('SendHeader Component', function () {
     push: sinon.spy(),
   }
 
-  before(function () {
+  beforeAll(() => {
     sinon.spy(SendHeader.prototype, 'onClose')
   })
 
-  beforeEach(function () {
+  beforeEach(() => {
     wrapper = shallow((
       <SendHeader
         clearSend={propsMethodSpies.clearSend}
@@ -30,24 +30,24 @@ describe('SendHeader Component', function () {
     ), { context: { t: (str1, str2) => (str2 ? str1 + str2 : str1) } })
   })
 
-  afterEach(function () {
+  afterEach(() => {
     propsMethodSpies.clearSend.resetHistory()
     historySpies.push.resetHistory()
     SendHeader.prototype.onClose.resetHistory()
   })
 
-  after(function () {
+  afterAll(() => {
     sinon.restore()
   })
 
-  describe('onClose', function () {
-    it('should call clearSend', function () {
+  describe('onClose', () => {
+    it('should call clearSend', () => {
       assert.equal(propsMethodSpies.clearSend.callCount, 0)
       wrapper.instance().onClose()
       assert.equal(propsMethodSpies.clearSend.callCount, 1)
     })
 
-    it('should call history.push', function () {
+    it('should call history.push', () => {
       assert.equal(historySpies.push.callCount, 0)
       wrapper.instance().onClose()
       assert.equal(historySpies.push.callCount, 1)
@@ -55,12 +55,12 @@ describe('SendHeader Component', function () {
     })
   })
 
-  describe('render', function () {
-    it('should render a PageContainerHeader component', function () {
+  describe('render', () => {
+    it('should render a PageContainerHeader component', () => {
       assert.equal(wrapper.find(PageContainerHeader).length, 1)
     })
 
-    it('should pass the correct props to PageContainerHeader', function () {
+    it('should pass the correct props to PageContainerHeader', () => {
       const {
         onClose,
         title,

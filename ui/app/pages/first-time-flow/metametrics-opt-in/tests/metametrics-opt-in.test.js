@@ -5,8 +5,8 @@ import configureMockStore from 'redux-mock-store'
 import { mountWithRouter } from '../../../../../../test/lib/render-helpers'
 import MetaMetricsOptIn from '..'
 
-describe('MetaMetricsOptIn', function () {
-  it('opt out of MetaMetrics', function () {
+describe('MetaMetricsOptIn', () => {
+  it('opt out of MetaMetrics', () => {
     const props = {
       history: {
         push: sinon.spy(),

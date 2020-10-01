@@ -1,5 +1,4 @@
 import assert from 'assert'
-import proxyquire from 'proxyquire'
 import sinon from 'sinon'
 import { TOKEN_TRANSFER_FUNCTION_SIGNATURE } from '../../send.constants'
 
@@ -9,11 +8,11 @@ const stubs = {
   }),
 }
 
-const sendUtils = proxyquire('../send-footer.utils.js', {
-  'ethereumjs-abi': {
-    rawEncode: stubs.rawEncode,
-  },
-})
+jest.mock('ethereumjs-abi', () => ({
+  rawEncode: stubs.rawEncode
+}));
+
+const sendUtils = require('../send-footer.utils.js')
 const {
   addressIsNew,
   constructTxParams,
@@ -21,27 +20,30 @@ const {
   addHexPrefixToObjectValues,
 } = sendUtils
 
-describe('send-footer utils', function () {
+describe('send-footer utils', () => {
 
-  describe('addHexPrefixToObjectValues()', function () {
-    it('should return a new object with the same properties with a 0x prefix', function () {
-      assert.deepEqual(
-        addHexPrefixToObjectValues({
-          prop1: '0x123',
-          prop2: '456',
-          prop3: 'x',
-        }),
-        {
-          prop1: '0x123',
-          prop2: '0x456',
-          prop3: '0xx',
-        },
-      )
-    })
+  describe('addHexPrefixToObjectValues()', () => {
+    it(
+      'should return a new object with the same properties with a 0x prefix',
+      () => {
+        assert.deepEqual(
+          addHexPrefixToObjectValues({
+            prop1: '0x123',
+            prop2: '456',
+            prop3: 'x',
+          }),
+          {
+            prop1: '0x123',
+            prop2: '0x456',
+            prop3: '0xx',
+          },
+        )
+      }
+    )
   })
 
-  describe('addressIsNew()', function () {
-    it('should return false if the address exists in toAccounts', function () {
+  describe('addressIsNew()', () => {
+    it('should return false if the address exists in toAccounts', () => {
       assert.equal(
         addressIsNew([
           { address: '0xabc' },
@@ -52,85 +54,97 @@ describe('send-footer utils', function () {
       )
     })
 
-    it('should return true if the address does not exists in toAccounts', function () {
-      assert.equal(
-        addressIsNew([
-          { address: '0xabc' },
-          { address: '0xdef' },
-          { address: '0xghi' },
-        ], '0xxyz'),
-        true,
-      )
-    })
+    it(
+      'should return true if the address does not exists in toAccounts',
+      () => {
+        assert.equal(
+          addressIsNew([
+            { address: '0xabc' },
+            { address: '0xdef' },
+            { address: '0xghi' },
+          ], '0xxyz'),
+          true,
+        )
+      }
+    )
   })
 
-  describe('constructTxParams()', function () {
-    it('should return a new txParams object with data if there data is given', function () {
-      assert.deepEqual(
-        constructTxParams({
-          data: 'someData',
-          sendToken: undefined,
-          to: 'mockTo',
-          amount: 'mockAmount',
-          from: 'mockFrom',
-          gas: 'mockGas',
-          gasPrice: 'mockGasPrice',
-        }),
-        {
-          data: '0xsomeData',
-          to: '0xmockTo',
-          value: '0xmockAmount',
-          from: '0xmockFrom',
-          gas: '0xmockGas',
-          gasPrice: '0xmockGasPrice',
-        },
-      )
-    })
+  describe('constructTxParams()', () => {
+    it(
+      'should return a new txParams object with data if there data is given',
+      () => {
+        assert.deepEqual(
+          constructTxParams({
+            data: 'someData',
+            sendToken: undefined,
+            to: 'mockTo',
+            amount: 'mockAmount',
+            from: 'mockFrom',
+            gas: 'mockGas',
+            gasPrice: 'mockGasPrice',
+          }),
+          {
+            data: '0xsomeData',
+            to: '0xmockTo',
+            value: '0xmockAmount',
+            from: '0xmockFrom',
+            gas: '0xmockGas',
+            gasPrice: '0xmockGasPrice',
+          },
+        )
+      }
+    )
 
-    it('should return a new txParams object with value and to properties if there is no sendToken', function () {
-      assert.deepEqual(
-        constructTxParams({
-          sendToken: undefined,
-          to: 'mockTo',
-          amount: 'mockAmount',
-          from: 'mockFrom',
-          gas: 'mockGas',
-          gasPrice: 'mockGasPrice',
-        }),
-        {
-          data: undefined,
-          to: '0xmockTo',
-          value: '0xmockAmount',
-          from: '0xmockFrom',
-          gas: '0xmockGas',
-          gasPrice: '0xmockGasPrice',
-        },
-      )
-    })
+    it(
+      'should return a new txParams object with value and to properties if there is no sendToken',
+      () => {
+        assert.deepEqual(
+          constructTxParams({
+            sendToken: undefined,
+            to: 'mockTo',
+            amount: 'mockAmount',
+            from: 'mockFrom',
+            gas: 'mockGas',
+            gasPrice: 'mockGasPrice',
+          }),
+          {
+            data: undefined,
+            to: '0xmockTo',
+            value: '0xmockAmount',
+            from: '0xmockFrom',
+            gas: '0xmockGas',
+            gasPrice: '0xmockGasPrice',
+          },
+        )
+      }
+    )
 
-    it('should return a new txParams object without a to property and a 0 value if there is a sendToken', function () {
-      assert.deepEqual(
-        constructTxParams({
-          sendToken: { address: '0x0' },
-          to: 'mockTo',
-          amount: 'mockAmount',
-          from: 'mockFrom',
-          gas: 'mockGas',
-          gasPrice: 'mockGasPrice',
-        }),
-        {
-          data: undefined,
-          value: '0x0',
-          from: '0xmockFrom',
-          gas: '0xmockGas',
-          gasPrice: '0xmockGasPrice',
-        },
-      )
-    })
+    it(
+      'should return a new txParams object without a to property and a 0 value if there is a sendToken',
+      () => {
+        assert.deepEqual(
+          constructTxParams({
+            sendToken: { address: '0x0' },
+            to: 'mockTo',
+            amount: 'mockAmount',
+            from: 'mockFrom',
+            gas: 'mockGas',
+            gasPrice: 'mockGasPrice',
+          }),
+          {
+            data: undefined,
+            value: '0x0',
+            from: '0xmockFrom',
+            gas: '0xmockGas',
+            gasPrice: '0xmockGasPrice',
+          },
+        )
+      }
+    )
   })
 
-  describe('constructUpdatedTx()', function () {
-    it('should return a new object with an updated txParams', function () {
+  describe('constructUpdatedTx()', () => {
+    it('should return a new object with an updated txParams', () => {
       const result = constructUpdatedTx({
         amount: 'mockAmount',
         editingTransactionId: '0x456',
@@ -162,41 +176,44 @@ describe('send-footer utils', function () {
       })
     })
 
-    it('should not have data property if there is non in the original tx', function () {
-      const result = constructUpdatedTx({
-        amount: 'mockAmount',
-        editingTransactionId: '0x456',
-        from: 'mockFrom',
-        gas: 'mockGas',
-        gasPrice: 'mockGasPrice',
-        sendToken: false,
-        to: 'mockTo',
-        unapprovedTxs: {
-          '0x123': {},
-          '0x456': {
-            unapprovedTxParam: 'someOtherParam',
-            txParams: {
-              from: 'oldFrom',
-              gas: 'oldGas',
-              gasPrice: 'oldGasPrice',
+    it(
+      'should not have data property if there is non in the original tx',
+      () => {
+        const result = constructUpdatedTx({
+          amount: 'mockAmount',
+          editingTransactionId: '0x456',
+          from: 'mockFrom',
+          gas: 'mockGas',
+          gasPrice: 'mockGasPrice',
+          sendToken: false,
+          to: 'mockTo',
+          unapprovedTxs: {
+            '0x123': {},
+            '0x456': {
+              unapprovedTxParam: 'someOtherParam',
+              txParams: {
+                from: 'oldFrom',
+                gas: 'oldGas',
+                gasPrice: 'oldGasPrice',
+              },
             },
           },
-        },
-      })
+        })
 
-      assert.deepEqual(result, {
-        unapprovedTxParam: 'someOtherParam',
-        txParams: {
-          from: '0xmockFrom',
-          gas: '0xmockGas',
-          gasPrice: '0xmockGasPrice',
-          value: '0xmockAmount',
-          to: '0xmockTo',
-        },
-      })
-    })
+        assert.deepEqual(result, {
+          unapprovedTxParam: 'someOtherParam',
+          txParams: {
+            from: '0xmockFrom',
+            gas: '0xmockGas',
+            gasPrice: '0xmockGasPrice',
+            value: '0xmockAmount',
+            to: '0xmockTo',
+          },
+        })
+      }
+    )
 
-    it('should have token property values if sendToken is truthy', function () {
+    it('should have token property values if sendToken is truthy', () => {
       const result = constructUpdatedTx({
         amount: 'mockAmount',
         editingTransactionId: '0x456',

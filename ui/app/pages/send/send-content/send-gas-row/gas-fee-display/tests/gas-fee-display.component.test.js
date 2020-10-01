@@ -10,11 +10,11 @@ const propsMethodSpies = {
   onReset: sinon.spy(),
 }
 
-describe('GasFeeDisplay Component', function () {
+describe('GasFeeDisplay Component', () => {
   let wrapper
 
-  describe('render', function () {
-    beforeEach(function () {
+  describe('render', () => {
+    beforeEach(() => {
       wrapper = shallow((
         <GasFeeDisplay
           conversionRate={20}
@@ -27,15 +27,15 @@ describe('GasFeeDisplay Component', function () {
       ), { context: { t: (str) => `${str}_t` } })
     })
 
-    afterEach(function () {
+    afterEach(() => {
       propsMethodSpies.showCustomizeGasModal.resetHistory()
     })
 
-    it('should render a CurrencyDisplay component', function () {
+    it('should render a CurrencyDisplay component', () => {
       assert.equal(wrapper.find(UserPreferencedCurrencyDisplay).length, 2)
     })
 
-    it('should render the CurrencyDisplay with the correct props', function () {
+    it('should render the CurrencyDisplay with the correct props', () => {
       const {
         type,
         value,
@@ -44,7 +44,7 @@ describe('GasFeeDisplay Component', function () {
       assert.equal(value, 'mockGasTotal')
     })
 
-    it('should render the reset button with the correct props', function () {
+    it('should render the reset button with the correct props', () => {
       const {
         onClick,
         className,
@@ -55,7 +55,7 @@ describe('GasFeeDisplay Component', function () {
       assert.equal(propsMethodSpies.onReset.callCount, 1)
     })
 
-    it('should render the reset button with the correct text', function () {
+    it('should render the reset button with the correct text', () => {
       assert.equal(wrapper.find('button').text(), 'reset_t')
     })
   })
