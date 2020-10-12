@@ -416,7 +416,7 @@ describe('Gas Duck', function () {
         [{ type: BASIC_GAS_ESTIMATE_LOADING_STARTED }],
       )
       assert.ok(
-        window.fetch.getCall(0).args[0].startsWith('https://ethgasstation.info/json/ethgasAPI.json'),
+        await window.fetch.getCall(0).args[0].startsWith('https://ethgasstation.info/json/ethgasAPI.json'),
         'should fetch ETH Gas Station',
       )
 
