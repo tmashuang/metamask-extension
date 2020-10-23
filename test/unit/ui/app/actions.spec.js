@@ -12,6 +12,9 @@ import * as actions from '../../../../ui/app/store/actions'
 import MetaMaskController from '../../../../app/scripts/metamask-controller'
 import firstTimeState from '../../localhostState'
 
+const Ganache = require('../../../../test/e2e/ganache')
+const ganacheServer = new Ganache()
+
 const { provider } = createTestProviderTools({ scaffold: {} })
 const middleware = [thunk]
 const defaultState = { metamask: {} }
@@ -28,6 +31,10 @@ describe('Actions', function () {
   const TEST_SEED = 'debris dizzy just program just float decrease vacant alarm reduce speak stadium'
   const password = 'a-fake-password'
   const importPrivkey = '4cfd3e90fc78b0f86bf7524722150bb8da9c60cd532564d7ff43f5716514f553'
+
+  before(async function () {
+    await ganacheServer.start()
+  })
 
   beforeEach(async function () {
 
@@ -64,6 +71,10 @@ describe('Actions', function () {
     actions._setBackgroundConnection(background)
 
     global.ethQuery = new EthQuery(provider)
+  })
+
+  after(async function () {
+    await ganacheServer.quit()
   })
 
   describe('#tryUnlockMetamask', function () {

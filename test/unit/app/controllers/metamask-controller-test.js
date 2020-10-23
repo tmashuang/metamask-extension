@@ -9,6 +9,9 @@ import proxyquire from 'proxyquire'
 import firstTimeState from '../../localhostState'
 import createTxMeta from '../../../lib/createTxMeta'
 
+const Ganache = require('../../../../test/e2e/ganache')
+const ganacheServer = new Ganache()
+
 const threeBoxSpies = {
   init: sinon.stub(),
   getThreeBoxSyncingState: sinon.stub().returns(true),
@@ -80,6 +83,10 @@ describe('MetaMaskController', function () {
   const sandbox = sinon.createSandbox()
   const noop = () => undefined
 
+  before(async function () {
+    await ganacheServer.start()
+  })
+
   beforeEach(function () {
 
     nock('https://min-api.cryptocompare.com')
@@ -112,6 +119,10 @@ describe('MetaMaskController', function () {
   afterEach(function () {
     nock.cleanAll()
     sandbox.restore()
+  })
+
+  after(async function () {
+    await ganacheServer.quit()
   })
 
   describe('#getAccounts', function () {
