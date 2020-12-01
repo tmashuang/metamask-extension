@@ -1,5 +1,4 @@
 import assert from 'assert'
-import proxyquire from 'proxyquire'
 import sinon from 'sinon'
 
 let mapDispatchToProps
@@ -22,45 +21,49 @@ const gasDuckSpies = {
   setCustomGasLimit: sinon.spy(),
 }
 
-proxyquire('../send-gas-row.container.js', {
-  'react-redux': {
-    connect: (_, md, mp) => {
-      mapDispatchToProps = md
-      mergeProps = mp
-      return () => ({})
-    },
-  },
-  '../../../../selectors': {
-    getSendMaxModeState: (s) => `mockMaxModeOn:${s}`,
-  },
-  '../../send.utils.js': {
-    isBalanceSufficient: ({
-      amount,
-      gasTotal,
-      balance,
-      conversionRate,
-    }) => `${amount}:${gasTotal}:${balance}:${conversionRate}`,
-    calcGasTotal: (gasLimit, gasPrice) => gasLimit + gasPrice,
-  },
-  '../../../../store/actions': actionSpies,
-  '../../../../ducks/send/send.duck': sendDuckSpies,
-  '../../../../ducks/gas/gas.duck': gasDuckSpies,
-})
+jest.mock('react-redux', () => ({
+  connect: (_, md, mp) => {
+    mapDispatchToProps = md
+    mergeProps = mp
+    return () => ({})
+  }
+}));
 
-describe('send-gas-row container', function () {
+jest.mock('../../../../selectors', () => ({
+  getSendMaxModeState: (s) => `mockMaxModeOn:${s}`
+}));
 
-  describe('mapDispatchToProps()', function () {
+jest.mock('../../send.utils.js', () => ({
+  isBalanceSufficient: ({
+    amount,
+    gasTotal,
+    balance,
+    conversionRate,
+  }) => `${amount}:${gasTotal}:${balance}:${conversionRate}`,
+
+  calcGasTotal: (gasLimit, gasPrice) => gasLimit + gasPrice
+}));
+
+jest.mock('../../../../store/actions', () => actionSpies);
+jest.mock('../../../../ducks/send/send.duck', () => sendDuckSpies);
+jest.mock('../../../../ducks/gas/gas.duck', () => gasDuckSpies);
+
+require('../send-gas-row.container.js')
+
+describe('send-gas-row container', () => {
+
+  describe('mapDispatchToProps()', () => {
     let dispatchSpy
     let mapDispatchToPropsObject
 
-    beforeEach(function () {
+    beforeEach(() => {
       dispatchSpy = sinon.spy()
       mapDispatchToPropsObject = mapDispatchToProps(dispatchSpy)
       actionSpies.setGasTotal.resetHistory()
     })
 
-    describe('showCustomizeGasModal()', function () {
-      it('should dispatch an action', function () {
+    describe('showCustomizeGasModal()', () => {
+      it('should dispatch an action', () => {
         mapDispatchToPropsObject.showCustomizeGasModal()
         assert(dispatchSpy.calledOnce)
         assert.deepEqual(
@@ -70,8 +73,8 @@ describe('send-gas-row container', function () {
       })
     })
 
-    describe('setGasPrice()', function () {
-      it('should dispatch an action', function () {
+    describe('setGasPrice()', () => {
+      it('should dispatch an action', () => {
         mapDispatchToPropsObject.setGasPrice('mockNewPrice', 'mockLimit')
         assert(dispatchSpy.calledThrice)
         assert(actionSpies.setGasPrice.calledOnce)
@@ -82,8 +85,8 @@ describe('send-gas-row container', function () {
       })
     })
 
-    describe('setGasLimit()', function () {
-      it('should dispatch an action', function () {
+    describe('setGasLimit()', () => {
+      it('should dispatch an action', () => {
         mapDispatchToPropsObject.setGasLimit('mockNewLimit', 'mockPrice')
         assert(dispatchSpy.calledThrice)
         assert(actionSpies.setGasLimit.calledOnce)
@@ -94,16 +97,16 @@ describe('send-gas-row container', function () {
       })
     })
 
-    describe('showGasButtonGroup()', function () {
-      it('should dispatch an action', function () {
+    describe('showGasButtonGroup()', () => {
+      it('should dispatch an action', () => {
         mapDispatchToPropsObject.showGasButtonGroup()
         assert(dispatchSpy.calledOnce)
         assert(sendDuckSpies.showGasButtonGroup.calledOnce)
       })
     })
 
-    describe('resetCustomData()', function () {
-      it('should dispatch an action', function () {
+    describe('resetCustomData()', () => {
+      it('should dispatch an action', () => {
         mapDispatchToPropsObject.resetCustomData()
         assert(dispatchSpy.calledOnce)
         assert(gasDuckSpies.resetCustomData.calledOnce)
@@ -111,8 +114,8 @@ describe('send-gas-row container', function () {
     })
   })
 
-  describe('mergeProps', function () {
-    it('should return the expected props when isConfirm is true', function () {
+  describe('mergeProps', () => {
+    it('should return the expected props when isConfirm is true', () => {
       const stateProps = {
         gasPriceButtonGroupProps: {
           someGasPriceButtonGroupProp: 'foo',

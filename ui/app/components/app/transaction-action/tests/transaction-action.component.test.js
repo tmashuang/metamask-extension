@@ -4,12 +4,12 @@ import { shallow } from 'enzyme'
 import sinon from 'sinon'
 import TransactionAction from '../transaction-action.component'
 
-describe('TransactionAction Component', function () {
+describe('TransactionAction Component', () => {
   const t = (key) => key
 
 
-  describe('Outgoing transaction', function () {
-    beforeEach(function () {
+  describe('Outgoing transaction', () => {
+    beforeEach(() => {
       global.eth = {
         getCode: sinon.stub().callsFake((address) => {
           const code = address === 'approveAddress' ? 'contract' : '0x'
@@ -18,7 +18,7 @@ describe('TransactionAction Component', function () {
       }
     })
 
-    it('should render Sent Ether', function () {
+    it('should render Sent Ether', () => {
       const methodData = { data: {}, done: true, error: null }
       const transaction = {
         id: 1,
@@ -49,7 +49,7 @@ describe('TransactionAction Component', function () {
       assert.equal(wrapper.find('.transaction-action').props().title.trim(), 'sentEther')
     })
 
-    it('should render Approved', async function () {
+    it('should render Approved', async () => {
       const methodData = {
         name: 'Approve',
       }
@@ -85,7 +85,7 @@ describe('TransactionAction Component', function () {
       assert.equal(wrapper.find('.transaction-action').props().title.trim(), 'Approve')
     })
 
-    it('should render contractInteraction', async function () {
+    it('should render contractInteraction', async () => {
       const methodData = {}
       const transaction = {
         id: 1,

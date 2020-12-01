@@ -8,13 +8,13 @@ import * as currencyPrefHook from '../../../../hooks/useUserPreferencedCurrency'
 import sinon from 'sinon'
 
 
-describe('UserPreferencedCurrencyDisplay Component', function () {
-  describe('rendering', function () {
-    beforeEach(function () {
+describe('UserPreferencedCurrencyDisplay Component', () => {
+  describe('rendering', () => {
+    beforeEach(() => {
       sinon.stub(currencyHook, 'useCurrencyDisplay').returns(['1', {}])
       sinon.stub(currencyPrefHook, 'useUserPreferencedCurrency').returns({ currency: 'ETH', decimals: 6 })
     })
-    it('should render properly', function () {
+    it('should render properly', () => {
       const wrapper = shallow(
         <UserPreferencedCurrencyDisplay />,
       )
@@ -23,22 +23,25 @@ describe('UserPreferencedCurrencyDisplay Component', function () {
       assert.equal(wrapper.find(CurrencyDisplay).length, 1)
     })
 
-    it('should pass all props to the CurrencyDisplay child component', function () {
-      const wrapper = shallow(
-        <UserPreferencedCurrencyDisplay
-          prop1
-          prop2="test"
-          prop3={1}
-        />,
-      )
+    it(
+      'should pass all props to the CurrencyDisplay child component',
+      () => {
+        const wrapper = shallow(
+          <UserPreferencedCurrencyDisplay
+            prop1
+            prop2="test"
+            prop3={1}
+          />,
+        )
 
-      assert.ok(wrapper)
-      assert.equal(wrapper.find(CurrencyDisplay).length, 1)
-      assert.equal(wrapper.find(CurrencyDisplay).props().prop1, true)
-      assert.equal(wrapper.find(CurrencyDisplay).props().prop2, 'test')
-      assert.equal(wrapper.find(CurrencyDisplay).props().prop3, 1)
-    })
-    afterEach(function () {
+        assert.ok(wrapper)
+        assert.equal(wrapper.find(CurrencyDisplay).length, 1)
+        assert.equal(wrapper.find(CurrencyDisplay).props().prop1, true)
+        assert.equal(wrapper.find(CurrencyDisplay).props().prop2, 'test')
+        assert.equal(wrapper.find(CurrencyDisplay).props().prop3, 1)
+      }
+    )
+    afterEach(() => {
       sinon.restore()
     })
   })

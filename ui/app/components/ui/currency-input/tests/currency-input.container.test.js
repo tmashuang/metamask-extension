@@ -1,20 +1,19 @@
 import assert from 'assert'
-import proxyquire from 'proxyquire'
 
 let mapStateToProps, mergeProps
 
-proxyquire('../currency-input.container.js', {
-  'react-redux': {
-    connect: (ms, _, mp) => {
-      mapStateToProps = ms
-      mergeProps = mp
-      return () => ({})
-    },
-  },
-})
+jest.mock('react-redux', () => ({
+  connect: (ms, _, mp) => {
+    mapStateToProps = ms
+    mergeProps = mp
+    return () => ({})
+  }
+}));
 
-describe('CurrencyInput container', function () {
-  describe('mapStateToProps()', function () {
+require('../currency-input.container.js')
+
+describe('CurrencyInput container', () => {
+  describe('mapStateToProps()', () => {
     const tests = [
       // Test # 1
       {
@@ -127,13 +126,13 @@ describe('CurrencyInput container', function () {
     ]
 
     tests.forEach(({ mockState, expected, comment }) => {
-      it(comment, function () {
+      it(comment, () => {
         return assert.deepEqual(mapStateToProps(mockState), expected)
       })
     })
   })
 
-  describe('mergeProps()', function () {
+  describe('mergeProps()', () => {
     const tests = [
       // Test # 1
       {
@@ -180,7 +179,7 @@ describe('CurrencyInput container', function () {
     ]
 
     tests.forEach(({ mock: { stateProps, dispatchProps, ownProps }, expected, comment }) => {
-      it(comment, function () {
+      it(comment, () => {
         assert.deepEqual(mergeProps(stateProps, dispatchProps, ownProps), expected)
       })
     })

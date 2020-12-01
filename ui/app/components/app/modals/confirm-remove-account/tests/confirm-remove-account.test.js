@@ -7,7 +7,7 @@ import configureStore from 'redux-mock-store'
 import { mount } from 'enzyme'
 import ConfirmRemoveAccount from '../index'
 
-describe('Confirm Remove Account', function () {
+describe('Confirm Remove Account', () => {
   let wrapper
 
   const state = {
@@ -30,7 +30,7 @@ describe('Confirm Remove Account', function () {
   const mockStore = configureStore()
   const store = mockStore(state)
 
-  beforeEach(function () {
+  beforeEach(() => {
 
     wrapper = mount(
       <Provider store={store} >
@@ -48,18 +48,18 @@ describe('Confirm Remove Account', function () {
     )
   })
 
-  afterEach(function () {
+  afterEach(() => {
     props.hideModal.resetHistory()
   })
 
-  it('nevermind', function () {
+  it('nevermind', () => {
     const nevermind = wrapper.find({ type: 'default' })
     nevermind.simulate('click')
 
     assert(props.hideModal.calledOnce)
   })
 
-  it('remove', function (done) {
+  it('remove', done => {
     const remove = wrapper.find({ type: 'secondary' })
     remove.simulate('click')
 
@@ -73,7 +73,7 @@ describe('Confirm Remove Account', function () {
 
   })
 
-  it('closes', function () {
+  it('closes', () => {
     const close = wrapper.find('.modal-container__header-close')
     close.simulate('click')
 

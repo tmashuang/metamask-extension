@@ -8,9 +8,9 @@ import {
   conversionRateSelector,
 } from '../confirm-transaction'
 
-describe('Confirm Transaction Selector', function () {
+describe('Confirm Transaction Selector', () => {
 
-  describe('unconfirmedTransactionsCountSelector', function () {
+  describe('unconfirmedTransactionsCountSelector', () => {
 
     const state = {
       metamask: {
@@ -29,13 +29,16 @@ describe('Confirm Transaction Selector', function () {
       },
     }
 
-    it('returns number of txs in unapprovedTxs state with the same network plus unapproved signing method counts', function () {
-      assert.equal(unconfirmedTransactionsCountSelector(state), 4)
-    })
+    it(
+      'returns number of txs in unapprovedTxs state with the same network plus unapproved signing method counts',
+      () => {
+        assert.equal(unconfirmedTransactionsCountSelector(state), 4)
+      }
+    )
 
   })
 
-  describe('tokenAmountAndToAddressSelector', function () {
+  describe('tokenAmountAndToAddressSelector', () => {
 
     const state = {
       confirmTransaction: {
@@ -61,14 +64,17 @@ describe('Confirm Transaction Selector', function () {
       },
     }
 
-    it('returns calculated token amount based on token value and token decimals and recipient address', function () {
-      assert.deepEqual(tokenAmountAndToAddressSelector(state),
-        { toAddress: '0x0dcd5d886577d5081b0c52e242ef29e70be3e7bc', tokenAmount: 0.01 })
-    })
+    it(
+      'returns calculated token amount based on token value and token decimals and recipient address',
+      () => {
+        assert.deepEqual(tokenAmountAndToAddressSelector(state),
+          { toAddress: '0x0dcd5d886577d5081b0c52e242ef29e70be3e7bc', tokenAmount: 0.01 })
+      }
+    )
 
   })
 
-  describe('approveTokenAmountAndToAddressSelector', function () {
+  describe('approveTokenAmountAndToAddressSelector', () => {
 
     const state = {
       confirmTransaction: {
@@ -94,14 +100,17 @@ describe('Confirm Transaction Selector', function () {
       },
     }
 
-    it('returns token amount and recipient for approve token allocation spending', function () {
-      assert.deepEqual(approveTokenAmountAndToAddressSelector(state),
-        { toAddress: '0x0dcd5d886577d5081b0c52e242ef29e70be3e7bc', tokenAmount: 0.01 })
-    })
+    it(
+      'returns token amount and recipient for approve token allocation spending',
+      () => {
+        assert.deepEqual(approveTokenAmountAndToAddressSelector(state),
+          { toAddress: '0x0dcd5d886577d5081b0c52e242ef29e70be3e7bc', tokenAmount: 0.01 })
+      }
+    )
 
   })
 
-  describe('sendTokenTokenAmountAndToAddressSelector', function () {
+  describe('sendTokenTokenAmountAndToAddressSelector', () => {
 
     const state = {
       confirmTransaction: {
@@ -127,14 +136,14 @@ describe('Confirm Transaction Selector', function () {
       },
     }
 
-    it('returns token address and calculated token amount', function () {
+    it('returns token address and calculated token amount', () => {
       assert.deepEqual(sendTokenTokenAmountAndToAddressSelector(state),
         { toAddress: '0x0dcd5d886577d5081b0c52e242ef29e70be3e7bc', tokenAmount: 0.01 })
     })
 
   })
 
-  describe('contractExchangeRateSelector', function () {
+  describe('contractExchangeRateSelector', () => {
 
     const state = {
       metamask: {
@@ -151,13 +160,16 @@ describe('Confirm Transaction Selector', function () {
       },
     }
 
-    it('returns contract exchange rate in metamask state based on confirm transaction txParams token recipient', function () {
-      assert.equal(contractExchangeRateSelector(state), 10)
-    })
+    it(
+      'returns contract exchange rate in metamask state based on confirm transaction txParams token recipient',
+      () => {
+        assert.equal(contractExchangeRateSelector(state), 10)
+      }
+    )
   })
 
-  describe('conversionRateSelector', function () {
-    it('returns conversionRate from state', function () {
+  describe('conversionRateSelector', () => {
+    it('returns conversionRate from state', () => {
       const state = {
         metamask: { conversionRate: 556.12 },
       }

@@ -3,7 +3,7 @@ import React from 'react'
 import { shallow } from 'enzyme'
 import assert from 'assert'
 
-describe('i18n helper', function () {
+describe('i18n helper', () => {
   const TEST_LOCALE_CODE = 'TEST_LOCALE_CODE'
 
   const TEST_KEY_1 = 'TEST_KEY_1'
@@ -111,50 +111,74 @@ describe('i18n helper', function () {
     </div>
   )
 
-  describe('getMessage', function () {
-    it('should return the exact message paired with key if there are no substitutions', function () {
-      const result = t(TEST_KEY_1)
-      assert.equal(result, 'This is a simple message.')
-    })
+  describe('getMessage', () => {
+    it(
+      'should return the exact message paired with key if there are no substitutions',
+      () => {
+        const result = t(TEST_KEY_1)
+        assert.equal(result, 'This is a simple message.')
+      }
+    )
 
-    it('should return the correct message when a single non-react substitution is made', function () {
-      const result = t(TEST_KEY_2, [ TEST_SUBSTITUTION_1 ])
-      assert.equal(result, `This is a message with a single non-react substitution ${TEST_SUBSTITUTION_1}.`)
-    })
+    it(
+      'should return the correct message when a single non-react substitution is made',
+      () => {
+        const result = t(TEST_KEY_2, [ TEST_SUBSTITUTION_1 ])
+        assert.equal(result, `This is a message with a single non-react substitution ${TEST_SUBSTITUTION_1}.`)
+      }
+    )
 
-    it('should return the correct message when two non-react substitutions are made', function () {
-      const result = t(TEST_KEY_3, [ TEST_SUBSTITUTION_1, TEST_SUBSTITUTION_2 ])
-      assert.equal(result, `This is a message with two non-react substitutions ${TEST_SUBSTITUTION_1} and ${TEST_SUBSTITUTION_2}.`)
-    })
+    it(
+      'should return the correct message when two non-react substitutions are made',
+      () => {
+        const result = t(TEST_KEY_3, [ TEST_SUBSTITUTION_1, TEST_SUBSTITUTION_2 ])
+        assert.equal(result, `This is a message with two non-react substitutions ${TEST_SUBSTITUTION_1} and ${TEST_SUBSTITUTION_2}.`)
+      }
+    )
 
-    it('should return the correct message when multiple non-react substitutions are made', function () {
-      const result = t(TEST_KEY_4, [ TEST_SUBSTITUTION_1, TEST_SUBSTITUTION_2, TEST_SUBSTITUTION_3, TEST_SUBSTITUTION_4, TEST_SUBSTITUTION_5 ])
-      assert.equal(result, `${TEST_SUBSTITUTION_1} - ${TEST_SUBSTITUTION_2} - ${TEST_SUBSTITUTION_3} - ${TEST_SUBSTITUTION_4} - ${TEST_SUBSTITUTION_5}`)
-    })
+    it(
+      'should return the correct message when multiple non-react substitutions are made',
+      () => {
+        const result = t(TEST_KEY_4, [ TEST_SUBSTITUTION_1, TEST_SUBSTITUTION_2, TEST_SUBSTITUTION_3, TEST_SUBSTITUTION_4, TEST_SUBSTITUTION_5 ])
+        assert.equal(result, `${TEST_SUBSTITUTION_1} - ${TEST_SUBSTITUTION_2} - ${TEST_SUBSTITUTION_3} - ${TEST_SUBSTITUTION_4} - ${TEST_SUBSTITUTION_5}`)
+      }
+    )
 
-    it('should correctly render falsey substitutions', function () {
+    it('should correctly render falsey substitutions', () => {
       const result = t(TEST_KEY_4, [ 0, -0, '', false, NaN ])
       assert.equal(result, '0 - 0 -  - false - NaN')
     })
 
-    it('should render nothing for "null" and "undefined" substitutions', function () {
-      const result = t(TEST_KEY_5, [ null, TEST_SUBSTITUTION_2 ])
-      assert.equal(result, ` - ${TEST_SUBSTITUTION_2} - `)
-    })
+    it(
+      'should render nothing for "null" and "undefined" substitutions',
+      () => {
+        const result = t(TEST_KEY_5, [ null, TEST_SUBSTITUTION_2 ])
+        assert.equal(result, ` - ${TEST_SUBSTITUTION_2} - `)
+      }
+    )
 
-    it('should return the correct message when a single react substitution is made', function () {
-      const result = t(TEST_KEY_6, [ TEST_SUBSTITUTION_6 ])
-      assert.equal(shallow(result).html(), '<span> Testing a react substitution <div style="color:red">TEST_SUBSTITUTION_1</div>. </span>')
-    })
+    it(
+      'should return the correct message when a single react substitution is made',
+      () => {
+        const result = t(TEST_KEY_6, [ TEST_SUBSTITUTION_6 ])
+        assert.equal(shallow(result).html(), '<span> Testing a react substitution <div style="color:red">TEST_SUBSTITUTION_1</div>. </span>')
+      }
+    )
 
-    it('should return the correct message when two react substitutions are made', function () {
-      const result = t(TEST_KEY_7, [ TEST_SUBSTITUTION_7_1, TEST_SUBSTITUTION_7_2 ])
-      assert.equal(shallow(result).html(), '<span> Testing a react substitution <div style="color:red">TEST_SUBSTITUTION_1</div> and another <div style="color:blue">TEST_SUBSTITUTION_2</div>. </span>')
-    })
+    it(
+      'should return the correct message when two react substitutions are made',
+      () => {
+        const result = t(TEST_KEY_7, [ TEST_SUBSTITUTION_7_1, TEST_SUBSTITUTION_7_2 ])
+        assert.equal(shallow(result).html(), '<span> Testing a react substitution <div style="color:red">TEST_SUBSTITUTION_1</div> and another <div style="color:blue">TEST_SUBSTITUTION_2</div>. </span>')
+      }
+    )
 
-    it('should return the correct message when substituting a mix of react elements and strings', function () {
-      const result = t(TEST_KEY_8, [ TEST_SUBSTITUTION_1, TEST_SUBSTITUTION_8_1, TEST_SUBSTITUTION_2, TEST_SUBSTITUTION_8_2 ])
-      assert.equal(shallow(result).html(), '<span> Testing a mix TEST_SUBSTITUTION_1 of react substitutions <div style="color:orange">TEST_SUBSTITUTION_3</div> and string substitutions TEST_SUBSTITUTION_2 + <div style="color:pink">TEST_SUBSTITUTION_4</div>. </span>')
-    })
+    it(
+      'should return the correct message when substituting a mix of react elements and strings',
+      () => {
+        const result = t(TEST_KEY_8, [ TEST_SUBSTITUTION_1, TEST_SUBSTITUTION_8_1, TEST_SUBSTITUTION_2, TEST_SUBSTITUTION_8_2 ])
+        assert.equal(shallow(result).html(), '<span> Testing a mix TEST_SUBSTITUTION_1 of react substitutions <div style="color:orange">TEST_SUBSTITUTION_3</div> and string substitutions TEST_SUBSTITUTION_2 + <div style="color:pink">TEST_SUBSTITUTION_4</div>. </span>')
+      }
+    )
   })
 })

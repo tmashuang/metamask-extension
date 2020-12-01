@@ -13,10 +13,10 @@ const RIGHT_CONTENT = <p>Content rendered to the right</p>
 const CHILDREN = <button>I am a button</button>
 const MID_CONTENT = <p>Content rendered in the middle</p>
 
-describe('ListItem', function () {
+describe('ListItem', () => {
   let wrapper
   let clickHandler
-  before(function () {
+  beforeAll(() => {
     clickHandler = Sinon.fake()
     wrapper = shallow(
       <ListItem
@@ -34,42 +34,42 @@ describe('ListItem', function () {
       </ListItem>,
     )
   })
-  it('includes the data-testid', function () {
+  it('includes the data-testid', () => {
     assert.equal(wrapper.props()['data-testid'], 'test-id')
   })
-  it(`renders "${TITLE}" title`, function () {
+  it(`renders "${TITLE}" title`, () => {
     assert.equal(wrapper.find('.list-item__heading h2').text(), TITLE)
   })
-  it('adds html title to heading element', function () {
+  it('adds html title to heading element', () => {
     assert.equal(wrapper.find('.list-item__heading').props().title, TITLE)
   })
-  it(`renders "I am a list item" subtitle`, function () {
+  it(`renders "I am a list item" subtitle`, () => {
     assert.equal(wrapper.find('.list-item__subheading').text(), 'I am a list item')
   })
-  it('attaches external className', function () {
+  it('attaches external className', () => {
     assert(wrapper.props().className.includes(CLASSNAME))
   })
-  it('renders content on the right side of the list item', function () {
+  it('renders content on the right side of the list item', () => {
     assert.equal(wrapper.find('.list-item__right-content p').text(), 'Content rendered to the right')
   })
-  it('renders content in the middle of the list item', function () {
+  it('renders content in the middle of the list item', () => {
     assert.equal(wrapper.find('.list-item__mid-content p').text(), 'Content rendered in the middle')
   })
-  it('renders list item actions', function () {
+  it('renders list item actions', () => {
     assert.equal(wrapper.find('.list-item__actions button').text(), 'I am a button')
   })
-  it('renders the title icon', function () {
+  it('renders the title icon', () => {
     assert(wrapper.find(Preloader))
   })
-  it('renders the list item icon', function () {
+  it('renders the list item icon', () => {
     assert(wrapper.find(Send))
   })
-  it('handles click action and fires onClick', function () {
+  it('handles click action and fires onClick', () => {
     wrapper.simulate('click')
     assert.equal(clickHandler.callCount, 1)
   })
 
-  after(function () {
+  afterAll(() => {
     Sinon.restore()
   })
 })

@@ -63,12 +63,12 @@ const tests = [
   },
 ]
 
-describe('useTokenData', function () {
+describe('useTokenData', () => {
   tests.forEach((test) => {
     const testTitle = test.tokenData !== null
       ? `should return properly decoded data with _value ${test.tokenData.params[1].value}`
       : `should return null when no data provided`
-    it(testTitle, function () {
+    it(testTitle, () => {
       const { result } = renderHook(() => useTokenData(test.data))
       assert.deepEqual(result.current, test.tokenData)
     })

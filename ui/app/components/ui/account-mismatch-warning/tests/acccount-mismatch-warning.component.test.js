@@ -7,8 +7,8 @@ import InfoIcon from '../../icon/info-icon.component'
 import AccountMismatchWarning from '../account-mismatch-warning.component'
 import { getSelectedAccount } from '../../../../selectors'
 
-describe('AccountMismatchWarning', function () {
-  before(function () {
+describe('AccountMismatchWarning', () => {
+  beforeAll(() => {
     sinon.stub(reactRedux, 'useSelector').callsFake((selector) => {
       if (selector === getSelectedAccount) {
         return { address: 'mockedAddress' }
@@ -18,15 +18,15 @@ describe('AccountMismatchWarning', function () {
       )
     })
   })
-  it('renders nothing when the addresses match', function () {
+  it('renders nothing when the addresses match', () => {
     const wrapper = shallow(<AccountMismatchWarning address="mockedAddress" />)
     assert.equal(wrapper.find(InfoIcon).length, 0)
   })
-  it('renders a warning info icon when addresses do not match', function () {
+  it('renders a warning info icon when addresses do not match', () => {
     const wrapper = shallow(<AccountMismatchWarning address="mockedAddress2" />)
     assert.equal(wrapper.find(InfoIcon).length, 1)
   })
-  after(function () {
+  afterAll(() => {
     sinon.restore()
   })
 })

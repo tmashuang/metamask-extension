@@ -4,9 +4,9 @@ import sinon from 'sinon'
 import { shallow } from 'enzyme'
 import { Menu, Item, Divider, CloseArea } from '../components/menu'
 
-describe('Dropdown Menu Components', function () {
-  describe('Menu', function () {
-    it('adds prop className to menu', function () {
+describe('Dropdown Menu Components', () => {
+  describe('Menu', () => {
+    it('adds prop className to menu', () => {
       const wrapper = shallow(
         <Menu className="Test Class" isShowing />,
       )
@@ -14,11 +14,11 @@ describe('Dropdown Menu Components', function () {
     })
   })
 
-  describe('Item', function () {
+  describe('Item', () => {
     let wrapper
     const onClickSpy = sinon.spy()
 
-    beforeEach(function () {
+    beforeEach(() => {
       wrapper = shallow(
         <Item
           icon="test icon"
@@ -29,33 +29,33 @@ describe('Dropdown Menu Components', function () {
       )
     })
 
-    it('add className based on props', function () {
+    it('add className based on props', () => {
       assert.equal(wrapper.find('.menu__item').prop('className'), 'menu__item test foo1 menu__item--clickable')
     })
 
-    it('simulates onClick called', function () {
+    it('simulates onClick called', () => {
       wrapper.find('.menu__item').prop('onClick')()
       assert.equal(onClickSpy.callCount, 1)
     })
 
-    it('adds icon based on icon props', function () {
+    it('adds icon based on icon props', () => {
       assert.equal(wrapper.find('.menu__item__icon').text(), 'test icon')
     })
 
-    it('adds html text based on text props', function () {
+    it('adds html text based on text props', () => {
       assert.equal(wrapper.find('.menu__item__text').text(), 'test text')
     })
   })
 
-  describe('Divider', function () {
-    it('renders menu divider', function () {
+  describe('Divider', () => {
+    it('renders menu divider', () => {
       const wrapper = shallow(<Divider />)
       assert.equal(wrapper.find('.menu__divider').length, 1)
     })
   })
 
-  describe('CloseArea', function () {
-    it('simulates click', function () {
+  describe('CloseArea', () => {
+    it('simulates click', () => {
       const onClickSpy = sinon.spy()
       const wrapper = shallow((
         <CloseArea

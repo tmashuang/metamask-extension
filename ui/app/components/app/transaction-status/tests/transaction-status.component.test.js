@@ -6,12 +6,12 @@ import * as i18nHook from '../../../../hooks/useI18nContext'
 import TransactionStatus from '../transaction-status.component'
 import Tooltip from '../../../ui/tooltip-v2'
 
-describe('TransactionStatus Component', function () {
-  before(function () {
+describe('TransactionStatus Component', () => {
+  beforeAll(() => {
     sinon.stub(i18nHook, 'useI18nContext').returns((str) => str.toUpperCase())
   })
 
-  it('should render CONFIRMED properly', function () {
+  it('should render CONFIRMED properly', () => {
     const wrapper = mount(
       <TransactionStatus
         status="confirmed"
@@ -23,7 +23,7 @@ describe('TransactionStatus Component', function () {
     assert.equal(wrapper.text(), 'June 1')
   })
 
-  it('should render PENDING properly when status is APPROVED', function () {
+  it('should render PENDING properly when status is APPROVED', () => {
     const wrapper = mount(
       <TransactionStatus
         status="approved"
@@ -37,7 +37,7 @@ describe('TransactionStatus Component', function () {
     assert.equal(wrapper.find(Tooltip).props().title, 'test-title')
   })
 
-  it('should render PENDING properly', function () {
+  it('should render PENDING properly', () => {
     const wrapper = mount(
       <TransactionStatus
         date="June 1"
@@ -50,7 +50,7 @@ describe('TransactionStatus Component', function () {
     assert.equal(wrapper.text(), 'PENDING')
   })
 
-  it('should render QUEUED properly', function () {
+  it('should render QUEUED properly', () => {
     const wrapper = mount(
       <TransactionStatus
         status="queued"
@@ -62,7 +62,7 @@ describe('TransactionStatus Component', function () {
     assert.equal(wrapper.text(), 'QUEUED')
   })
 
-  it('should render UNAPPROVED properly', function () {
+  it('should render UNAPPROVED properly', () => {
     const wrapper = mount(
       <TransactionStatus
         status="unapproved"
@@ -74,7 +74,7 @@ describe('TransactionStatus Component', function () {
     assert.equal(wrapper.text(), 'UNAPPROVED')
   })
 
-  after(function () {
+  afterAll(() => {
     sinon.restore()
   })
 })

@@ -5,8 +5,8 @@ import CurrencyDisplay from '../currency-display.component'
 import sinon from 'sinon'
 import * as reactRedux from 'react-redux'
 
-describe('CurrencyDisplay Component', function () {
-  beforeEach(function () {
+describe('CurrencyDisplay Component', () => {
+  beforeEach(() => {
     const stub = sinon.stub(reactRedux, 'useSelector')
     stub.callsFake(() => ({
       currentCurrency: 'usd',
@@ -14,7 +14,7 @@ describe('CurrencyDisplay Component', function () {
       conversionRate: 280.45,
     }))
   })
-  it('should render text with a className', function () {
+  it('should render text with a className', () => {
     const wrapper = shallow((
       <CurrencyDisplay
         displayValue="$123.45"
@@ -27,7 +27,7 @@ describe('CurrencyDisplay Component', function () {
     assert.equal(wrapper.text(), '$123.45')
   })
 
-  it('should render text with a prefix', function () {
+  it('should render text with a prefix', () => {
     const wrapper = shallow((
       <CurrencyDisplay
         displayValue="$123.45"
@@ -40,7 +40,7 @@ describe('CurrencyDisplay Component', function () {
     assert.ok(wrapper.hasClass('currency-display'))
     assert.equal(wrapper.text(), '-$123.45')
   })
-  afterEach(function () {
+  afterEach(() => {
     sinon.restore()
   })
 })

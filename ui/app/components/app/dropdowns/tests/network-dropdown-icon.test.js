@@ -3,8 +3,8 @@ import assert from 'assert'
 import { shallow } from 'enzyme'
 import NetworkDropdownIcon from '../components/network-dropdown-icon'
 
-describe('Network Dropdown Icon', function () {
-  it('adds style props based on props', function () {
+describe('Network Dropdown Icon', () => {
+  it('adds style props based on props', () => {
     const wrapper = shallow((
       <NetworkDropdownIcon
         backgroundColor="red"

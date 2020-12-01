@@ -4,7 +4,7 @@ import sinon from 'sinon'
 import { mount } from 'enzyme'
 import RejectTransactionsModal from '../index'
 
-describe('Reject Transactions Model', function () {
+describe('Reject Transactions Model', () => {
   let wrapper
 
   const props = {
@@ -13,7 +13,7 @@ describe('Reject Transactions Model', function () {
     unapprovedTxCount: 2,
   }
 
-  beforeEach(function () {
+  beforeEach(() => {
     wrapper = mount(
       <RejectTransactionsModal.WrappedComponent {...props} />, {
         context: {
@@ -23,26 +23,29 @@ describe('Reject Transactions Model', function () {
     )
   })
 
-  afterEach(function () {
+  afterEach(() => {
     props.hideModal.resetHistory()
   })
 
-  it('hides modal when cancel button is clicked', function () {
+  it('hides modal when cancel button is clicked', () => {
     const cancelButton = wrapper.find('.btn-default.modal-container__footer-button')
     cancelButton.simulate('click')
 
     assert(props.hideModal.calledOnce)
   })
 
-  it('onSubmit is called and hides modal when reject all clicked', function (done) {
-    const rejectAllButton = wrapper.find('.btn-secondary.modal-container__footer-button')
-    rejectAllButton.simulate('click')
+  it(
+    'onSubmit is called and hides modal when reject all clicked',
+    done => {
+      const rejectAllButton = wrapper.find('.btn-secondary.modal-container__footer-button')
+      rejectAllButton.simulate('click')
 
-    setImmediate(() => {
-      assert(props.onSubmit.calledOnce)
-      assert(props.hideModal.calledOnce)
-      done()
-    })
+      setImmediate(() => {
+        assert(props.onSubmit.calledOnce)
+        assert(props.hideModal.calledOnce)
+        done()
+      })
 
-  })
+    }
+  )
 })
