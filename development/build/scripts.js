@@ -285,7 +285,7 @@ function createScriptTasks({ browserPlatforms, livereload }) {
     if (!opts.buildLib) {
       if (opts.devMode && opts.filename === 'ui.js') {
         browserifyOpts.entries = [
-          './development/require-react-devtools.js',
+          // './development/require-react-devtools.js',
           opts.filepath,
         ];
       } else {
