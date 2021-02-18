@@ -247,10 +247,10 @@ export default function Swap() {
     return () => window.removeEventListener('beforeunload', fn);
   }, [dispatch, isLoadingQuotesRoute]);
 
-  const chainId = useSelector(getCurrentChainId);
-  if (chainId !== MAINNET_CHAIN_ID) {
-    return <Redirect to={{ pathname: DEFAULT_ROUTE }} />;
-  }
+  // const chainId = useSelector(getCurrentChainId);
+  // if (chainId !== MAINNET_CHAIN_ID) {
+  //   return <Redirect to={{ pathname: DEFAULT_ROUTE }} />;
+  // }
 
   return (
     <div className="swaps">
