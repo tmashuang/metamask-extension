@@ -61,7 +61,7 @@ const EthOverview = ({ className }) => {
   const showFiat = useSelector(getShouldShowFiat);
   const selectedAccount = useSelector(getSelectedAccount);
   const { balance } = selectedAccount;
-  const isMainnetChain = useSelector(getIsMainnet);
+  const isMainnetChain = true;
   const isTestnetChain = useSelector(getIsTestnet);
   const enteredSwapsEvent = useNewMetricEvent({
     event: 'Swaps Opened',
