@@ -107,8 +107,11 @@ module.exports = {
       },
     },
     {
-      files: ['**/*.test.js'],
-      excludedFiles: ['ui/**/*.test.js', 'ui/app/__mocks__/*.js'],
+      files: [
+        '**/unit-global/*.test.js',
+        'app/scripts/metamask-controller.test.js',
+        'app/scripts/controllers/transactions/index.test.js',
+      ],
       extends: ['@metamask/eslint-config-mocha'],
       rules: {
         'mocha/no-setup-in-describe': 'off',
@@ -125,11 +128,17 @@ module.exports = {
       },
     },
     {
-      files: ['ui/**/*.test.js', 'ui/app/__mocks__/*.js'],
+      files: ['**/*.test.js', 'ui/app/__mocks__/*.js'],
+      excludedFiles: [
+        '**/unit-global/*.test.js',
+        'app/scripts/metamask-controller.test.js',
+        'app/scripts/controllers/transactions/index.test.js',
+      ],
       extends: ['@metamask/eslint-config-jest'],
       rules: {
         'jest/no-restricted-matchers': 'off',
         'import/unambiguous': 'off',
+        'import/named': 'off',
       },
     },
     {
