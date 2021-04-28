@@ -13,5 +13,10 @@ module.exports = {
   },
   setupFiles: ['./test/setup.js', './test/env.js'],
   setupFilesAfterEnv: ['./test/jest/setup.js'],
-  testMatch: ['**/ui/**/?(*.)+(test).js'],
+  testMatch: ['<rootDir>/**/*.test.js'],
+  testPathIgnorePatterns: [
+    '<rootDir>/app/scripts/metamask-controller.test.js',
+    '<rootDir>/app/scripts/controllers/transactions/index.test.js',
+    '<rootDir>/test/unit-global/',
+  ],
 };

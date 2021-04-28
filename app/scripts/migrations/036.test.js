@@ -1,8 +1,7 @@
-import assert from 'assert';
 import migration36 from './036';
 
-describe('migration #36', function () {
-  it('should update the version metadata', function (done) {
+describe('migration #36', () => {
+  it('should update the version metadata', async () => {
     const oldStorage = {
       meta: {
         version: 35,
@@ -10,64 +9,53 @@ describe('migration #36', function () {
       data: {},
     };
 
-    migration36
-      .migrate(oldStorage)
-      .then((newStorage) => {
-        assert.deepEqual(newStorage.meta, {
-          version: 36,
-        });
-        done();
-      })
-      .catch(done);
+    const newStorage = await migration36.migrate(oldStorage);
+    expect(newStorage.meta.version).toStrictEqual(36);
   });
 
-  it('should remove privacyMode if featureFlags.privacyMode was false', function (done) {
-    const oldStorage = {
-      meta: {},
-      data: {
-        PreferencesController: {
-          featureFlags: {
-            privacyMode: false,
+  it(
+    'should remove privacyMode if featureFlags.privacyMode was false',
+    async () => {
+      const oldStorage = {
+        meta: {},
+        data: {
+          PreferencesController: {
+            featureFlags: {
+              privacyMode: false,
+            },
           },
         },
-      },
-    };
+      };
 
-    migration36
-      .migrate(oldStorage)
-      .then((newStorage) => {
-        assert.deepEqual(newStorage.data.PreferencesController, {
-          featureFlags: {},
-        });
-        done();
-      })
-      .catch(done);
-  });
+      const newStorage = await migration36.migrate(oldStorage);
+      expect(newStorage.data.PreferencesController).toStrictEqual({
+        featureFlags: {},
+      });
+    }
+  );
 
-  it('should remove privacyMode if featureFlags.privacyMode was true', function (done) {
-    const oldStorage = {
-      meta: {},
-      data: {
-        PreferencesController: {
-          featureFlags: {
-            privacyMode: true,
+  it(
+    'should remove privacyMode if featureFlags.privacyMode was true',
+    async () => {
+      const oldStorage = {
+        meta: {},
+        data: {
+          PreferencesController: {
+            featureFlags: {
+              privacyMode: true,
+            },
           },
         },
-      },
-    };
+      };
 
-    migration36
-      .migrate(oldStorage)
-      .then((newStorage) => {
-        assert.deepEqual(newStorage.data.PreferencesController, {
-          featureFlags: {},
-        });
-        done();
-      })
-      .catch(done);
-  });
+      const newStorage = await migration36.migrate(oldStorage);
+      expect(newStorage.data.PreferencesController).toStrictEqual({
+        featureFlags: {},
+      });
+    }
+  );
 
-  it('should NOT change any state if privacyMode does not exist', function (done) {
+  it('should NOT change any state if privacyMode does not exist', async () => {
     const oldStorage = {
       meta: {},
       data: {
@@ -78,31 +66,24 @@ describe('migration #36', function () {
       },
     };
 
-    migration36
-      .migrate(oldStorage)
-      .then((newStorage) => {
-        assert.deepEqual(newStorage.data, oldStorage.data);
-        done();
-      })
-      .catch(done);
+    const newStorage = await migration36.migrate(oldStorage);
+    expect(newStorage.data).toStrictEqual(oldStorage.data);
   });
 
-  it('should NOT change any state if PreferencesController is missing', function (done) {
-    const oldStorage = {
-      meta: {},
-      data: {},
-    };
+  it(
+    'should NOT change any state if PreferencesController is missing',
+    async () => {
+      const oldStorage = {
+        meta: {},
+        data: {},
+      };
 
-    migration36
-      .migrate(oldStorage)
-      .then((newStorage) => {
-        assert.deepEqual(newStorage.data, oldStorage.data);
-        done();
-      })
-      .catch(done);
-  });
+      const newStorage = await migration36.migrate(oldStorage);
+      expect(newStorage.data).toStrictEqual(oldStorage.data);
+    }
+  );
 
-  it('should NOT change any state if featureFlags is missing', function (done) {
+  it('should NOT change any state if featureFlags is missing', async () => {
     const oldStorage = {
       meta: {},
       data: {
@@ -110,12 +91,7 @@ describe('migration #36', function () {
       },
     };
 
-    migration36
-      .migrate(oldStorage)
-      .then((newStorage) => {
-        assert.deepEqual(newStorage.data, oldStorage.data);
-        done();
-      })
-      .catch(done);
+    const newStorage = await migration36.migrate(oldStorage);
+    expect(newStorage.data).toStrictEqual(oldStorage.data);
   });
 });

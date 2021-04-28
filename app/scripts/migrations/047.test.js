@@ -1,8 +1,7 @@
-import { strict as assert } from 'assert';
 import migration47 from './047';
 
-describe('migration #47', function () {
-  it('should update the version metadata', async function () {
+describe('migration #47', () => {
+  it('should update the version metadata', async () => {
     const oldStorage = {
       meta: {
         version: 46,
@@ -11,12 +10,12 @@ describe('migration #47', function () {
     };
 
     const newStorage = await migration47.migrate(oldStorage);
-    assert.deepEqual(newStorage.meta, {
+    expect(newStorage.meta).toStrictEqual({
       version: 47,
     });
   });
 
-  it('should stringify transactions metamaskNetworkId values', async function () {
+  it('should stringify transactions metamaskNetworkId values', async () => {
     const oldStorage = {
       meta: {},
       data: {
@@ -33,7 +32,7 @@ describe('migration #47', function () {
     };
 
     const newStorage = await migration47.migrate(oldStorage);
-    assert.deepEqual(newStorage.data, {
+    expect(newStorage.data).toStrictEqual({
       TransactionController: {
         transactions: [
           { foo: 'bar', metamaskNetworkId: '2' },
@@ -46,27 +45,30 @@ describe('migration #47', function () {
     });
   });
 
-  it('should do nothing if transactions metamaskNetworkId values are already strings', async function () {
-    const oldStorage = {
-      meta: {},
-      data: {
-        TransactionController: {
-          transactions: [
-            { foo: 'bar', metamaskNetworkId: '2' },
-            { foo: 'bar' },
-            { foo: 'bar', metamaskNetworkId: '0' },
-            { foo: 'bar', metamaskNetworkId: '42' },
-          ],
+  it(
+    'should do nothing if transactions metamaskNetworkId values are already strings',
+    async () => {
+      const oldStorage = {
+        meta: {},
+        data: {
+          TransactionController: {
+            transactions: [
+              { foo: 'bar', metamaskNetworkId: '2' },
+              { foo: 'bar' },
+              { foo: 'bar', metamaskNetworkId: '0' },
+              { foo: 'bar', metamaskNetworkId: '42' },
+            ],
+          },
+          foo: 'bar',
         },
-        foo: 'bar',
-      },
-    };
+      };
 
-    const newStorage = await migration47.migrate(oldStorage);
-    assert.deepEqual(oldStorage.data, newStorage.data);
-  });
+      const newStorage = await migration47.migrate(oldStorage);
+      expect(oldStorage.data).toStrictEqual(newStorage.data);
+    }
+  );
 
-  it('should do nothing if transactions state does not exist', async function () {
+  it('should do nothing if transactions state does not exist', async () => {
     const oldStorage = {
       meta: {},
       data: {
@@ -78,10 +80,10 @@ describe('migration #47', function () {
     };
 
     const newStorage = await migration47.migrate(oldStorage);
-    assert.deepEqual(oldStorage.data, newStorage.data);
+    expect(oldStorage.data).toStrictEqual(newStorage.data);
   });
 
-  it('should do nothing if transactions state is empty', async function () {
+  it('should do nothing if transactions state is empty', async () => {
     const oldStorage = {
       meta: {},
       data: {
@@ -94,16 +96,16 @@ describe('migration #47', function () {
     };
 
     const newStorage = await migration47.migrate(oldStorage);
-    assert.deepEqual(oldStorage.data, newStorage.data);
+    expect(oldStorage.data).toStrictEqual(newStorage.data);
   });
 
-  it('should do nothing if state is empty', async function () {
+  it('should do nothing if state is empty', async () => {
     const oldStorage = {
       meta: {},
       data: {},
     };
 
     const newStorage = await migration47.migrate(oldStorage);
-    assert.deepEqual(oldStorage.data, newStorage.data);
+    expect(oldStorage.data).toStrictEqual(newStorage.data);
   });
 });
