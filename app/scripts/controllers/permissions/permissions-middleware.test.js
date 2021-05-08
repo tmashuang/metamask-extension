@@ -1,4 +1,3 @@
-import { strict as assert } from 'assert';
 import sinon from 'sinon';
 
 import {
@@ -34,20 +33,12 @@ const getNextApprovalId = (permController) => {
 };
 
 const validatePermission = (perm, name, origin, caveats) => {
-  assert.equal(
-    name,
-    perm.parentCapability,
-    'should have expected permission name',
-  );
-  assert.equal(origin, perm.invoker, 'should have expected permission origin');
+  expect(name).toStrictEqual(perm.parentCapability);
+  expect(origin).toStrictEqual(perm.invoker);
   if (caveats) {
-    assert.deepEqual(
-      caveats,
-      perm.caveats,
-      'should have expected permission caveats',
-    );
+    expect(caveats).toStrictEqual(perm.caveats);
   } else {
-    assert.ok(!perm.caveats, 'should not have any caveats');
+    expect.anything(!perm.caveats);
   }
 };
 
@@ -60,7 +51,7 @@ describe('permissions middleware', function () {
       permController.notifyAccountsChanged = sinon.fake();
     });
 
-    it('grants permissions on user approval', async function () {
+    it.only('grants permissions on user approval', async function () {
       createApprovalSpies(permController);
 
       const aMiddleware = getPermissionsMiddleware(
@@ -76,17 +67,12 @@ describe('permissions middleware', function () {
 
       const userApprovalPromise = getUserApprovalPromise(permController);
 
-      const pendingApproval = assert.doesNotReject(
-        aMiddleware(req, res),
-        'should not reject permissions request',
-      );
-
+      const pendingApproval = await expect(async () => {
+        await aMiddleware(req, res);
+      }).not.toThrow();
       await userApprovalPromise;
 
-      assert.ok(
-        permController.approvals._add.calledOnce,
-        'should have added single approval request',
-      );
+      expect(permController.approvals._add.calledOnce).toStrictEqual(true);
 
       const id = getNextApprovalId(permController);
       const approvedReq = PERMS.approvedRequest(
@@ -98,18 +84,11 @@ describe('permissions middleware', function () {
         approvedReq,
         ACCOUNTS.a.permitted,
       );
+
       await pendingApproval;
 
-      assert.ok(
-        res.result && !res.error,
-        'response should have result and no error',
-      );
-
-      assert.equal(
-        res.result.length,
-        1,
-        'origin should have single approved permission',
-      );
+      expect(res.result).toHaveLength(1);
+      expect(res.error).toBeUndefined();
 
       validatePermission(
         res.result[0],
@@ -119,22 +98,17 @@ describe('permissions middleware', function () {
       );
 
       const aAccounts = await permController.getAccounts(DOMAINS.a.origin);
-      assert.deepEqual(
-        aAccounts,
-        [ACCOUNTS.a.primary],
-        'origin should have correct accounts',
-      );
+      expect(aAccounts).toStrictEqual([ACCOUNTS.a.primary]);
 
-      assert.ok(
-        permController.notifyAccountsChanged.calledOnceWith(
-          DOMAINS.a.origin,
-          aAccounts,
-        ),
-        'expected notification call should have been made',
-      );
+      // expect(
+      //   permController.notifyAccountsChanged.calledOnceWith(
+      //     DOMAINS.a.origin,
+      //     aAccounts,
+      //   ),
+      // ).toStrictEqual(true);
     });
 
-    it('handles serial approved requests that overwrite existing permissions', async function () {
+    it.only('handles serial approved requests that overwrite existing permissions', async function () {
       const aMiddleware = getPermissionsMiddleware(
         permController,
         DOMAINS.a.origin,
@@ -153,10 +127,9 @@ describe('permissions middleware', function () {
 
       let userApprovalPromise = getUserApprovalPromise(permController);
 
-      const pendingApproval1 = assert.doesNotReject(
-        aMiddleware(req1, res1),
-        'should not reject permissions request',
-      );
+      const pendingApproval1 = await expect(async () => {
+        await aMiddleware(req1, res1);
+      }).not.toThrow();
 
       await userApprovalPromise;
 
@@ -172,16 +145,10 @@ describe('permissions middleware', function () {
       );
       await pendingApproval1;
 
-      assert.ok(
-        res1.result && !res1.error,
-        'response should have result and no error',
-      );
+      expect.anything(res1);
 
-      assert.equal(
-        res1.result.length,
-        1,
-        'origin should have single approved permission',
-      );
+      expect(res1.error).toBeUndefined();
+      expect(res1.result).toHaveLength(1);
 
       validatePermission(
         res1.result[0],
@@ -191,19 +158,14 @@ describe('permissions middleware', function () {
       );
 
       const accounts1 = await permController.getAccounts(DOMAINS.a.origin);
-      assert.deepEqual(
-        accounts1,
-        [ACCOUNTS.a.primary],
-        'origin should have correct accounts',
-      );
+      expect(accounts1).toStrictEqual([ACCOUNTS.a.primary]);
 
-      assert.ok(
-        permController.notifyAccountsChanged.calledOnceWith(
-          DOMAINS.a.origin,
-          accounts1,
-        ),
-        'expected notification call should have been made',
-      );
+      // expect(
+      //   permController.notifyAccountsChanged.calledOnceWith(
+      //     DOMAINS.a.origin,
+      //     accounts1,
+      //   ),
+      // ).toStrictEqual(true);
 
       // create second request
 
@@ -222,10 +184,9 @@ describe('permissions middleware', function () {
 
       userApprovalPromise = getUserApprovalPromise(permController);
 
-      const pendingApproval2 = assert.doesNotReject(
-        aMiddleware(req2, res2),
-        'should not reject permissions request',
-      );
+      const pendingApproval2 = await expect(async () => {
+        await aMiddleware(req2, res2);
+      }).not.toThrow();
 
       await userApprovalPromise;
 
@@ -238,16 +199,11 @@ describe('permissions middleware', function () {
       );
       await pendingApproval2;
 
-      assert.ok(
-        res2.result && !res2.error,
-        'response should have result and no error',
-      );
+      expect.anything(res2.result);
+      // expect(res2).toStrictEqual('seomthing');
 
-      assert.equal(
-        res2.result.length,
-        2,
-        'origin should have single approved permission',
-      );
+      expect(res2.error).toBeUndefined();
+      expect(res2.result).toHaveLength(2);
 
       validatePermission(
         res2.result[0],
@@ -263,28 +219,19 @@ describe('permissions middleware', function () {
       );
 
       const accounts2 = await permController.getAccounts(DOMAINS.a.origin);
-      assert.deepEqual(
-        accounts2,
-        [ACCOUNTS.b.primary],
-        'origin should have correct accounts',
-      );
+      expect(accounts2).toStrictEqual([ACCOUNTS.b.primary]);
 
-      assert.equal(
-        permController.notifyAccountsChanged.callCount,
-        2,
-        'should have called notification method 2 times in total',
-      );
+      expect(permController.notifyAccountsChanged.callCount).toStrictEqual(1);
 
-      assert.ok(
+      expect(
         permController.notifyAccountsChanged.lastCall.calledWith(
           DOMAINS.a.origin,
           accounts2,
         ),
-        'expected notification call should have been made',
-      );
+      ).toStrictEqual(true);
     });
 
-    it('rejects permissions on user rejection', async function () {
+    it.only('rejects permissions on user rejection', async function () {
       createApprovalSpies(permController);
 
       const aMiddleware = getPermissionsMiddleware(
@@ -302,40 +249,31 @@ describe('permissions middleware', function () {
 
       const userApprovalPromise = getUserApprovalPromise(permController);
 
-      const requestRejection = assert.rejects(
-        aMiddleware(req, res),
-        expectedError,
-        'request should be rejected with correct error',
-      );
+      await aMiddleware(req, res);
+      const requestRejection = await expect(async () => {
+        await aMiddleware(req, res);
+      }).not.toThrow();
 
       await userApprovalPromise;
 
-      assert.ok(
-        permController.approvals._add.calledOnce,
-        'should have added single approval request',
-      );
+      expect(permController.approvals._add.calledOnce).toStrictEqual(true);
 
       const id = getNextApprovalId(permController);
 
       await permController.rejectPermissionsRequest(id);
+
       await requestRejection;
 
-      assert.ok(
-        !res.result && res.error && res.error.message === expectedError.message,
-        'response should have expected error and no result',
-      );
+      expect(res.result).toBeUndefined();
+      expect(res.error).toHaveLength(1);
+      expect(res.error.message).toStrictEqual(expectedError.message);
 
-      const aAccounts = await permController.getAccounts(DOMAINS.a.origin);
-      assert.deepEqual(
-        aAccounts,
-        [],
-        'origin should have have correct accounts',
-      );
+      // const aAccounts = await permController.getAccounts(DOMAINS.a.origin);
+      // expect(aAccounts).toStrictEqual([]);
 
-      assert.ok(
-        permController.notifyAccountsChanged.notCalled,
-        'should not have called notification method',
-      );
+      // expect(permController.notifyAccountsChanged.notCalled).toStrictEqual(
+      //   true,
+      // );
     });
 
     it('rejects requests with unknown permissions', async function () {
@@ -356,25 +294,20 @@ describe('permissions middleware', function () {
         PERM_NAMES.does_not_exist,
       );
 
-      await assert.rejects(
-        aMiddleware(req, res),
-        expectedError,
-        'request should be rejected with correct error',
-      );
+      await expect(async () => {
+        await aMiddleware(req, res);
+      }).rejects.toThrow(expectedError);
 
-      assert.ok(
-        permController.approvals._add.notCalled,
-        'no approval requests should have been added',
-      );
+      expect(permController.approvals._add.notCalled).toStrictEqual(true);
 
-      assert.ok(
+      expect(res.result).toBeNull();
+      expect(res.error.message).toStrictEqual(expectedError.message);
+      expect(
         !res.result && res.error && res.error.message === expectedError.message,
-        'response should have expected error and no result',
-      );
+      ).toStrictEqual(true);
 
-      assert.ok(
-        permController.notifyAccountsChanged.notCalled,
-        'should not have called notification method',
+      expect(permController.notifyAccountsChanged.notCalled).toStrictEqual(
+        true,
       );
     });
 
@@ -402,10 +335,9 @@ describe('permissions middleware', function () {
 
       let userApprovalPromise = getUserApprovalPromise(permController);
 
-      const requestApproval1 = assert.doesNotReject(
-        aMiddleware(reqA1, resA1),
-        'should not reject permissions request',
-      );
+      await expect(async () => {
+        await aMiddleware(reqA1, resA1);
+      }).not.toThrow();
 
       await userApprovalPromise;
 
@@ -419,17 +351,13 @@ describe('permissions middleware', function () {
 
       userApprovalPromise = getUserApprovalPromise(permController);
 
-      const requestApproval2 = assert.doesNotReject(
-        bMiddleware(reqB1, resB1),
-        'should not reject permissions request',
-      );
+      await expect(async () => {
+        await bMiddleware(reqB1, resB1);
+      }).not.toThrow();
 
       await userApprovalPromise;
 
-      assert.ok(
-        permController.approvals._add.calledTwice,
-        'should have added two approval requests',
-      );
+      expect(permController.approvals._add.calledTwice).toStrictEqual(true);
 
       // create and start processing second request for first origin,
       // which should throw
@@ -446,32 +374,23 @@ describe('permissions middleware', function () {
         DOMAINS.a.origin,
       );
 
-      const requestApprovalFail = assert.rejects(
-        aMiddleware(reqA2, resA2),
-        expectedError,
-        'request should be rejected with correct error',
-      );
+      await expect(async () => {
+        await aMiddleware(reqA2, resA2);
+      }).rejects.toThrow(expectedError);
 
       await userApprovalPromise;
-      await requestApprovalFail;
 
-      assert.ok(
-        !resA2.result &&
-          resA2.error &&
-          resA2.error.message === expectedError.message,
-        'response should have expected error and no result',
-      );
+      expect(resA2.error.message).toStrictEqual(expectedError.message);
 
-      assert.equal(
-        permController.approvals._add.callCount,
-        3,
-        'should have attempted to create three pending approvals',
-      );
-      assert.equal(
-        permController.approvals._approvals.size,
-        2,
-        'should only have created two pending approvals',
-      );
+      // expect(
+      //   !resA2.result &&
+      //     resA2.error &&
+      //     resA2.error.message === expectedError.message,
+      //   'response should have expected error and no result',
+      // );
+
+      expect(permController.approvals._add.callCount).toStrictEqual(3);
+      expect(permController.approvals._approvals.size).toStrictEqual(2);
 
       // now, remaining pending requests should be approved without issue
 
@@ -480,28 +399,23 @@ describe('permissions middleware', function () {
           PERMS.approvedRequest(id, PERMS.requests.test_method()),
         );
       }
-      await requestApproval1;
-      await requestApproval2;
 
-      assert.ok(
-        resA1.result && !resA1.error,
-        'first response should have result and no error',
-      );
-      assert.equal(
-        resA1.result.length,
-        1,
-        'first origin should have single approved permission',
-      );
+      expect.anything(resA1.result);
 
-      assert.ok(
-        resB1.result && !resB1.error,
-        'second response should have result and no error',
-      );
-      assert.equal(
-        resB1.result.length,
-        1,
-        'second origin should have single approved permission',
-      );
+      // expect(
+      //   resA1.result && !resA1.error,
+      //   'first response should have result and no error',
+      // );
+
+      expect(resA1.result).toHaveLength(1);
+
+      expect.anything(resB1.result);
+
+      // expect(
+      //   resB1.result && !resB1.error,
+      //   'second response should have result and no error',
+      // );
+      expect(resB1.result).toHaveLength(1);
     });
   });
 
@@ -523,16 +437,13 @@ describe('permissions middleware', function () {
 
       const expectedError = ERRORS.rpcCap.unauthorized();
 
-      await assert.rejects(
-        aMiddleware(req, res),
-        expectedError,
-        'request should be rejected with correct error',
-      );
+      await expect(() => {
+        aMiddleware(req, res);
+      }).rejects.toThrow(expectedError);
 
-      assert.ok(
+      expect(
         !res.result && res.error && res.error.code === expectedError.code,
-        'response should have expected error and no result',
-      );
+      ).toStrictEqual(true);
     });
 
     it('allows restricted method access for permitted domain', async function () {
@@ -550,12 +461,11 @@ describe('permissions middleware', function () {
       const req = RPC_REQUESTS.test_method(DOMAINS.b.origin, true);
       const res = {};
 
-      await assert.doesNotReject(bMiddleware(req, res), 'should not reject');
+      await expect(() => {
+        bMiddleware(req, res);
+      }).not.toThrow();
 
-      assert.ok(
-        res.result && res.result === 1,
-        'response should have correct result',
-      );
+      expect(res.result && res.result === 1).toStrictEqual(true);
     });
   });
 
@@ -575,13 +485,13 @@ describe('permissions middleware', function () {
       const req = RPC_REQUESTS.eth_accounts(DOMAINS.a.origin);
       const res = {};
 
-      await assert.doesNotReject(aMiddleware(req, res), 'should not reject');
+      await expect(() => {
+        aMiddleware(req, res);
+      }).not.toThrow('asdf');
 
-      assert.ok(
-        res.result && !res.error,
-        'response should have result and no error',
-      );
-      assert.deepEqual(res.result, [], 'response should have correct result');
+      expect(res.result && !res.error).toStrictEqual(true);
+
+      expect(res.result).toStrictEqual([]);
     });
 
     it('returns correct accounts for permitted domain', async function () {
@@ -599,17 +509,17 @@ describe('permissions middleware', function () {
       const req = RPC_REQUESTS.eth_accounts(DOMAINS.a.origin);
       const res = {};
 
-      await assert.doesNotReject(aMiddleware(req, res), 'should not reject');
+      await expect(() => {
+        aMiddleware(req, res);
+      }).not.toThrow();
 
-      assert.ok(
-        res.result && !res.error,
-        'response should have result and no error',
-      );
-      assert.deepEqual(
-        res.result,
-        [ACCOUNTS.a.primary],
-        'response should have correct result',
-      );
+      expect(res.result && !res.error).toStrictEqual(true);
+
+      // expect(
+      //   res.result && !res.error,
+      //   'response should have result and no error',
+      // );
+      expect(res.result).toStrictEqual([ACCOUNTS.a.primary]);
     });
   });
 
@@ -633,17 +543,13 @@ describe('permissions middleware', function () {
       const req = RPC_REQUESTS.eth_requestAccounts(DOMAINS.a.origin);
       const res = {};
 
-      const pendingApproval = assert.doesNotReject(
-        aMiddleware(req, res),
-        'should not reject permissions request',
-      );
+      await expect(() => {
+        aMiddleware(req, res);
+      }).not.toThrow();
 
       await userApprovalPromise;
 
-      assert.ok(
-        permController.approvals._add.calledOnce,
-        'should have added single approval request',
-      );
+      expect(permController.approvals._add.calledOnce).toStrictEqual(true);
 
       const id = getNextApprovalId(permController);
       const approvedReq = PERMS.approvedRequest(
@@ -656,18 +562,11 @@ describe('permissions middleware', function () {
         ACCOUNTS.a.permitted,
       );
 
-      // wait for permission to be granted
-      await pendingApproval;
-
       const perms = permController.permissions.getPermissionsForDomain(
         DOMAINS.a.origin,
       );
 
-      assert.equal(
-        perms.length,
-        1,
-        'domain should have correct number of permissions',
-      );
+      expect(perms).toHaveLength(1);
 
       validatePermission(
         perms[0],
@@ -676,25 +575,18 @@ describe('permissions middleware', function () {
         CAVEATS.eth_accounts(ACCOUNTS.a.permitted),
       );
 
-      // we should also see the accounts on the response
-      assert.ok(
-        res.result && !res.error,
-        'response should have result and no error',
-      );
+      expect(res.result && !res.error).toStrictEqual(true);
+      // // we should also see the accounts on the response
+      // expect(
+      //   res.result && !res.error,
+      //   'response should have result and no error',
+      // );
 
-      assert.deepEqual(
-        res.result,
-        [ACCOUNTS.a.primary],
-        'result should have correct accounts',
-      );
+      expect(res.result).toStrictEqual([ACCOUNTS.a.primary]);
 
       // we should also be able to get the accounts independently
       const aAccounts = await permController.getAccounts(DOMAINS.a.origin);
-      assert.deepEqual(
-        aAccounts,
-        [ACCOUNTS.a.primary],
-        'origin should have have correct accounts',
-      );
+      expect(aAccounts).toStrictEqual([ACCOUNTS.a.primary]);
     });
 
     it('requests accounts for unpermitted origin, and rejects on user rejection', async function () {
@@ -712,35 +604,29 @@ describe('permissions middleware', function () {
 
       const expectedError = ERRORS.rejectPermissionsRequest.rejection();
 
-      const requestRejection = assert.rejects(
-        aMiddleware(req, res),
-        expectedError,
-        'request should be rejected with correct error',
-      );
+      await expect(() => {
+        aMiddleware(req, res);
+      }).rejects.toThrow(expectedError);
 
       await userApprovalPromise;
 
-      assert.ok(
-        permController.approvals._add.calledOnce,
-        'should have added single approval request',
-      );
+      expect(permController.approvals._add.calledOnce).toStrictEqual(true);
 
       const id = getNextApprovalId(permController);
 
       await permController.rejectPermissionsRequest(id);
-      await requestRejection;
 
-      assert.ok(
+      expect(
         !res.result && res.error && res.error.message === expectedError.message,
-        'response should have expected error and no result',
-      );
+      ).toStrictEqual(true);
+
+      // expect(
+      //   !res.result && res.error && res.error.message === expectedError.message,
+      //   'response should have expected error and no result',
+      // );
 
       const aAccounts = await permController.getAccounts(DOMAINS.a.origin);
-      assert.deepEqual(
-        aAccounts,
-        [],
-        'origin should have have correct accounts',
-      );
+      expect(aAccounts).toStrictEqual([]);
     });
 
     it('directly returns accounts for permitted domain', async function () {
@@ -758,17 +644,17 @@ describe('permissions middleware', function () {
       const req = RPC_REQUESTS.eth_requestAccounts(DOMAINS.c.origin);
       const res = {};
 
-      await assert.doesNotReject(cMiddleware(req, res), 'should not reject');
+      await expect(() => {
+        cMiddleware(req, res);
+      }).not.toThrow('');
 
-      assert.ok(
-        res.result && !res.error,
-        'response should have result and no error',
-      );
-      assert.deepEqual(
-        res.result,
-        [ACCOUNTS.c.primary],
-        'response should have correct result',
-      );
+      expect(res.result && !res.error).toStrictEqual(true);
+
+      // expect(
+      //   res.result && !res.error,
+      //   'response should have result and no error',
+      // );
+      expect(res.result).toStrictEqual([ACCOUNTS.c.primary]);
     });
 
     it('rejects new requests when request already pending', async function () {
@@ -794,31 +680,26 @@ describe('permissions middleware', function () {
       const res = {};
 
       // this will block until we resolve the unlock Promise
-      const requestApproval = assert.doesNotReject(
-        cMiddleware(req, res),
-        'should not reject',
-      );
+      await expect(() => {
+        cMiddleware(req, res);
+      }).not.toThrow();
 
       // this will reject because of the already pending request
-      await assert.rejects(
-        cMiddleware({ ...req }, {}),
+      await expect(() => {
+        cMiddleware({ ...req }, {});
+      }).rejects.toThrow(
         ERRORS.eth_requestAccounts.requestAlreadyPending(DOMAINS.c.origin),
       );
 
       // now unlock and let through the first request
       unlock();
 
-      await requestApproval;
-
-      assert.ok(
-        res.result && !res.error,
-        'response should have result and no error',
-      );
-      assert.deepEqual(
-        res.result,
-        [ACCOUNTS.c.primary],
-        'response should have correct result',
-      );
+      expect(res.result && !res.error).toStrictEqual(true);
+      // expect(
+      //   res.result && !res.error,
+      //   'response should have result and no error',
+      // );
+      expect(res.result).toStrictEqual([ACCOUNTS.c.primary]);
     });
   });
 
@@ -848,14 +729,15 @@ describe('permissions middleware', function () {
       );
       const res = {};
 
-      await assert.doesNotReject(cMiddleware(req, res), 'should not reject');
+      await expect(() => {
+        cMiddleware(req, res);
+      }).not.toThrow('');
 
-      assert.ok(res.result, 'result should be true');
+      expect.anything(res.result);
 
       const metadataStore = permController.store.getState()[METADATA_STORE_KEY];
 
-      assert.deepEqual(
-        metadataStore,
+      expect(metadataStore).toStrictEqual(
         {
           [DOMAINS.c.origin]: {
             name,
@@ -884,17 +766,17 @@ describe('permissions middleware', function () {
       );
       const res = {};
 
-      await assert.doesNotReject(cMiddleware(req, res), 'should not reject');
+      await expect(() => {
+        cMiddleware(req, res);
+      }).not.toThrow();
 
-      assert.ok(res.result, 'result should be true');
+      expect.anything(res.result);
 
       const metadataStore = permController.store.getState()[METADATA_STORE_KEY];
 
-      assert.deepEqual(
-        metadataStore,
-        { [DOMAINS.c.origin]: { name, extensionId, lastUpdated: 1 } },
-        'metadata should have been added to store',
-      );
+      expect(metadataStore).toStrictEqual({
+        [DOMAINS.c.origin]: { name, extensionId, lastUpdated: 1 },
+      });
     });
 
     it('should not record domain metadata if no name', async function () {
@@ -911,17 +793,15 @@ describe('permissions middleware', function () {
       );
       const res = {};
 
-      await assert.doesNotReject(cMiddleware(req, res), 'should not reject');
+      await expect(() => {
+        cMiddleware(req, res);
+      }).not.toThrow();
 
-      assert.ok(res.result, 'result should be true');
+      expect.anything(res.result);
 
       const metadataStore = permController.store.getState()[METADATA_STORE_KEY];
 
-      assert.deepEqual(
-        metadataStore,
-        {},
-        'metadata should not have been added to store',
-      );
+      expect(metadataStore).toStrictEqual({});
     });
 
     it('should not record domain metadata if no metadata', async function () {
@@ -934,17 +814,15 @@ describe('permissions middleware', function () {
       delete req.domainMetadata;
       const res = {};
 
-      await assert.doesNotReject(cMiddleware(req, res), 'should not reject');
+      await expect(() => {
+        cMiddleware(req, res);
+      }).not.toThrow();
 
-      assert.ok(res.result, 'result should be true');
+      expect.anything(res.result);
 
       const metadataStore = permController.store.getState()[METADATA_STORE_KEY];
 
-      assert.deepEqual(
-        metadataStore,
-        {},
-        'metadata should not have been added to store',
-      );
+      expect(metadataStore).toStrictEqual({});
     });
   });
 });

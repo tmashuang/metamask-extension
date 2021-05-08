@@ -1,4 +1,3 @@
-import { strict as assert } from 'assert';
 import { find } from 'lodash';
 import sinon from 'sinon';
 
@@ -47,7 +46,7 @@ const initPermController = (notifications = initNotifications()) => {
 describe('permissions controller', () => {
   describe('constructor', () => {
     it('throws on undefined argument', async () => {
-      await expect(() => new PermissionsController()).toThrow('');
+      await expect(() => new PermissionsController()).toThrow('undefined');
     });
   });
 
@@ -828,8 +827,8 @@ describe('permissions controller', () => {
 
       const request = PERMS.approvedRequest(REQUEST_IDS.a, null);
 
-      await expect(() => {
-        permController.approvePermissionsRequest(request, null);
+      await expect(async () => {
+        await permController.approvePermissionsRequest(request, null);
       }).not.toThrow();
 
       expect(permController.finalizePermissionsRequest.notCalled).toStrictEqual(
@@ -837,42 +836,34 @@ describe('permissions controller', () => {
       );
     });
 
-    it.only('rejects request with bad accounts param', async () => {
+    it('rejects request with bad accounts param', async function () {
       const request = PERMS.approvedRequest(
         REQUEST_IDS.a,
         PERMS.requests.eth_accounts(),
       );
 
-      // const rejectionPromise = assert.rejects(
-      //   requestUserApproval(REQUEST_IDS.a),
-      //   ERRORS.validatePermittedAccounts.invalidParam(),
-      //   'should reject with "null" accounts',
-      // );
+      const rejectionPromise = requestUserApproval(REQUEST_IDS.a);
 
-      // await permController.approvePermissionsRequest(request, null);
-      // await rejectionPromise;
+      await permController.approvePermissionsRequest(request, null);
 
       await expect(async () => {
-        await requestUserApproval(REQUEST_IDS.a)
-      }).rejects.toThrow('something');
+        await rejectionPromise;
+      }).rejects.toThrow('Must provide non-empty array of account(s).');
     });
 
     it('rejects request with no permissions', async () => {
       const request = PERMS.approvedRequest(REQUEST_IDS.a, {});
 
-      const requestRejection = assert.rejects(
-        requestUserApproval(REQUEST_IDS.a),
-        ERRORS.approvePermissionsRequest.noPermsRequested(),
-        'should reject if no permissions in request',
-      );
-
-      console.log(requestUserApproval(REQUEST_IDS.a));
+      const rejectionPromise = requestUserApproval(REQUEST_IDS.a);
 
       await permController.approvePermissionsRequest(
         request,
         ACCOUNTS.a.permitted,
       );
-      await requestRejection;
+
+      await expect(async () => {
+        await rejectionPromise;
+      }).rejects.toThrow('Must request at least one permission.');
     });
 
     it('approves valid request', async () => {
@@ -881,19 +872,18 @@ describe('permissions controller', () => {
         PERMS.requests.eth_accounts(),
       );
 
-      let perms;
-
-      const requestApproval = expect(async () => {
-        perms = await requestUserApproval(REQUEST_IDS.a);
-      }).not.toThrow();
+      const requestApproval = requestUserApproval(REQUEST_IDS.a);
 
       await permController.approvePermissionsRequest(
         request,
         ACCOUNTS.a.permitted,
       );
-      await requestApproval;
 
-      expect(perms).toStrictEqual(
+      expect(async () => {
+        await requestApproval;
+      }).not.toThrow(/eth_accounts/u);
+
+      expect(await requestApproval).toStrictEqual(
         PERMS.finalizedRequests.eth_accounts(ACCOUNTS.a.permitted),
       );
     });
@@ -969,22 +959,24 @@ describe('permissions controller', () => {
     });
 
     it('rejects single existing request', async () => {
-      const requestRejection = await expect(
-        requestUserApproval(REQUEST_IDS.a),
-      ).rejects.toThrow(ERRORS.rejectPermissionsRequest.rejection());
+      const requestApproval = requestUserApproval(REQUEST_IDS.a);
 
       await permController.rejectPermissionsRequest(REQUEST_IDS.a);
-      await requestRejection;
+
+      await expect(async () => {
+        await requestApproval;
+      }).rejects.toThrow(ERRORS.rejectPermissionsRequest.rejection());
     });
 
     it('rejects requests regardless of order', async () => {
-      const requestRejection1 = await expect(
-        requestUserApproval(REQUEST_IDS.b, DOMAINS.b.origin),
-      ).rejects.toThrow(ERRORS.rejectPermissionsRequest.rejection());
-
-      const requestRejection2 = await expect(
-        requestUserApproval(REQUEST_IDS.c, DOMAINS.c.origin),
-      ).rejects.toThrow(ERRORS.rejectPermissionsRequest.rejection());
+      const requestRejection1 = requestUserApproval(
+        REQUEST_IDS.b,
+        DOMAINS.b.origin,
+      );
+      const requestRejection2 = requestUserApproval(
+        REQUEST_IDS.c,
+        DOMAINS.c.origin,
+      );
 
       // reject out of order
       await permController.rejectPermissionsRequest(REQUEST_IDS.c);
@@ -992,8 +984,13 @@ describe('permissions controller', () => {
       await permController.rejectPermissionsRequest(REQUEST_IDS.a);
       await permController.rejectPermissionsRequest(REQUEST_IDS.b);
 
-      await requestRejection1;
-      await requestRejection2;
+      await expect(async () => {
+        await requestRejection1;
+      }).rejects.toThrow(ERRORS.rejectPermissionsRequest.rejection());
+
+      await expect(async () => {
+        await requestRejection2;
+      }).rejects.toThrow(ERRORS.rejectPermissionsRequest.rejection());
     });
   });
 
