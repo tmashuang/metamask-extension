@@ -32,8 +32,8 @@ export function getRequestUserApprovalHelper(permController) {
    * @param {string} [origin] - The origin of the request, if necessary.
    * @returns {Object} The corresponding request object.
    */
-  return (id, origin = 'defaultOrigin') => {
-    return permController.permissions.requestUserApproval({
+  return async (id, origin = 'defaultOrigin') => {
+    return await permController.permissions.requestUserApproval({
       metadata: { id, origin, type: 'NO_TYPE' },
     });
   };

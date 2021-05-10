@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const originalModule = jest.requireActual('react-router-dom');
 
 module.exports = {
