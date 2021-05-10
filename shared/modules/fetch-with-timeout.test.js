@@ -1,23 +1,22 @@
-import { strict as assert } from 'assert';
 import nock from 'nock';
 
 import { MILLISECOND, SECOND } from '../constants/time';
 import getFetchWithTimeout from './fetch-with-timeout';
 
-describe('getFetchWithTimeout', function () {
-  it('fetches a url', async function () {
+describe('getFetchWithTimeout', () => {
+  it('fetches a url', async () => {
     nock('https://api.infura.io').get('/money').reply(200, '{"hodl": false}');
 
     const fetchWithTimeout = getFetchWithTimeout(SECOND * 30);
     const response = await (
       await fetchWithTimeout('https://api.infura.io/money')
     ).json();
-    assert.deepEqual(response, {
+    expect(response).toStrictEqual({
       hodl: false,
     });
   });
 
-  it('throws when the request hits a custom timeout', async function () {
+  it('throws when the request hits a custom timeout', async () => {
     nock('https://api.infura.io')
       .get('/moon')
       .delay(SECOND * 2)
@@ -25,17 +24,14 @@ describe('getFetchWithTimeout', function () {
 
     const fetchWithTimeout = getFetchWithTimeout(MILLISECOND * 123);
 
-    try {
+    await expect(async () => {
       await fetchWithTimeout('https://api.infura.io/moon').then((r) =>
         r.json(),
       );
-      assert.fail('Request should throw');
-    } catch (e) {
-      assert.ok(e);
-    }
+    }).rejects.toThrow('Aborted');
   });
 
-  it('should abort the request when the custom timeout is hit', async function () {
+  it('should abort the request when the custom timeout is hit', async () => {
     nock('https://api.infura.io')
       .get('/moon')
       .delay(SECOND * 2)
@@ -43,20 +39,25 @@ describe('getFetchWithTimeout', function () {
 
     const fetchWithTimeout = getFetchWithTimeout(MILLISECOND * 123);
 
-    try {
+    await expect(async () => {
       await fetchWithTimeout('https://api.infura.io/moon').then((r) =>
         r.json(),
       );
-      assert.fail('Request should be aborted');
-    } catch (e) {
-      assert.deepEqual(e.message, 'Aborted');
-    }
+    }).rejects.toThrow('Aborted');
   });
 
-  it('throws on invalid timeout', async function () {
-    assert.throws(() => getFetchWithTimeout(), 'should throw');
-    assert.throws(() => getFetchWithTimeout(-1), 'should throw');
-    assert.throws(() => getFetchWithTimeout({}), 'should throw');
-    assert.throws(() => getFetchWithTimeout(true), 'should throw');
+  it('throws on invalid timeout', async () => {
+    await expect(() => getFetchWithTimeout()).toThrow(
+      'Must specify positive integer timeout.',
+    );
+    await expect(() => getFetchWithTimeout(-1)).toThrow(
+      'Must specify positive integer timeout.',
+    );
+    await expect(() => getFetchWithTimeout({})).toThrow(
+      'Must specify positive integer timeout.',
+    );
+    await expect(() => getFetchWithTimeout(true)).toThrow(
+      'Must specify positive integer timeout.',
+    );
   });
 });

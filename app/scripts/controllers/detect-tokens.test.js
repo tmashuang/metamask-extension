@@ -1,4 +1,3 @@
-import { strict as assert } from 'assert';
 import sinon from 'sinon';
 import { ObservableStore } from '@metamask/obs-store';
 import contracts from '@metamask/contract-metadata';
@@ -9,7 +8,7 @@ import DetectTokensController from './detect-tokens';
 import NetworkController from './network';
 import PreferencesController from './preferences';
 
-describe('DetectTokensController', function () {
+describe('DetectTokensController', () => {
   const sandbox = sinon.createSandbox();
   let keyringMemStore, network, preferences, provider;
 
@@ -19,7 +18,7 @@ describe('DetectTokensController', function () {
     getAccounts: noop,
   };
 
-  beforeEach(async function () {
+  beforeEach(async () => {
     keyringMemStore = new ObservableStore({ isUnlocked: false });
     network = new NetworkController();
     network.setInfuraProjectId('foo');
@@ -38,18 +37,18 @@ describe('DetectTokensController', function () {
       .returns(Promise.resolve(false));
   });
 
-  after(function () {
+  afterAll(() => {
     sandbox.restore();
   });
 
-  it('should poll on correct interval', async function () {
+  it('should poll on correct interval', async () => {
     const stub = sinon.stub(global, 'setInterval');
     new DetectTokensController({ interval: 1337 }); // eslint-disable-line no-new
-    assert.strictEqual(stub.getCall(0).args[1], 1337);
+    expect(stub.getCall(0).args[1]).toStrictEqual(1337);
     stub.restore();
   });
 
-  it('should be called on every polling period', async function () {
+  it('should be called on every polling period', async () => {
     const clock = sandbox.useFakeTimers();
     network.setProviderType(MAINNET);
     const controller = new DetectTokensController({
@@ -63,16 +62,16 @@ describe('DetectTokensController', function () {
     const stub = sandbox.stub(controller, 'detectNewTokens');
 
     clock.tick(1);
-    sandbox.assert.notCalled(stub);
+    expect(stub.notCalled).toStrictEqual(true);
     clock.tick(180000);
-    sandbox.assert.called(stub);
+    expect(stub.calledOnce).toStrictEqual(true);
     clock.tick(180000);
-    sandbox.assert.calledTwice(stub);
+    expect(stub.calledTwice).toStrictEqual(true);
     clock.tick(180000);
-    sandbox.assert.calledThrice(stub);
+    expect(stub.calledThrice).toStrictEqual(true);
   });
 
-  it('should not check tokens while on test network', async function () {
+  it('should not check tokens while on test network', async () => {
     sandbox.useFakeTimers();
     network.setProviderType(ROPSTEN);
     const controller = new DetectTokensController({
@@ -86,10 +85,10 @@ describe('DetectTokensController', function () {
     const stub = sandbox.stub(controller, '_getTokenBalances');
 
     await controller.detectNewTokens();
-    sandbox.assert.notCalled(stub);
+    expect(stub.notCalled).toStrictEqual(true);
   });
 
-  it('should skip adding tokens listed in hiddenTokens array', async function () {
+  it('should skip adding tokens listed in hiddenTokens array', async () => {
     sandbox.useFakeTimers();
     network.setProviderType(MAINNET);
     const controller = new DetectTokensController({
@@ -127,7 +126,7 @@ describe('DetectTokensController', function () {
 
     await controller.detectNewTokens();
 
-    assert.deepEqual(preferences.store.getState().tokens, [
+    expect(preferences.store.getState().tokens).toStrictEqual([
       {
         address: existingTokenAddress.toLowerCase(),
         decimals: existingToken.decimals,
@@ -137,7 +136,7 @@ describe('DetectTokensController', function () {
     ]);
   });
 
-  it('should check and add tokens while on main network', async function () {
+  it('should check and add tokens while on main network', async () => {
     sandbox.useFakeTimers();
     network.setProviderType(MAINNET);
     const controller = new DetectTokensController({
@@ -180,7 +179,7 @@ describe('DetectTokensController', function () {
 
     await controller.detectNewTokens();
 
-    assert.deepEqual(preferences.store.getState().tokens, [
+    expect(preferences.store.getState().tokens).toStrictEqual([
       {
         address: existingTokenAddress.toLowerCase(),
         decimals: existingToken.decimals,
@@ -196,7 +195,7 @@ describe('DetectTokensController', function () {
     ]);
   });
 
-  it('should check and add tokens while on non-default Mainnet', async function () {
+  it('should check and add tokens while on non-default Mainnet', async () => {
     sandbox.useFakeTimers();
     network.setRpcTarget('https://some-fake-RPC-endpoint.metamask.io', '0x1');
     const controller = new DetectTokensController({
@@ -239,7 +238,7 @@ describe('DetectTokensController', function () {
 
     await controller.detectNewTokens();
 
-    assert.deepEqual(preferences.store.getState().tokens, [
+    expect(preferences.store.getState().tokens).toStrictEqual([
       {
         address: existingTokenAddress.toLowerCase(),
         decimals: existingToken.decimals,
@@ -255,7 +254,7 @@ describe('DetectTokensController', function () {
     ]);
   });
 
-  it('should trigger detect new tokens when change address', async function () {
+  it('should trigger detect new tokens when change address', async () => {
     sandbox.useFakeTimers();
     const controller = new DetectTokensController({
       preferences,
@@ -268,10 +267,10 @@ describe('DetectTokensController', function () {
     await preferences.setSelectedAddress(
       '0xbc86727e770de68b1060c91f6bb6945c73e10388',
     );
-    sandbox.assert.called(stub);
+    expect(stub.callCount).toStrictEqual(1);
   });
 
-  it('should trigger detect new tokens when submit password', async function () {
+  it('should trigger detect new tokens when submit password', async () => {
     sandbox.useFakeTimers();
     const controller = new DetectTokensController({
       preferences,
@@ -282,10 +281,10 @@ describe('DetectTokensController', function () {
     controller.selectedAddress = '0x0';
     const stub = sandbox.stub(controller, 'detectNewTokens');
     await controller._keyringMemStore.updateState({ isUnlocked: true });
-    sandbox.assert.called(stub);
+    expect(stub.callCount).toStrictEqual(1);
   });
 
-  it('should not trigger detect new tokens when not unlocked', async function () {
+  it('should not trigger detect new tokens when not unlocked', async () => {
     const clock = sandbox.useFakeTimers();
     network.setProviderType(MAINNET);
     const controller = new DetectTokensController({
@@ -297,10 +296,10 @@ describe('DetectTokensController', function () {
     controller.isUnlocked = false;
     const stub = sandbox.stub(controller, '_getTokenBalances');
     clock.tick(180000);
-    sandbox.assert.notCalled(stub);
+    expect(stub.callCount).toStrictEqual(0);
   });
 
-  it('should not trigger detect new tokens when not open', async function () {
+  it('should not trigger detect new tokens when not open', async () => {
     const clock = sandbox.useFakeTimers();
     network.setProviderType(MAINNET);
     const controller = new DetectTokensController({
@@ -316,6 +315,6 @@ describe('DetectTokensController', function () {
     controller.isUnlocked = true;
     const stub = sandbox.stub(controller, '_getTokenBalances');
     clock.tick(180000);
-    sandbox.assert.notCalled(stub);
+    expect(stub.callCount).toStrictEqual(0);
   });
 });

@@ -1,8 +1,8 @@
-import { strict as assert } from 'assert';
 import sinon from 'sinon';
-import proxyquire from 'proxyquire';
 import nock from 'nock';
 import { cloneDeep } from 'lodash';
+
+import createId from '../../../shared/modules/random-id';
 
 import waitUntilCalled from '../../../test/lib/wait-until-called';
 import {
@@ -21,9 +21,10 @@ import {
 } from '../../../shared/constants/transaction';
 import { MILLISECOND } from '../../../shared/constants/time';
 
-const IncomingTransactionsController = proxyquire('./incoming-transactions', {
-  '../../../shared/modules/random-id': { default: () => 54321 },
-}).default;
+import IncomingTransactionsController from './incoming-transactions';
+
+jest.mock('../../../shared/modules/random-id.js');
+createId.mockImplementation(() => 54321);
 
 const FAKE_CHAIN_ID = '0x1338';
 const MOCK_SELECTED_ADDRESS = '0x0101';
@@ -183,22 +184,22 @@ describe('IncomingTransactionsController', function () {
       );
       sinon.spy(incomingTransactionsController, '_update');
 
-      assert.deepStrictEqual(
-        incomingTransactionsController.store.getState(),
+      expect(incomingTransactionsController.store.getState()).toStrictEqual(
         getEmptyInitState(),
       );
 
-      assert(mockedNetworkMethods.onNetworkDidChange.calledOnce);
+      expect(mockedNetworkMethods.onNetworkDidChange.callCount).toStrictEqual(
+        1,
+      );
       const networkControllerListenerCallback = mockedNetworkMethods.onNetworkDidChange.getCall(
         0,
       ).args[0];
-      assert.strictEqual(incomingTransactionsController._update.callCount, 0);
+      expect(incomingTransactionsController._update.callCount).toStrictEqual(0);
       networkControllerListenerCallback('testNetworkType');
-      assert.strictEqual(incomingTransactionsController._update.callCount, 1);
-      assert.deepStrictEqual(
+      expect(incomingTransactionsController._update.callCount).toStrictEqual(1);
+      expect(
         incomingTransactionsController._update.getCall(0).args[0],
-        '0x0101',
-      );
+      ).toStrictEqual('0x0101');
 
       incomingTransactionsController._update.resetHistory();
     });
@@ -213,8 +214,7 @@ describe('IncomingTransactionsController', function () {
         },
       );
 
-      assert.deepStrictEqual(
-        incomingTransactionsController.store.getState(),
+      expect(incomingTransactionsController.store.getState()).toStrictEqual(
         getNonEmptyInitState(),
       );
     });
@@ -233,14 +233,13 @@ describe('IncomingTransactionsController', function () {
 
       incomingTransactionsController.start();
 
-      assert(
-        incomingTransactionsController.blockTracker.addListener.calledOnce,
-      );
-      assert.strictEqual(
+      expect(
+        incomingTransactionsController.blockTracker.addListener.callCount,
+      ).toStrictEqual(1);
+      expect(
         incomingTransactionsController.blockTracker.addListener.getCall(0)
           .args[0],
-        'latest',
-      );
+      ).toStrictEqual('latest');
     });
 
     it('should update upon latest block when started and on supported network', async function () {
@@ -292,12 +291,10 @@ describe('IncomingTransactionsController', function () {
         '0xfakeeip1559'
       ]?.id;
 
-      assert.ok(
+      expect(
         typeof generatedTxId === 'number' && generatedTxId > 0,
-        'Generated transaction ID should be a positive number',
-      );
-      assert.deepStrictEqual(
-        actualStateWithoutGenerated,
+      ).toStrictEqual(true);
+      expect(actualStateWithoutGenerated).toStrictEqual(
         {
           incomingTransactions: {
             ...getNonEmptyInitState().incomingTransactions,
@@ -380,7 +377,7 @@ describe('IncomingTransactionsController', function () {
 
       incomingTransactionsController.start();
 
-      try {
+      await expect(async () => {
         await Promise.race([
           updateStateCalled(),
           putStateCalled(),
@@ -388,10 +385,7 @@ describe('IncomingTransactionsController', function () {
             setTimeout(() => reject(new Error('TIMEOUT')), SET_STATE_TIMEOUT);
           }),
         ]);
-        assert.fail('Update state should not have been called');
-      } catch (error) {
-        assert(error.message === 'TIMEOUT', 'TIMEOUT error should be thrown');
-      }
+      }).rejects.toThrow('TIMEOUT');
     });
 
     it('should not update upon latest block when started and incoming transactions disabled', async function () {
@@ -429,7 +423,7 @@ describe('IncomingTransactionsController', function () {
 
       incomingTransactionsController.start();
 
-      try {
+      await expect(async () => {
         await Promise.race([
           updateStateCalled(),
           putStateCalled(),
@@ -437,10 +431,7 @@ describe('IncomingTransactionsController', function () {
             setTimeout(() => reject(new Error('TIMEOUT')), SET_STATE_TIMEOUT);
           }),
         ]);
-        assert.fail('Update state should not have been called');
-      } catch (error) {
-        assert(error.message === 'TIMEOUT', 'TIMEOUT error should be thrown');
-      }
+      }).rejects.toThrow('TIMEOUT');
     });
 
     it('should not update upon latest block when not started', async function () {
@@ -474,7 +465,7 @@ describe('IncomingTransactionsController', function () {
         incomingTransactionsController.store,
       );
 
-      try {
+      await expect(async () => {
         await Promise.race([
           updateStateCalled(),
           putStateCalled(),
@@ -482,10 +473,7 @@ describe('IncomingTransactionsController', function () {
             setTimeout(() => reject(new Error('TIMEOUT')), SET_STATE_TIMEOUT);
           }),
         ]);
-        assert.fail('Update state should not have been called');
-      } catch (error) {
-        assert(error.message === 'TIMEOUT', 'TIMEOUT error should be thrown');
-      }
+      }).rejects.toThrow('TIMEOUT');
     });
 
     it('should not update upon latest block when stopped', async function () {
@@ -521,7 +509,7 @@ describe('IncomingTransactionsController', function () {
 
       incomingTransactionsController.stop();
 
-      try {
+      await expect(async () => {
         await Promise.race([
           updateStateCalled(),
           putStateCalled(),
@@ -529,10 +517,7 @@ describe('IncomingTransactionsController', function () {
             setTimeout(() => reject(new Error('TIMEOUT')), SET_STATE_TIMEOUT);
           }),
         ]);
-        assert.fail('Update state should not have been called');
-      } catch (error) {
-        assert(error.message === 'TIMEOUT', 'TIMEOUT error should be thrown');
-      }
+      }).rejects.toThrow('TIMEOUT');
     });
 
     it('should update when the selected address changes and on supported network', async function () {
@@ -587,12 +572,10 @@ describe('IncomingTransactionsController', function () {
       const actualStateWithoutGenerated = cloneDeep(actualState);
       delete actualStateWithoutGenerated?.incomingTransactions?.['0xfake']?.id;
 
-      assert.ok(
+      expect(
         typeof generatedTxId === 'number' && generatedTxId > 0,
-        'Generated transaction ID should be a positive number',
-      );
-      assert.deepStrictEqual(
-        actualStateWithoutGenerated,
+      ).toStrictEqual(true);
+      expect(actualStateWithoutGenerated).toStrictEqual(
         {
           incomingTransactions: {
             ...getNonEmptyInitState().incomingTransactions,
@@ -666,7 +649,7 @@ describe('IncomingTransactionsController', function () {
       await subscription({ selectedAddress: MOCK_SELECTED_ADDRESS });
       await subscription({ selectedAddress: NEW_MOCK_SELECTED_ADDRESS });
 
-      try {
+      await expect(async () => {
         await Promise.race([
           updateStateCalled(),
           putStateCalled(),
@@ -674,10 +657,7 @@ describe('IncomingTransactionsController', function () {
             setTimeout(() => reject(new Error('TIMEOUT')), SET_STATE_TIMEOUT);
           }),
         ]);
-        assert.fail('Update state should not have been called');
-      } catch (error) {
-        assert(error.message === 'TIMEOUT', 'TIMEOUT error should be thrown');
-      }
+      }).rejects.toThrow('TIMEOUT');
     });
 
     it('should update when switching to a supported network', async function () {
@@ -725,12 +705,10 @@ describe('IncomingTransactionsController', function () {
       const actualStateWithoutGenerated = cloneDeep(actualState);
       delete actualStateWithoutGenerated?.incomingTransactions?.['0xfake']?.id;
 
-      assert.ok(
+      expect(
         typeof generatedTxId === 'number' && generatedTxId > 0,
-        'Generated transaction ID should be a positive number',
-      );
-      assert.deepStrictEqual(
-        actualStateWithoutGenerated,
+      ).toStrictEqual(true);
+      expect(actualStateWithoutGenerated).toStrictEqual(
         {
           incomingTransactions: {
             ...getNonEmptyInitState().incomingTransactions,
@@ -801,7 +779,7 @@ describe('IncomingTransactionsController', function () {
       incomingTransactionsController.getCurrentChainId = () => FAKE_CHAIN_ID;
       await subscription();
 
-      try {
+      await expect(async () => {
         await Promise.race([
           updateStateCalled(),
           putStateCalled(),
@@ -809,10 +787,7 @@ describe('IncomingTransactionsController', function () {
             setTimeout(() => reject(new Error('TIMEOUT')), SET_STATE_TIMEOUT);
           }),
         ]);
-        assert.fail('Update state should not have been called');
-      } catch (error) {
-        assert(error.message === 'TIMEOUT', 'TIMEOUT error should be thrown');
-      }
+      }).rejects.toThrow('TIMEOUT');
     });
   });
 
@@ -835,24 +810,22 @@ describe('IncomingTransactionsController', function () {
           .returns([]);
 
         await incomingTransactionsController._update('fakeAddress', 999);
-        assert(
-          incomingTransactionsController._getNewIncomingTransactions.calledOnce,
-        );
-        assert.deepStrictEqual(
+        expect(
+          incomingTransactionsController._getNewIncomingTransactions.callCount,
+        ).toStrictEqual(1);
+        expect(
           incomingTransactionsController._getNewIncomingTransactions.getCall(0)
             .args,
-          ['fakeAddress', 999, ROPSTEN_CHAIN_ID],
-        );
-        assert.deepStrictEqual(
+        ).toStrictEqual(['fakeAddress', 999, ROPSTEN_CHAIN_ID]);
+        expect(
           incomingTransactionsController.store.updateState.getCall(0).args[0],
-          {
-            incomingTxLastFetchedBlockByChainId: {
-              ...EMPTY_BLOCKS_BY_NETWORK,
-              [ROPSTEN_CHAIN_ID]: 1000,
-            },
-            incomingTransactions: {},
+        ).toStrictEqual({
+          incomingTxLastFetchedBlockByChainId: {
+            ...EMPTY_BLOCKS_BY_NETWORK,
+            [ROPSTEN_CHAIN_ID]: 1000,
           },
-        );
+          incomingTransactions: {},
+        });
       });
 
       it('should update the last fetched block for network to highest block seen in incoming txs', async function () {
@@ -884,27 +857,27 @@ describe('IncomingTransactionsController', function () {
           .returns([NEW_TRANSACTION_ONE, NEW_TRANSACTION_TWO]);
         await incomingTransactionsController._update('fakeAddress', 10);
 
-        assert(incomingTransactionsController.store.updateState.calledOnce);
+        expect(
+          incomingTransactionsController.store.updateState.callCount,
+        ).toStrictEqual(1);
 
-        assert.deepStrictEqual(
+        expect(
           incomingTransactionsController._getNewIncomingTransactions.getCall(0)
             .args,
-          ['fakeAddress', 10, ROPSTEN_CHAIN_ID],
-        );
+        ).toStrictEqual(['fakeAddress', 10, ROPSTEN_CHAIN_ID]);
 
-        assert.deepStrictEqual(
+        expect(
           incomingTransactionsController.store.updateState.getCall(0).args[0],
-          {
-            incomingTxLastFetchedBlockByChainId: {
-              ...EMPTY_BLOCKS_BY_NETWORK,
-              [ROPSTEN_CHAIN_ID]: 445,
-            },
-            incomingTransactions: {
-              [NEW_TRANSACTION_ONE.hash]: NEW_TRANSACTION_ONE,
-              [NEW_TRANSACTION_TWO.hash]: NEW_TRANSACTION_TWO,
-            },
+        ).toStrictEqual({
+          incomingTxLastFetchedBlockByChainId: {
+            ...EMPTY_BLOCKS_BY_NETWORK,
+            [ROPSTEN_CHAIN_ID]: 445,
           },
-        );
+          incomingTransactions: {
+            [NEW_TRANSACTION_ONE.hash]: NEW_TRANSACTION_ONE,
+            [NEW_TRANSACTION_TWO.hash]: NEW_TRANSACTION_TWO,
+          },
+        });
       });
     });
 
@@ -926,27 +899,25 @@ describe('IncomingTransactionsController', function () {
 
         await incomingTransactionsController._update('fakeAddress', 999);
 
-        assert(
-          incomingTransactionsController._getNewIncomingTransactions.calledOnce,
-        );
+        expect(
+          incomingTransactionsController._getNewIncomingTransactions.callCount,
+        ).toStrictEqual(1);
 
-        assert.deepStrictEqual(
+        expect(
           incomingTransactionsController._getNewIncomingTransactions.getCall(0)
             .args,
-          ['fakeAddress', 4, ROPSTEN_CHAIN_ID],
-        );
+        ).toStrictEqual(['fakeAddress', 4, ROPSTEN_CHAIN_ID]);
 
-        assert.deepStrictEqual(
+        expect(
           incomingTransactionsController.store.updateState.getCall(0).args[0],
-          {
-            incomingTxLastFetchedBlockByChainId: {
-              ...PREPOPULATED_BLOCKS_BY_NETWORK,
-              [ROPSTEN_CHAIN_ID]:
-                PREPOPULATED_BLOCKS_BY_NETWORK[ROPSTEN_CHAIN_ID] + 1,
-            },
-            incomingTransactions: PREPOPULATED_INCOMING_TXS_BY_HASH,
+        ).toStrictEqual({
+          incomingTxLastFetchedBlockByChainId: {
+            ...PREPOPULATED_BLOCKS_BY_NETWORK,
+            [ROPSTEN_CHAIN_ID]:
+              PREPOPULATED_BLOCKS_BY_NETWORK[ROPSTEN_CHAIN_ID] + 1,
           },
-        );
+          incomingTransactions: PREPOPULATED_INCOMING_TXS_BY_HASH,
+        });
       });
     });
 
@@ -979,28 +950,28 @@ describe('IncomingTransactionsController', function () {
         .returns([NEW_TRANSACTION_ONE, NEW_TRANSACTION_TWO]);
       await incomingTransactionsController._update('fakeAddress', 10);
 
-      assert(incomingTransactionsController.store.updateState.calledOnce);
+      expect(
+        incomingTransactionsController.store.updateState.callCount,
+      ).toStrictEqual(1);
 
-      assert.deepStrictEqual(
+      expect(
         incomingTransactionsController._getNewIncomingTransactions.getCall(0)
           .args,
-        ['fakeAddress', 4, ROPSTEN_CHAIN_ID],
-      );
+      ).toStrictEqual(['fakeAddress', 4, ROPSTEN_CHAIN_ID]);
 
-      assert.deepStrictEqual(
+      expect(
         incomingTransactionsController.store.updateState.getCall(0).args[0],
-        {
-          incomingTxLastFetchedBlockByChainId: {
-            ...PREPOPULATED_BLOCKS_BY_NETWORK,
-            [ROPSTEN_CHAIN_ID]: 445,
-          },
-          incomingTransactions: {
-            ...PREPOPULATED_INCOMING_TXS_BY_HASH,
-            [NEW_TRANSACTION_ONE.hash]: NEW_TRANSACTION_ONE,
-            [NEW_TRANSACTION_TWO.hash]: NEW_TRANSACTION_TWO,
-          },
+      ).toStrictEqual({
+        incomingTxLastFetchedBlockByChainId: {
+          ...PREPOPULATED_BLOCKS_BY_NETWORK,
+          [ROPSTEN_CHAIN_ID]: 445,
         },
-      );
+        incomingTransactions: {
+          ...PREPOPULATED_INCOMING_TXS_BY_HASH,
+          [NEW_TRANSACTION_ONE.hash]: NEW_TRANSACTION_ONE,
+          [NEW_TRANSACTION_TWO.hash]: NEW_TRANSACTION_TWO,
+        },
+      });
     });
   });
 
@@ -1041,9 +1012,8 @@ describe('IncomingTransactionsController', function () {
         ROPSTEN_CHAIN_ID,
       );
 
-      assert(mockFetch.calledOnce);
-      assert.strictEqual(
-        mockFetch.getCall(0).args[0],
+      expect(mockFetch.callCount).toStrictEqual(1);
+      expect(mockFetch.getCall(0).args[0]).toStrictEqual(
         `https://api-${ROPSTEN}.etherscan.io/api?module=account&action=txlist&address=0xfakeaddress&tag=latest&page=1&startBlock=789`,
       );
     });
@@ -1064,9 +1034,8 @@ describe('IncomingTransactionsController', function () {
         MAINNET_CHAIN_ID,
       );
 
-      assert(mockFetch.calledOnce);
-      assert.strictEqual(
-        mockFetch.getCall(0).args[0],
+      expect(mockFetch.callCount).toStrictEqual(1);
+      expect(mockFetch.getCall(0).args[0]).toStrictEqual(
         `https://api.etherscan.io/api?module=account&action=txlist&address=0xfakeaddress&tag=latest&page=1&startBlock=789`,
       );
     });
@@ -1087,9 +1056,8 @@ describe('IncomingTransactionsController', function () {
         ROPSTEN_CHAIN_ID,
       );
 
-      assert(mockFetch.calledOnce);
-      assert.strictEqual(
-        mockFetch.getCall(0).args[0],
+      expect(mockFetch.callCount).toStrictEqual(1);
+      expect(mockFetch.getCall(0).args[0]).toStrictEqual(
         `https://api-${ROPSTEN}.etherscan.io/api?module=account&action=txlist&address=0xfakeaddress&tag=latest&page=1`,
       );
     });
@@ -1110,8 +1078,8 @@ describe('IncomingTransactionsController', function () {
         ROPSTEN_CHAIN_ID,
       );
 
-      assert(mockFetch.calledOnce);
-      assert.deepStrictEqual(result, [
+      expect(mockFetch.callCount).toStrictEqual(1);
+      expect(result).toStrictEqual([
         incomingTransactionsController._normalizeTxFromEtherscan(
           FETCHED_TX,
           ROPSTEN_CHAIN_ID,
@@ -1141,7 +1109,7 @@ describe('IncomingTransactionsController', function () {
         '789',
         ROPSTEN_CHAIN_ID,
       );
-      assert.deepStrictEqual(result, []);
+      expect(result).toStrictEqual([]);
       window.fetch = tempFetchStatusZero;
       mockFetchStatusZero.reset();
     });
@@ -1168,7 +1136,7 @@ describe('IncomingTransactionsController', function () {
         '789',
         ROPSTEN_CHAIN_ID,
       );
-      assert.deepStrictEqual(result, []);
+      expect(result).toStrictEqual([]);
       window.fetch = tempFetchEmptyResult;
       mockFetchEmptyResult.reset();
     });
@@ -1201,7 +1169,7 @@ describe('IncomingTransactionsController', function () {
         ROPSTEN_CHAIN_ID,
       );
 
-      assert.deepStrictEqual(result, {
+      expect(result).toStrictEqual({
         blockNumber: 333,
         id: 54321,
         metamaskNetworkId: ROPSTEN_NETWORK_ID,
@@ -1247,7 +1215,7 @@ describe('IncomingTransactionsController', function () {
         ROPSTEN_CHAIN_ID,
       );
 
-      assert.deepStrictEqual(result, {
+      expect(result).toStrictEqual({
         blockNumber: 333,
         id: 54321,
         metamaskNetworkId: ROPSTEN_NETWORK_ID,
