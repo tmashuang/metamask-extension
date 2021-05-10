@@ -1,4 +1,3 @@
-import { strict as assert } from 'assert';
 import {
   MAINNET_CHAIN_ID,
   MAINNET_NETWORK_ID,
@@ -84,13 +83,12 @@ const tests = [
   },
 ];
 
-describe('getBlockExplorerUrlForTx', function () {
+describe('getBlockExplorerUrlForTx', () => {
   tests.forEach((test) => {
-    it(`should return '${test.expected}' for transaction with hash: '${test.transaction.hash}'`, function () {
-      assert.strictEqual(
+    it(`should return '${test.expected}' for transaction with hash: '${test.transaction.hash}'`, () => {
+      expect(
         getBlockExplorerUrlForTx(test.transaction, test.rpcPrefs),
-        test.expected,
-      );
+      ).toStrictEqual(test.expected);
     });
   });
 });
