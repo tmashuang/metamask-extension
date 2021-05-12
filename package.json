@@ -282,6 +282,7 @@
     "node-fetch": "^2.6.1",
     "nyc": "^15.0.0",
     "patch-package": "^6.4.7",
+    "playwright": "^1.11.0",
     "polyfill-crypto.getrandomvalues": "^1.0.0",
     "prettier": "^2.2.1",
     "prettier-plugin-sort-json": "^0.0.1",
