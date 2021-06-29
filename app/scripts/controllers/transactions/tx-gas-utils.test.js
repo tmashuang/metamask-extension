@@ -34,7 +34,7 @@ describe('txUtils', () => {
       const ethTx = TransactionFactory.fromTxData(txParams, {
         common: new Common({ chain: 'kovan' }),
       });
-      expect(ethTx.getChainId()).toStrictEqual(42);
+      expect(ethTx.common.chainIdBN().toNumber()).toStrictEqual(42);
     });
   });
 

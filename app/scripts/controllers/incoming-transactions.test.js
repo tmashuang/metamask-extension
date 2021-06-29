@@ -1262,7 +1262,7 @@ describe('IncomingTransactionsController', function () {
         ROPSTEN_CHAIN_ID,
       );
 
-      assert.deepStrictEqual(result, {
+      expect(result).toStrictEqual({
         blockNumber: 333,
         id: 54321,
         metamaskNetworkId: ROPSTEN_NETWORK_ID,

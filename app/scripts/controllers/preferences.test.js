@@ -19,6 +19,7 @@ describe('preferences controller', () => {
   const migrateAddressBookState = sinon.stub();
 
   beforeEach(() => {
+    const sandbox = sinon.createSandbox();
     currentChainId = MAINNET_CHAIN_ID;
     const networkControllerProviderConfig = {
       getAccounts: () => undefined,
@@ -135,9 +136,8 @@ describe('preferences controller', () => {
 
       const result = await preferencesController.updateTokenType(tokenAddress);
       expect(
-        preferencesController._detectIsERC721.getCall(0).args[0]).toStrictEqual(
-        tokenAddress,
-      );
+        preferencesController._detectIsERC721.getCall(0).args[0],
+      ).toStrictEqual(tokenAddress);
       expect(result.isERC721).toStrictEqual(true);
     });
   });
@@ -160,17 +160,14 @@ describe('preferences controller', () => {
 
       const result = await preferencesController._detectIsERC721(tokenAddress);
       expect(
-        preferencesController._createEthersContract.getCall(0).args[0]).toStrictEqual(
-        tokenAddress,
-      );
+        preferencesController._createEthersContract.getCall(0).args[0],
+      ).toStrictEqual(tokenAddress);
       expect(
-        preferencesController._createEthersContract.getCall(0).args[1]).toStrictEqual(
-        abiERC721,
-      );
+        preferencesController._createEthersContract.getCall(0).args[1],
+      ).toStrictEqual(abiERC721);
       expect(
-        preferencesController._createEthersContract.getCall(0).args[2]).toStrictEqual(
-        preferencesController.ethersProvider,
-      );
+        preferencesController._createEthersContract.getCall(0).args[2],
+      ).toStrictEqual(preferencesController.ethersProvider);
       expect(result).toStrictEqual(true);
     });
 
@@ -186,17 +183,14 @@ describe('preferences controller', () => {
 
       const result = await preferencesController._detectIsERC721(tokenAddress);
       expect(
-        preferencesController._createEthersContract.getCall(0).args[0]).toStrictEqual(
-        tokenAddress,
-      );
+        preferencesController._createEthersContract.getCall(0).args[0],
+      ).toStrictEqual(tokenAddress);
       expect(
-        preferencesController._createEthersContract.getCall(0).args[1]).toStrictEqual(
-        abiERC721,
-      );
+        preferencesController._createEthersContract.getCall(0).args[1],
+      ).toStrictEqual(abiERC721);
       expect(
-        preferencesController._createEthersContract.getCall(0).args[2]).toStrictEqual(
-        preferencesController.ethersProvider,
-      );
+        preferencesController._createEthersContract.getCall(0).args[2],
+      ).toStrictEqual(preferencesController.ethersProvider);
       expect(result).toStrictEqual(false);
     });
   });
@@ -392,6 +386,7 @@ describe('preferences controller', () => {
         address: '0xb',
         symbol: 'B',
         decimals: 5,
+        isERC721: false,
       });
     });
 
@@ -415,6 +410,7 @@ describe('preferences controller', () => {
         address: '0xb',
         symbol: 'B',
         decimals: 5,
+        isERC721: false,
       });
 
       await preferencesController.setSelectedAddress('0x7e57e3');
@@ -440,6 +436,7 @@ describe('preferences controller', () => {
         address: '0xb',
         symbol: 'B',
         decimals: 5,
+        isERC721: false,
       });
 
       switchToRinkeby();

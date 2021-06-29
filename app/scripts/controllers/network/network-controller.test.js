@@ -80,7 +80,7 @@ describe('NetworkController', () => {
       it('should return false when baseFeePerGas is not in the block header', async function () {
         networkController.initializeProvider(networkControllerProviderConfig);
         const supportsEIP1559 = await networkController.getEIP1559Compatibility();
-        assert.equal(supportsEIP1559, false);
+        expect(supportsEIP1559).toStrictEqual(false);
       });
 
       it('should return true when baseFeePerGas is in block header', async function () {
@@ -89,7 +89,7 @@ describe('NetworkController', () => {
           Promise.resolve({ baseFeePerGas: '0xa ' }),
         );
         const supportsEIP1559 = await networkController.getEIP1559Compatibility();
-        assert.equal(supportsEIP1559, true);
+        expect(supportsEIP1559).toStrictEqual(true);
       });
 
       it('should store EIP1559 support in state to reduce calls to getLatestBlock', async function () {
@@ -99,8 +99,8 @@ describe('NetworkController', () => {
         );
         await networkController.getEIP1559Compatibility();
         const supportsEIP1559 = await networkController.getEIP1559Compatibility();
-        assert.equal(getLatestBlockStub.calledOnce, true);
-        assert.equal(supportsEIP1559, true);
+        expect(getLatestBlockStub.calledOnce).toStrictEqual(true);
+        expect(supportsEIP1559).toStrictEqual(true);
       });
 
       it('should clear stored EIP1559 support when changing networks', async function () {
@@ -110,22 +110,19 @@ describe('NetworkController', () => {
           Promise.resolve({ baseFeePerGas: '0xa ' }),
         );
         await networkController.getEIP1559Compatibility();
-        assert.equal(
+        expect(
           networkController.networkDetails.getState().EIPS[1559],
-          true,
-        );
+        ).toStrictEqual(true);
         getLatestBlockStub.callsFake(() => Promise.resolve({}));
         await setProviderTypeAndWait('mainnet');
-        assert.equal(
+        expect(
           networkController.networkDetails.getState().EIPS[1559],
-          undefined,
-        );
+        ).toBeUndefined();
         await networkController.getEIP1559Compatibility();
-        assert.equal(
+        expect(
           networkController.networkDetails.getState().EIPS[1559],
-          false,
-        );
-        assert.equal(getLatestBlockStub.calledTwice, true);
+        ).toStrictEqual(false);
+        expect(getLatestBlockStub.calledTwice).toStrictEqual(true);
       });
     });
   });
