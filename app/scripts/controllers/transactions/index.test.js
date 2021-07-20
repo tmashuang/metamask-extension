@@ -1,4 +1,3 @@
-import { strict as assert } from 'assert';
 import EventEmitter from 'events';
 import { toBuffer } from 'ethereumjs-util';
 import { TransactionFactory } from '@ethereumjs/tx';
@@ -27,10 +26,10 @@ const providerConfig = {
 const VALID_ADDRESS = '0x0000000000000000000000000000000000000000';
 const VALID_ADDRESS_TWO = '0x0000000000000000000000000000000000000001';
 
-describe('Transaction Controller', function () {
+describe('Transaction Controller', () => {
   let txController, provider, providerResultStub, fromAccount;
 
-  beforeEach(function () {
+  beforeEach(() => {
     providerResultStub = {
       // 1 gwei
       eth_gasPrice: '0x0de0b6b3a7640000',
@@ -66,30 +65,26 @@ describe('Transaction Controller', function () {
       Promise.resolve({ nextNonce: 0, releaseLock: noop });
   });
 
-  describe('#getState', function () {
-    it('should return a state object with the right keys and data types', function () {
+  describe('#getState', () => {
+    it('should return a state object with the right keys and data types', () => {
       const exposedState = txController.getState();
-      assert.ok(
-        'unapprovedTxs' in exposedState,
-        'state should have the key unapprovedTxs',
+      expect('unapprovedTxs' in exposedState).toStrictEqual(true);
+      // 'state should have the key unapprovedTxs',
+      expect('currentNetworkTxList' in exposedState).toStrictEqual(true);
+      // 'state should have the key currentNetworkTxList',
+      expect(typeof exposedState?.unapprovedTxs === 'object').toStrictEqual(
+        true,
       );
-      assert.ok(
-        'currentNetworkTxList' in exposedState,
-        'state should have the key currentNetworkTxList',
+      // 'should be an object',
+      expect(Array.isArray(exposedState.currentNetworkTxList)).toStrictEqual(
+        true,
       );
-      assert.ok(
-        typeof exposedState?.unapprovedTxs === 'object',
-        'should be an object',
-      );
-      assert.ok(
-        Array.isArray(exposedState.currentNetworkTxList),
-        'should be an array',
-      );
+      // 'should be an array',
     });
   });
 
-  describe('#getUnapprovedTxCount', function () {
-    it('should return the number of unapproved txs', function () {
+  describe('#getUnapprovedTxCount', () => {
+    it('should return the number of unapproved txs', () => {
       txController.txStateManager._addTransactionsToState([
         {
           id: 1,
@@ -123,12 +118,12 @@ describe('Transaction Controller', function () {
         },
       ]);
       const unapprovedTxCount = txController.getUnapprovedTxCount();
-      assert.equal(unapprovedTxCount, 3, 'should be 3');
+      expect(unapprovedTxCount).toStrictEqual(3);
     });
   });
 
-  describe('#getPendingTxCount', function () {
-    it('should return the number of pending txs', function () {
+  describe('#getPendingTxCount', () => {
+    it('should return the number of pending txs', () => {
       txController.txStateManager._addTransactionsToState([
         {
           id: 1,
@@ -162,12 +157,12 @@ describe('Transaction Controller', function () {
         },
       ]);
       const pendingTxCount = txController.getPendingTxCount();
-      assert.equal(pendingTxCount, 3, 'should be 3');
+      expect(pendingTxCount).toStrictEqual(3);
     });
   });
 
-  describe('#getConfirmedTransactions', function () {
-    it('should return the number of confirmed txs', function () {
+  describe('#getConfirmedTransactions', () => {
+    it('should return the number of confirmed txs', () => {
       const address = '0xc684832530fcbddae4b4230a47e991ddcec2831d';
       const txParams = {
         from: address,
@@ -238,16 +233,15 @@ describe('Transaction Controller', function () {
           history: [{}],
         },
       ]);
-      assert.equal(
-        txController.nonceTracker.getConfirmedTransactions(address).length,
-        3,
-      );
+      expect(
+        txController.nonceTracker.getConfirmedTransactions(address),
+      ).toHaveLength(3);
     });
   });
 
-  describe('#newUnapprovedTransaction', function () {
+  describe('#newUnapprovedTransaction', () => {
     let stub, txMeta, txParams;
-    beforeEach(function () {
+    beforeEach(() => {
       txParams = {
         from: '0xc684832530fcbddae4b4230a47e991ddcec2831d',
         to: '0xc684832530fcbddae4b4230a47e991ddcec2831d',
@@ -270,12 +264,12 @@ describe('Transaction Controller', function () {
         });
     });
 
-    afterEach(function () {
+    afterEach(() => {
       txController.txStateManager._addTransactionsToState([]);
       stub.restore();
     });
 
-    it('should resolve when finished and status is submitted and resolve with the hash', async function () {
+    it('should resolve when finished and status is submitted and resolve with the hash', async () => {
       txController.once('newUnapprovedTx', (txMetaFromEmit) => {
         setTimeout(() => {
           txController.setTxHash(txMetaFromEmit.id, '0x0');
@@ -284,31 +278,30 @@ describe('Transaction Controller', function () {
       });
 
       const hash = await txController.newUnapprovedTransaction(txParams);
-      assert.ok(hash, 'newUnapprovedTransaction needs to return the hash');
+      expect(hash).toStrictEqual(expect.anything()); // 'newUnapprovedTransaction needs to return the hash'
     });
 
-    it('should reject when finished and status is rejected', async function () {
+    it('should reject when finished and status is rejected', async () => {
       txController.once('newUnapprovedTx', (txMetaFromEmit) => {
         setTimeout(() => {
           txController.txStateManager.setTxStatusRejected(txMetaFromEmit.id);
         });
       });
 
-      await assert.rejects(
-        () => txController.newUnapprovedTransaction(txParams),
-        {
-          message: 'MetaMask Tx Signature: User denied transaction signature.',
-        },
-      );
+      await expect(() =>
+        txController.newUnapprovedTransaction(txParams),
+      ).rejects.toThrow({
+        message: 'MetaMask Tx Signature: User denied transaction signature.',
+      });
     });
   });
 
-  describe('#addUnapprovedTransaction', function () {
+  describe('#addUnapprovedTransaction', () => {
     const selectedAddress = '0x1678a085c290ebd122dc42cba69373b5953b831d';
     const recipientAddress = '0xc42edfcc21ed14dda456aa0756c153f7985d8813';
 
     let getSelectedAddress, getPermittedAccounts;
-    beforeEach(function () {
+    beforeEach(() => {
       getSelectedAddress = sinon
         .stub(txController, 'getSelectedAddress')
         .returns(selectedAddress);
@@ -317,71 +310,60 @@ describe('Transaction Controller', function () {
         .returns([selectedAddress]);
     });
 
-    afterEach(function () {
+    afterEach(() => {
       getSelectedAddress.restore();
       getPermittedAccounts.restore();
     });
 
-    it('should add an unapproved transaction and return a valid txMeta', async function () {
+    it('should add an unapproved transaction and return a valid txMeta', async () => {
       const txMeta = await txController.addUnapprovedTransaction({
         from: selectedAddress,
         to: recipientAddress,
       });
-      assert.ok('id' in txMeta, 'should have a id');
-      assert.ok('time' in txMeta, 'should have a time stamp');
-      assert.ok(
-        'metamaskNetworkId' in txMeta,
-        'should have a metamaskNetworkId',
-      );
-      assert.ok('txParams' in txMeta, 'should have a txParams');
-      assert.ok('history' in txMeta, 'should have a history');
-      assert.equal(
-        txMeta.txParams.value,
-        '0x0',
-        'should have added 0x0 as the value',
-      );
+      expect('id' in txMeta).toStrictEqual(true); // 'should have a id'
+      expect('time' in txMeta).toStrictEqual(true); // 'should have a time stamp'
+      expect('metamaskNetworkId' in txMeta).toStrictEqual(true); // 'should have a metamaskNetworkId'
+      expect('txParams' in txMeta).toStrictEqual(true); // 'should have a txParams'
+      expect('history' in txMeta).toStrictEqual(true); // 'should have a history'
+      expect(txMeta.txParams.value).toStrictEqual('0x0');
+      // 'should have added 0x0 as the value',
 
       const memTxMeta = txController.txStateManager.getTransaction(txMeta.id);
-      assert.deepEqual(txMeta, memTxMeta);
+      expect(txMeta).toStrictEqual(memTxMeta);
     });
 
-    it('should emit newUnapprovedTx event and pass txMeta as the first argument', function (done) {
+    it('should emit newUnapprovedTx event and pass txMeta as the first argument', () => {
       providerResultStub.eth_gasPrice = '4a817c800';
       txController.once('newUnapprovedTx', (txMetaFromEmit) => {
-        assert.ok(txMetaFromEmit, 'txMeta is falsy');
-        done();
+        expect(txMetaFromEmit).toStrictEqual(expect.anything()); // 'txMeta is falsy'
       });
-      txController
-        .addUnapprovedTransaction({
-          from: selectedAddress,
-          to: recipientAddress,
-        })
-        .catch(done);
+      txController.addUnapprovedTransaction({
+        from: selectedAddress,
+        to: recipientAddress,
+      });
     });
 
-    it("should fail if the from address isn't the selected address", async function () {
-      await assert.rejects(() =>
+    it("should fail if the from address isn't the selected address", async () => {
+      await expect(() =>
         txController.addUnapprovedTransaction({
           from: '0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2',
         }),
-      );
+      ).rejects.toThrow('Invalid transaction params');
     });
 
-    it('should fail if netId is loading', async function () {
+    it('should fail if netId is loading', async () => {
       txController.networkStore = new ObservableStore('loading');
-      await assert.rejects(
-        () =>
-          txController.addUnapprovedTransaction({
-            from: selectedAddress,
-            to: '0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2',
-          }),
-        { message: 'MetaMask is having trouble connecting to the network' },
-      );
+      await expect(() =>
+        txController.addUnapprovedTransaction({
+          from: selectedAddress,
+          to: '0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2',
+        }),
+      ).rejects.toThrow('MetaMask is having trouble connecting to the network');
     });
   });
 
-  describe('#addTxGasDefaults', function () {
-    it('should add the tx defaults if their are none', async function () {
+  describe('#addTxGasDefaults', () => {
+    it('should add the tx defaults if their are none', async () => {
       txController.txStateManager._addTransactionsToState([
         {
           id: 1,
@@ -407,32 +389,28 @@ describe('Transaction Controller', function () {
       providerResultStub.eth_estimateGas = '5209';
 
       const txMetaWithDefaults = await txController.addTxGasDefaults(txMeta);
-      assert.ok(
-        txMetaWithDefaults.txParams.gasPrice,
-        'should have added the gas price',
-      );
-      assert.ok(
-        txMetaWithDefaults.txParams.gas,
-        'should have added the gas field',
-      );
+      expect(txMetaWithDefaults.txParams.gasPrice).toStrictEqual('0x4a817c800');
+      // 'should have added the gas price'
+      expect(txMetaWithDefaults.txParams.gas).toStrictEqual('0x1e85');
+      // 'should have added the gas field'
     });
   });
 
-  describe('#addTransaction', function () {
+  describe('#addTransaction', () => {
     let trackTransactionMetricsEventSpy;
 
-    beforeEach(function () {
+    beforeEach(() => {
       trackTransactionMetricsEventSpy = sinon.spy(
         txController,
         '_trackTransactionMetricsEvent',
       );
     });
 
-    afterEach(function () {
+    afterEach(() => {
       trackTransactionMetricsEventSpy.restore();
     });
 
-    it('should emit updates', function (done) {
+    it('should emit updates', () => {
       const txMeta = {
         id: '1',
         status: TRANSACTION_STATUSES.UNAPPROVED,
@@ -457,20 +435,16 @@ describe('Transaction Controller', function () {
           }),
         );
       });
-      Promise.all(listeners)
-        .then((returnValues) => {
-          assert.deepEqual(
-            returnValues.pop(),
-            txMeta,
-            'last event 1:unapproved should return txMeta',
-          );
-          done();
-        })
-        .catch(done);
+      // eslint-disable-next-line jest/valid-expect-in-promise
+      Promise.all(listeners).then((returnValues) => {
+        expect(returnValues.pop()).toStrictEqual(txMeta);
+        // 'last event 1:unapproved should return txMeta',
+      });
       txController.addTransaction(txMeta);
+
     });
 
-    it('should call _trackTransactionMetricsEvent with the correct params', function () {
+    it('should call _trackTransactionMetricsEvent with the correct params', () => {
       const txMeta = {
         id: 1,
         status: TRANSACTION_STATUSES.UNAPPROVED,
@@ -490,20 +464,18 @@ describe('Transaction Controller', function () {
 
       txController.addTransaction(txMeta);
 
-      assert.equal(trackTransactionMetricsEventSpy.callCount, 1);
-      assert.deepEqual(
-        trackTransactionMetricsEventSpy.getCall(0).args[0],
+      expect(trackTransactionMetricsEventSpy.callCount).toStrictEqual(1);
+      expect(trackTransactionMetricsEventSpy.getCall(0).args[0]).toStrictEqual(
         txMeta,
       );
-      assert.equal(
-        trackTransactionMetricsEventSpy.getCall(0).args[1],
+      expect(trackTransactionMetricsEventSpy.getCall(0).args[1]).toStrictEqual(
         TRANSACTION_EVENTS.ADDED,
       );
     });
   });
 
-  describe('#approveTransaction', function () {
-    it('does not overwrite set values', async function () {
+  describe('#approveTransaction', () => {
+    it('does not overwrite set values', async () => {
       const originalValue = '0x01';
       const txMeta = {
         id: '1',
@@ -517,8 +489,7 @@ describe('Transaction Controller', function () {
           gasPrice: originalValue,
         },
       };
-      // eslint-disable-next-line @babel/no-invalid-this
-      this.timeout(SECOND * 15);
+      jest.setTimeout(SECOND * 15);
       const wrongValue = '0x05';
 
       txController.addTransaction(txMeta);
@@ -540,21 +511,18 @@ describe('Transaction Controller', function () {
       const result = txController.txStateManager.getTransaction(txMeta.id);
       const params = result.txParams;
 
-      assert.equal(params.gas, originalValue, 'gas unmodified');
-      assert.equal(params.gasPrice, originalValue, 'gas price unmodified');
-      assert.equal(result.hash, originalValue);
-      assert.equal(
-        result.status,
-        TRANSACTION_STATUSES.SUBMITTED,
-        'should have reached the submitted status.',
-      );
+      expect(params.gas).toStrictEqual(originalValue); // 'gas unmodified'
+      expect(params.gasPrice).toStrictEqual(originalValue); // 'gas price unmodified'
+      expect(result.hash).toStrictEqual(originalValue);
+      expect(result.status).toStrictEqual(TRANSACTION_STATUSES.SUBMITTED);
+      // 'should have reached the submitted status.',
       signStub.restore();
       pubStub.restore();
     });
   });
 
-  describe('#sign replay-protected tx', function () {
-    it('prepares a tx with the chainId set', async function () {
+  describe('#sign replay-protected tx', () => {
+    it('prepares a tx with the chainId set', async () => {
       txController.addTransaction(
         {
           id: '1',
@@ -569,12 +537,12 @@ describe('Transaction Controller', function () {
       );
       const rawTx = await txController.signTransaction('1');
       const ethTx = TransactionFactory.fromSerializedData(toBuffer(rawTx));
-      assert.equal(ethTx.common.chainIdBN().toNumber(), 42);
+      expect(ethTx.common.chainIdBN().toNumber()).toStrictEqual(42);
     });
   });
 
-  describe('#updateAndApproveTransaction', function () {
-    it('should update and approve transactions', async function () {
+  describe('#updateAndApproveTransaction', () => {
+    it('should update and approve transactions', async () => {
       const txMeta = {
         id: 1,
         status: TRANSACTION_STATUSES.UNAPPROVED,
@@ -590,20 +558,20 @@ describe('Transaction Controller', function () {
       txController.txStateManager.addTransaction(txMeta);
       const approvalPromise = txController.updateAndApproveTransaction(txMeta);
       const tx = txController.txStateManager.getTransaction(1);
-      assert.equal(tx.status, TRANSACTION_STATUSES.APPROVED);
+      expect(tx.status).toStrictEqual(TRANSACTION_STATUSES.APPROVED);
       await approvalPromise;
     });
   });
 
-  describe('#getChainId', function () {
-    it('returns 0 when the chainId is NaN', function () {
+  describe('#getChainId', () => {
+    it('returns 0 when the chainId is NaN', () => {
       txController.networkStore = new ObservableStore('loading');
-      assert.equal(txController.getChainId(), 0);
+      expect(txController.getChainId()).toStrictEqual(0);
     });
   });
 
-  describe('#cancelTransaction', function () {
-    it('should emit a status change to rejected', function (done) {
+  describe('#cancelTransaction', () => {
+    it('should emit a status change to rejected', () => {
       txController.txStateManager._addTransactionsToState([
         {
           id: 0,
@@ -679,15 +647,11 @@ describe('Transaction Controller', function () {
 
       txController.once('tx:status-update', (txId, status) => {
         try {
-          assert.equal(
-            status,
-            TRANSACTION_STATUSES.REJECTED,
-            'status should be rejected',
-          );
-          assert.equal(txId, 0, 'id should e 0');
-          done();
+          expect(status).toStrictEqual(TRANSACTION_STATUSES.REJECTED);
+          // 'status should be rejected',
+          expect(txId).toStrictEqual(0); // 'id should e 0'
         } catch (e) {
-          done(e);
+          throw new Error(`Should not have thrown error: ${e} `);
         }
       });
 
@@ -695,13 +659,13 @@ describe('Transaction Controller', function () {
     });
   });
 
-  describe('#createSpeedUpTransaction', function () {
+  describe('#createSpeedUpTransaction', () => {
     let addTransactionSpy;
     let approveTransactionSpy;
     let txParams;
     let expectedTxParams;
 
-    beforeEach(function () {
+    beforeEach(() => {
       addTransactionSpy = sinon.spy(txController, 'addTransaction');
       approveTransactionSpy = sinon.spy(txController, 'approveTransaction');
 
@@ -725,56 +689,50 @@ describe('Transaction Controller', function () {
       expectedTxParams = { ...txParams, gasPrice: '0xb' };
     });
 
-    afterEach(function () {
+    afterEach(() => {
       addTransactionSpy.restore();
       approveTransactionSpy.restore();
     });
 
-    it('should call this.addTransaction and this.approveTransaction with the expected args', async function () {
+    it('should call this.addTransaction and this.approveTransaction with the expected args', async () => {
       await txController.createSpeedUpTransaction(1);
-      assert.equal(addTransactionSpy.callCount, 1);
+      expect(addTransactionSpy.callCount).toStrictEqual(1);
 
       const addTransactionArgs = addTransactionSpy.getCall(0).args[0];
-      assert.deepEqual(addTransactionArgs.txParams, expectedTxParams);
+      expect(addTransactionArgs.txParams).toStrictEqual(expectedTxParams);
 
       const { lastGasPrice, type } = addTransactionArgs;
-      assert.deepEqual(
-        { lastGasPrice, type },
-        {
-          lastGasPrice: '0xa',
-          type: TRANSACTION_TYPES.RETRY,
-        },
-      );
+      expect({ lastGasPrice, type }).toStrictEqual({
+        lastGasPrice: '0xa',
+        type: TRANSACTION_TYPES.RETRY,
+      });
     });
 
-    it('should call this.approveTransaction with the id of the returned tx', async function () {
+    it('should call this.approveTransaction with the id of the returned tx', async () => {
       const result = await txController.createSpeedUpTransaction(1);
-      assert.equal(approveTransactionSpy.callCount, 1);
+      expect(approveTransactionSpy.callCount).toStrictEqual(1);
 
       const approveTransactionArg = approveTransactionSpy.getCall(0).args[0];
-      assert.equal(result.id, approveTransactionArg);
+      expect(result.id).toStrictEqual(approveTransactionArg);
     });
 
-    it('should return the expected txMeta', async function () {
+    it('should return the expected txMeta', async () => {
       const result = await txController.createSpeedUpTransaction(1);
 
-      assert.deepEqual(result.txParams, expectedTxParams);
+      expect(result.txParams).toStrictEqual(expectedTxParams);
 
       const { lastGasPrice, type } = result;
-      assert.deepEqual(
-        { lastGasPrice, type },
-        {
-          lastGasPrice: '0xa',
-          type: TRANSACTION_TYPES.RETRY,
-        },
-      );
+      expect({ lastGasPrice, type }).toStrictEqual({
+        lastGasPrice: '0xa',
+        type: TRANSACTION_TYPES.RETRY,
+      });
     });
   });
 
-  describe('#publishTransaction', function () {
+  describe('#publishTransaction', () => {
     let hash, txMeta, trackTransactionMetricsEventSpy;
 
-    beforeEach(function () {
+    beforeEach(() => {
       hash =
         '0x2a5523c6fa98b47b7d9b6c8320179785150b42a16bcff36b398c5062b65657e8';
       txMeta = {
@@ -794,21 +752,21 @@ describe('Transaction Controller', function () {
       );
     });
 
-    afterEach(function () {
+    afterEach(() => {
       trackTransactionMetricsEventSpy.restore();
     });
 
-    it('should publish a tx, updates the rawTx when provided a one', async function () {
+    it('should publish a tx, updates the rawTx when provided a one', async () => {
       const rawTx =
         '0x477b2e6553c917af0db0388ae3da62965ff1a184558f61b749d1266b2e6d024c';
       txController.txStateManager.addTransaction(txMeta);
       await txController.publishTransaction(txMeta.id, rawTx);
       const publishedTx = txController.txStateManager.getTransaction(1);
-      assert.equal(publishedTx.hash, hash);
-      assert.equal(publishedTx.status, TRANSACTION_STATUSES.SUBMITTED);
+      expect(publishedTx.hash).toStrictEqual(hash);
+      expect(publishedTx.status).toStrictEqual(TRANSACTION_STATUSES.SUBMITTED);
     });
 
-    it('should ignore the error "Transaction Failed: known transaction" and be as usual', async function () {
+    it('should ignore the error "Transaction Failed: known transaction" and be as usual', async () => {
       providerResultStub.eth_sendRawTransaction = async (_, __, ___, end) => {
         end('Transaction Failed: known transaction');
       };
@@ -817,35 +775,32 @@ describe('Transaction Controller', function () {
       txController.txStateManager.addTransaction(txMeta);
       await txController.publishTransaction(txMeta.id, rawTx);
       const publishedTx = txController.txStateManager.getTransaction(1);
-      assert.equal(
-        publishedTx.hash,
+      expect(publishedTx.hash).toStrictEqual(
         '0x2cc5a25744486f7383edebbf32003e5a66e18135799593d6b5cdd2bb43674f09',
       );
-      assert.equal(publishedTx.status, TRANSACTION_STATUSES.SUBMITTED);
+      expect(publishedTx.status).toStrictEqual(TRANSACTION_STATUSES.SUBMITTED);
     });
 
-    it('should call _trackTransactionMetricsEvent with the correct params', async function () {
+    it('should call _trackTransactionMetricsEvent with the correct params', async () => {
       const rawTx =
         '0x477b2e6553c917af0db0388ae3da62965ff1a184558f61b749d1266b2e6d024c';
       txController.txStateManager.addTransaction(txMeta);
       await txController.publishTransaction(txMeta.id, rawTx);
-      assert.equal(trackTransactionMetricsEventSpy.callCount, 1);
-      assert.deepEqual(
-        trackTransactionMetricsEventSpy.getCall(0).args[0],
+      expect(trackTransactionMetricsEventSpy.callCount).toStrictEqual(1);
+      expect(trackTransactionMetricsEventSpy.getCall(0).args[0]).toStrictEqual(
         txMeta,
       );
-      assert.equal(
-        trackTransactionMetricsEventSpy.getCall(0).args[1],
+      expect(trackTransactionMetricsEventSpy.getCall(0).args[1]).toStrictEqual(
         TRANSACTION_EVENTS.SUBMITTED,
       );
-      assert.deepEqual(trackTransactionMetricsEventSpy.getCall(0).args[2], {
+      expect(trackTransactionMetricsEventSpy.getCall(0).args[2]).toStrictEqual({
         gas_limit: txMeta.txParams.gas,
       });
     });
   });
 
-  describe('#_markNonceDuplicatesDropped', function () {
-    it('should mark all nonce duplicates as dropped without marking the confirmed transaction as dropped', function () {
+  describe('#_markNonceDuplicatesDropped', () => {
+    it('should mark all nonce duplicates as dropped without marking the confirmed transaction as dropped', () => {
       txController.txStateManager._addTransactionsToState([
         {
           id: 1,
@@ -933,85 +888,82 @@ describe('Transaction Controller', function () {
           status: TRANSACTION_STATUSES.DROPPED,
         },
       });
-      assert.equal(
-        confirmedTx.status,
-        TRANSACTION_STATUSES.CONFIRMED,
-        'the confirmedTx should remain confirmed',
-      );
-      assert.equal(droppedTxs.length, 6, 'their should be 6 dropped txs');
+      expect(confirmedTx.status).toStrictEqual(TRANSACTION_STATUSES.CONFIRMED);
+      // 'the confirmedTx should remain confirmed',
+      expect(droppedTxs).toHaveLength(6); // 'their should be 6 dropped txs'
     });
   });
 
-  describe('#_determineTransactionType', function () {
-    it('should return a simple send type when to is truthy but data is falsy', async function () {
+  describe('#_determineTransactionType', () => {
+    it('should return a simple send type when to is truthy but data is falsy', async () => {
       const result = await txController._determineTransactionType({
         to: '0xabc',
         data: '',
       });
-      assert.deepEqual(result, {
+      expect(result).toStrictEqual({
         type: TRANSACTION_TYPES.SENT_ETHER,
         getCodeResponse: null,
       });
     });
 
-    it('should return a token transfer type when data is for the respective method call', async function () {
+    it('should return a token transfer type when data is for the respective method call', async () => {
       const result = await txController._determineTransactionType({
         to: '0xabc',
         data:
           '0xa9059cbb0000000000000000000000002f318C334780961FB129D2a6c30D0763d9a5C970000000000000000000000000000000000000000000000000000000000000000a',
       });
-      assert.deepEqual(result, {
+      expect(result).toStrictEqual({
         type: TRANSACTION_TYPES.TOKEN_METHOD_TRANSFER,
         getCodeResponse: undefined,
       });
     });
 
-    it('should return a token approve type when data is for the respective method call', async function () {
+    it('should return a token approve type when data is for the respective method call', async () => {
       const result = await txController._determineTransactionType({
         to: '0xabc',
         data:
           '0x095ea7b30000000000000000000000002f318C334780961FB129D2a6c30D0763d9a5C9700000000000000000000000000000000000000000000000000000000000000005',
       });
-      assert.deepEqual(result, {
+      expect(result).toStrictEqual({
         type: TRANSACTION_TYPES.TOKEN_METHOD_APPROVE,
         getCodeResponse: undefined,
       });
     });
 
-    it('should return a contract deployment type when to is falsy and there is data', async function () {
+    it('should return a contract deployment type when to is falsy and there is data', async () => {
       const result = await txController._determineTransactionType({
         to: '',
         data: '0xabd',
       });
-      assert.deepEqual(result, {
+      expect(result).toStrictEqual({
         type: TRANSACTION_TYPES.DEPLOY_CONTRACT,
         getCodeResponse: undefined,
       });
     });
 
-    it('should return a simple send type with a 0x getCodeResponse when there is data and but the to address is not a contract address', async function () {
+    it('should return a simple send type with a 0x getCodeResponse when there is data and but the to address is not a contract address', async () => {
       const result = await txController._determineTransactionType({
         to: '0x9e673399f795D01116e9A8B2dD2F156705131ee9',
         data: '0xabd',
       });
-      assert.deepEqual(result, {
+      expect(result).toStrictEqual({
         type: TRANSACTION_TYPES.SENT_ETHER,
         getCodeResponse: '0x',
       });
     });
 
-    it('should return a simple send type with a null getCodeResponse when to is truthy and there is data and but getCode returns an error', async function () {
+    it('should return a simple send type with a null getCodeResponse when to is truthy and there is data and but getCode returns an error', async () => {
       const result = await txController._determineTransactionType({
         to: '0xabc',
         data: '0xabd',
       });
-      assert.deepEqual(result, {
+      expect(result).toStrictEqual({
         type: TRANSACTION_TYPES.SENT_ETHER,
         getCodeResponse: null,
       });
     });
 
-    it('should return a contract interaction type with the correct getCodeResponse when to is truthy and there is data and it is not a token transaction', async function () {
+    it('should return a contract interaction type with the correct getCodeResponse when to is truthy and there is data and it is not a token transaction', async () => {
       const _providerResultStub = {
         // 1 gwei
         eth_gasPrice: '0x0de0b6b3a7640000',
@@ -1045,13 +997,13 @@ describe('Transaction Controller', function () {
         to: '0x9e673399f795D01116e9A8B2dD2F156705131ee9',
         data: 'abd',
       });
-      assert.deepEqual(result, {
+      expect(result).toStrictEqual({
         type: TRANSACTION_TYPES.CONTRACT_INTERACTION,
         getCodeResponse: '0x0a',
       });
     });
 
-    it('should return a contract interaction type with the correct getCodeResponse when to is a contract address and data is falsy', async function () {
+    it('should return a contract interaction type with the correct getCodeResponse when to is a contract address and data is falsy', async () => {
       const _providerResultStub = {
         // 1 gwei
         eth_gasPrice: '0x0de0b6b3a7640000',
@@ -1085,15 +1037,15 @@ describe('Transaction Controller', function () {
         to: '0x9e673399f795D01116e9A8B2dD2F156705131ee9',
         data: '',
       });
-      assert.deepEqual(result, {
+      expect(result).toStrictEqual({
         type: TRANSACTION_TYPES.CONTRACT_INTERACTION,
         getCodeResponse: '0x0a',
       });
     });
   });
 
-  describe('#getPendingTransactions', function () {
-    it('should show only submitted and approved transactions as pending transaction', function () {
+  describe('#getPendingTransactions', () => {
+    it('should show only submitted and approved transactions as pending transaction', () => {
       txController.txStateManager._addTransactionsToState([
         {
           id: 1,
@@ -1166,39 +1118,34 @@ describe('Transaction Controller', function () {
         },
       ]);
 
-      assert.equal(
-        txController.pendingTxTracker.getPendingTransactions().length,
-        2,
-      );
+      expect(
+        txController.pendingTxTracker.getPendingTransactions(),
+      ).toHaveLength(2);
       const states = txController.pendingTxTracker
         .getPendingTransactions()
         .map((tx) => tx.status);
-      assert.ok(
-        states.includes(TRANSACTION_STATUSES.APPROVED),
-        'includes approved',
-      );
-      assert.ok(
-        states.includes(TRANSACTION_STATUSES.SUBMITTED),
-        'includes submitted',
-      );
+      expect(states).toContain(TRANSACTION_STATUSES.APPROVED);
+      // 'includes approved',
+      expect(states).toContain(TRANSACTION_STATUSES.SUBMITTED);
+      // 'includes submitted',
     });
   });
 
-  describe('#_trackTransactionMetricsEvent', function () {
+  describe('#_trackTransactionMetricsEvent', () => {
     let trackMetaMetricsEventSpy;
 
-    beforeEach(function () {
+    beforeEach(() => {
       trackMetaMetricsEventSpy = sinon.spy(
         txController,
         '_trackMetaMetricsEvent',
       );
     });
 
-    afterEach(function () {
+    afterEach(() => {
       trackMetaMetricsEventSpy.restore();
     });
 
-    it('should call _trackMetaMetricsEvent with the correct payload (user source)', function () {
+    it('should call _trackMetaMetricsEvent with the correct payload (user source)', () => {
       const txMeta = {
         id: 1,
         status: TRANSACTION_STATUSES.UNAPPROVED,
@@ -1234,14 +1181,13 @@ describe('Transaction Controller', function () {
         txMeta,
         TRANSACTION_EVENTS.ADDED,
       );
-      assert.equal(trackMetaMetricsEventSpy.callCount, 1);
-      assert.deepEqual(
-        trackMetaMetricsEventSpy.getCall(0).args[0],
+      expect(trackMetaMetricsEventSpy.callCount).toStrictEqual(1);
+      expect(trackMetaMetricsEventSpy.getCall(0).args[0]).toStrictEqual(
         expectedPayload,
       );
     });
 
-    it('should call _trackMetaMetricsEvent with the correct payload (dapp source)', function () {
+    it('should call _trackMetaMetricsEvent with the correct payload (dapp source)', () => {
       const txMeta = {
         id: 1,
         status: TRANSACTION_STATUSES.UNAPPROVED,
@@ -1277,14 +1223,13 @@ describe('Transaction Controller', function () {
         txMeta,
         TRANSACTION_EVENTS.ADDED,
       );
-      assert.equal(trackMetaMetricsEventSpy.callCount, 1);
-      assert.deepEqual(
-        trackMetaMetricsEventSpy.getCall(0).args[0],
+      expect(trackMetaMetricsEventSpy.callCount).toStrictEqual(1);
+      expect(trackMetaMetricsEventSpy.getCall(0).args[0]).toStrictEqual(
         expectedPayload,
       );
     });
 
-    it('should call _trackMetaMetricsEvent with the correct payload (extra params)', function () {
+    it('should call _trackMetaMetricsEvent with the correct payload (extra params)', () => {
       const txMeta = {
         id: 1,
         status: TRANSACTION_STATUSES.UNAPPROVED,
@@ -1326,9 +1271,8 @@ describe('Transaction Controller', function () {
           foo: 'bar',
         },
       );
-      assert.equal(trackMetaMetricsEventSpy.callCount, 1);
-      assert.deepEqual(
-        trackMetaMetricsEventSpy.getCall(0).args[0],
+      expect(trackMetaMetricsEventSpy.callCount).toStrictEqual(1);
+      expect(trackMetaMetricsEventSpy.getCall(0).args[0]).toStrictEqual(
         expectedPayload,
       );
     });

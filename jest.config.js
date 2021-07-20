@@ -16,9 +16,9 @@ module.exports = {
   testMatch: ['<rootDir>/**/*.test.js', '<rootDir>/shared/**/?(*.)+(test).js'],
   testPathIgnorePatterns: [
     '<rootDir>/app/scripts/metamask-controller.test.js',
-    '<rootDir>/app/scripts/controllers/transactions/index.test.js',
+    // '<rootDir>/app/scripts/controllers/transactions/index.test.js',
     // '<rootDir>/app/scripts/controllers/network/pending-middleware.test.js',
-    '<rootDir>/app/scripts/controllers/permissions/permissions-middleware.test.js',
+    // '<rootDir>/app/scripts/controllers/permissions/permissions-middleware.test.js',
     '<rootDir>/test/unit-global/',
   ],
 };

@@ -110,7 +110,7 @@ module.exports = {
       files: [
         '**/unit-global/*.test.js',
         'app/scripts/metamask-controller.test.js',
-        'app/scripts/controllers/transactions/index.test.js',
+        // 'app/scripts/controllers/transactions/index.test.js',
         'app/scripts/controllers/permissions/permissions-middleware.test.js',
       ],
       extends: ['@metamask/eslint-config-mocha'],
@@ -129,11 +129,11 @@ module.exports = {
       },
     },
     {
-      files: ['**/*.test.js', 'ui/__mocks__/*.js', 'shared/**/*.test.js'],
+      files: ['**/*.test.js', 'ui/__mocks__/*.js', 'shared/**/*.test.js','app/scripts/controllers/transactions/index.test.js' ],
       excludedFiles: [
         '**/unit-global/*.test.js',
         'app/scripts/metamask-controller.test.js',
-        'app/scripts/controllers/transactions/index.test.js',
+        // 'app/scripts/controllers/transactions/index.test.js',
         'app/scripts/controllers/permissions/permissions-middleware.test.js',
       ],
       extends: ['@metamask/eslint-config-jest'],

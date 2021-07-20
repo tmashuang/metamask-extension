@@ -1,5 +1,6 @@
 import { ethErrors, errorCodes } from 'eth-rpc-errors';
 import deepFreeze from 'deep-freeze-strict';
+import sinon from 'sinon'
 
 import { ApprovalController } from '@metamask/controllers';
 
@@ -68,10 +69,16 @@ const getRestrictedMethods = (permController) => {
  * @returns {Object} A PermissionsController constructor options object.
  */
 export function getPermControllerOpts() {
+
+  const mockApprovalController = sinon.createStubInstance(ApprovalController, {
+    foo: sinon.stub().returnsThis(),
+  })
+
   return {
-    approvals: new ApprovalController({
-      showApprovalRequest: noop,
-    }),
+    approvals: mockApprovalController,
+    // approvals: new ApprovalController({
+    //   showApprovalRequest: noop,
+    // }),
     getKeyringAccounts: async () => [...keyringAccounts],
     getUnlockPromise: () => Promise.resolve(),
     getRestrictedMethods,
