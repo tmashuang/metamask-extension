@@ -188,15 +188,6 @@ describe('permissions log', function () {
       const entry1 = log[0];
       const entry2 = log[1];
       const entry3 = log[2];
-      // expect(
-      //   entry1.id === id1 &&
-      //     entry1.response === null &&
-      //     entry2.id === id2 &&
-      //     entry2.response === null &&
-      //     entry3.id === id3 &&
-      //     entry3.response === null,
-      //   'all entries should be in correct order and without responses',
-      // );
 
       expect(entry1.id).toStrictEqual(id1);
       expect(entry1.response).toBeNull();
@@ -437,7 +428,7 @@ describe('permissions log', function () {
 
       permHistory = permLog.getHistory();
 
-      expect(permHistory).toStrictEqual(EXPECTED_HISTORIES.case1[1]);
+      expect(permHistory).toStrictEqual(EXPECTED_HISTORIES.case1[1]); // should have correct history
     });
 
     it('handles eth_accounts response without caveats', async function () {
