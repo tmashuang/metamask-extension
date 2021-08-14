@@ -58,10 +58,10 @@ describe('txUtils', () => {
           to: BURN_ADDRESS,
         };
 
-        assert.throws(
+        expect(
           () => {
             txUtils.validateTxParams(txParams);
-          },
+          }).toThrow(
           {
             message: `Invalid transaction envelope type: specified type "0x2" but included a gasPrice instead of maxFeePerGas and maxPriorityFeePerGas`,
           },
@@ -74,10 +74,10 @@ describe('txUtils', () => {
           to: BURN_ADDRESS,
         };
 
-        assert.throws(
+        expect(
           () => {
             txUtils.validateTxParams(txParams);
-          },
+          }).toThrow(
           {
             message:
               'Invalid transaction params: gasPrice is not a string. got: (1)',
@@ -92,10 +92,10 @@ describe('txUtils', () => {
           to: BURN_ADDRESS,
         };
 
-        assert.throws(
+        expect(
           () => {
             txUtils.validateTxParams(txParams);
-          },
+          }).toThrow(
           {
             message:
               'Invalid transaction params: specified gasPrice but also included maxFeePerGas, these cannot be mixed',
@@ -110,10 +110,10 @@ describe('txUtils', () => {
           to: BURN_ADDRESS,
         };
 
-        assert.throws(
+        expect(
           () => {
             txUtils.validateTxParams(txParams);
-          },
+          }).toThrow(
           {
             message:
               'Invalid transaction params: specified gasPrice but also included maxPriorityFeePerGas, these cannot be mixed',
@@ -126,7 +126,7 @@ describe('txUtils', () => {
           gasPrice: '0x1',
           to: BURN_ADDRESS,
         };
-        assert.doesNotThrow(() => txUtils.validateTxParams(txParams));
+        expect(() => txUtils.validateTxParams(txParams)).not.toThrow();
       });
 
       it('should validate if gasPrice is set with a type of "0x0"', function () {
@@ -135,7 +135,7 @@ describe('txUtils', () => {
           type: TRANSACTION_ENVELOPE_TYPES.LEGACY,
           to: BURN_ADDRESS,
         };
-        assert.doesNotThrow(() => txUtils.validateTxParams(txParams));
+        expect(() => txUtils.validateTxParams(txParams)).not.toThrow();
       });
     });
 
@@ -147,10 +147,10 @@ describe('txUtils', () => {
           to: BURN_ADDRESS,
         };
 
-        assert.throws(
+        expect(
           () => {
             txUtils.validateTxParams(txParams);
-          },
+          }).toThrow(
           {
             message:
               'Invalid transaction envelope type: specified type "0x0" but including maxFeePerGas and maxPriorityFeePerGas requires type: "0x2"',
@@ -164,10 +164,10 @@ describe('txUtils', () => {
           to: BURN_ADDRESS,
         };
 
-        assert.throws(
+        expect(
           () => {
             txUtils.validateTxParams(txParams);
-          },
+          }).toThrow(
           {
             message:
               'Invalid transaction params: maxFeePerGas is not a string. got: (1)',
@@ -182,10 +182,10 @@ describe('txUtils', () => {
           to: BURN_ADDRESS,
         };
 
-        assert.throws(
+        expect(
           () => {
             txUtils.validateTxParams(txParams);
-          },
+          }).toThrow(
           {
             message:
               'Invalid transaction params: specified gasPrice but also included maxFeePerGas, these cannot be mixed',
@@ -198,7 +198,7 @@ describe('txUtils', () => {
           maxFeePerGas: '0x1',
           to: BURN_ADDRESS,
         };
-        assert.doesNotThrow(() => txUtils.validateTxParams(txParams));
+        expect(() => txUtils.validateTxParams(txParams)).not.toThrow();
       });
 
       it('should validate if maxFeePerGas is set with a type of "0x2"', function () {
@@ -207,7 +207,7 @@ describe('txUtils', () => {
           type: TRANSACTION_ENVELOPE_TYPES.FEE_MARKET,
           to: BURN_ADDRESS,
         };
-        assert.doesNotThrow(() => txUtils.validateTxParams(txParams));
+        expect(() => txUtils.validateTxParams(txParams)).not.toThrow();
       });
     });
 
@@ -219,10 +219,10 @@ describe('txUtils', () => {
           to: BURN_ADDRESS,
         };
 
-        assert.throws(
+        expect(
           () => {
             txUtils.validateTxParams(txParams);
-          },
+          }).toThrow(
           {
             message:
               'Invalid transaction envelope type: specified type "0x0" but including maxFeePerGas and maxPriorityFeePerGas requires type: "0x2"',
@@ -236,10 +236,10 @@ describe('txUtils', () => {
           to: BURN_ADDRESS,
         };
 
-        assert.throws(
+        expect(
           () => {
             txUtils.validateTxParams(txParams);
-          },
+          }).toThrow(
           {
             message:
               'Invalid transaction params: maxPriorityFeePerGas is not a string. got: (1)',
@@ -254,10 +254,10 @@ describe('txUtils', () => {
           to: BURN_ADDRESS,
         };
 
-        assert.throws(
+        expect(
           () => {
             txUtils.validateTxParams(txParams);
-          },
+          }).toThrow(
           {
             message:
               'Invalid transaction params: specified gasPrice but also included maxPriorityFeePerGas, these cannot be mixed',
@@ -270,7 +270,7 @@ describe('txUtils', () => {
           maxPriorityFeePerGas: '0x1',
           to: BURN_ADDRESS,
         };
-        assert.doesNotThrow(() => txUtils.validateTxParams(txParams));
+        expect(() => txUtils.validateTxParams(txParams)).not.toThrow();
       });
 
       it('should validate if maxPriorityFeePerGas is set with a type of "0x2"', function () {
@@ -279,7 +279,7 @@ describe('txUtils', () => {
           type: TRANSACTION_ENVELOPE_TYPES.FEE_MARKET,
           to: BURN_ADDRESS,
         };
-        assert.doesNotThrow(() => txUtils.validateTxParams(txParams));
+        expect(() => txUtils.validateTxParams(txParams)).not.toThrow();
       });
     });
 
@@ -290,10 +290,10 @@ describe('txUtils', () => {
           maxFeePerGas: '0x1',
           to: BURN_ADDRESS,
         };
-        assert.throws(
+        expect(
           () => {
             txUtils.validateTxParams(txParams, false);
-          },
+          }).toThrow(
           {
             message:
               'Invalid transaction params: params specify an EIP-1559 transaction but the current network does not support EIP-1559',
@@ -306,7 +306,7 @@ describe('txUtils', () => {
           maxFeePerGas: '0x1',
           to: BURN_ADDRESS,
         };
-        assert.doesNotThrow(() => txUtils.validateTxParams(txParams, true));
+        expect(() => txUtils.validateTxParams(txParams, true)).not.toThrow();
       });
     });
   });
@@ -335,33 +335,33 @@ describe('txUtils', () => {
 
       txParams.to = 'a7df1beDBF813f57096dF77FCd515f0B3900e402';
       normalizedTxParams = txUtils.normalizeTxParams(txParams);
-      assert.equal(
-        normalizedTxParams.to.slice(0, 2),
+      expect(
+        normalizedTxParams.to.slice(0, 2)).toStrictEqual(
         '0x',
-        'to should be hex-prefixed',
-      );
+        );
+        // 'to should be hex-prefixed',
 
-      assert.equal(
-        normalizedTxParams.gasPrice,
+      expect(
+        normalizedTxParams.gasPrice).toStrictEqual(
         '0x1',
-        'gasPrice should be hex-prefixed',
-      );
+        );
+        // 'gasPrice should be hex-prefixed',
 
-      assert.equal(
-        normalizedTxParams.maxFeePerGas,
+      expect(
+        normalizedTxParams.maxFeePerGas).toStrictEqual(
         '0x1',
-        'maxFeePerGas should be hex-prefixed',
-      );
-      assert.equal(
-        normalizedTxParams.maxPriorityFeePerGas,
+        );
+        // 'maxFeePerGas should be hex-prefixed',
+      expect(
+        normalizedTxParams.maxPriorityFeePerGas).toStrictEqual(
         '0x1',
-        'maxPriorityFeePerGas should be hex-prefixed',
-      );
-      assert.equal(
-        normalizedTxParams.type,
+        );
+        // 'maxPriorityFeePerGas should be hex-prefixed',
+      expect(
+        normalizedTxParams.type).toStrictEqual(
         '0x1',
-        'type should be hex-prefixed',
-      );
+        );
+        // 'type should be hex-prefixed',
     });
   });
 

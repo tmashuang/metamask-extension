@@ -1027,7 +1027,7 @@ describe('TransactionStateManager', () => {
       // txParams is provided and validated in this method.
       // TODO: this test should fail.
       const generatedTransaction = txStateManager.generateTxMeta();
-      assert.ok(generatedTransaction);
+      expect(generatedTransaction).toStrictEqual(expect.anything());
     });
 
     it('generates a txMeta object with txParams specified', function () {
@@ -1041,8 +1041,8 @@ describe('TransactionStateManager', () => {
       const generatedTransaction = txStateManager.generateTxMeta({
         txParams,
       });
-      assert.ok(generatedTransaction);
-      assert.strictEqual(generatedTransaction.txParams, txParams);
+      expect(generatedTransaction).toStrictEqual(expect.anything());
+      expect(generatedTransaction.txParams).toStrictEqual(txParams);
     });
 
     it('generates a txMeta object with txParams specified using EIP-1559 fields', function () {
@@ -1057,8 +1057,8 @@ describe('TransactionStateManager', () => {
       const generatedTransaction = txStateManager.generateTxMeta({
         txParams,
       });
-      assert.ok(generatedTransaction);
-      assert.strictEqual(generatedTransaction.txParams, txParams);
+      expect(generatedTransaction).toStrictEqual(expect.anything());
+      expect(generatedTransaction.txParams).toStrictEqual(txParams);
     });
 
     it('records dappSuggestedGasFees when origin is provided and is not "metamask"', function () {
@@ -1094,25 +1094,25 @@ describe('TransactionStateManager', () => {
         txParams: legacyTxParams,
         origin: 'adappt.com',
       });
-      assert.ok(
-        eip1559GeneratedTransaction,
-        'generated EIP1559 transaction should be truthy',
-      );
-      assert.deepStrictEqual(
-        eip1559GeneratedTransaction.dappSuggestedGasFees,
+      expect(
+        eip1559GeneratedTransaction
+        ).toStrictEqual(expect.anything());
+        // 'generated EIP1559 transaction should be truthy',
+      expect(
+        eip1559GeneratedTransaction.dappSuggestedGasFees).toStrictEqual(
         eip1559GasFeeFields,
-        'generated EIP1559 transaction should have appropriate dappSuggestedGasFees',
-      );
+        );
+        // 'generated EIP1559 transaction should have appropriate dappSuggestedGasFees',
 
-      assert.ok(
+      expect(
         legacyGeneratedTransaction,
-        'generated legacy transaction should be truthy',
-      );
-      assert.deepStrictEqual(
-        legacyGeneratedTransaction.dappSuggestedGasFees,
-        legacyGasFeeFields,
-        'generated legacy transaction should have appropriate dappSuggestedGasFees',
-      );
+        ).toStrictEqual(expect.anything());
+        // 'generated legacy transaction should be truthy',
+      expect(
+        legacyGeneratedTransaction.dappSuggestedGasFees).toStrictEqual(
+        legacyGasFeeFields
+        );
+        // 'generated legacy transaction should have appropriate dappSuggestedGasFees',
     });
 
     it('does not record dappSuggestedGasFees when transaction origin is "metamask"', function () {
@@ -1128,8 +1128,8 @@ describe('TransactionStateManager', () => {
         txParams,
         origin: 'metamask',
       });
-      assert.ok(generatedTransaction);
-      assert.strictEqual(generatedTransaction.dappSuggestedGasFees, null);
+      expect(generatedTransaction).toStrictEqual(expect.anything());
+      expect(generatedTransaction.dappSuggestedGasFees).toStrictEqual(null);
     });
 
     it('does not record dappSuggestedGasFees when transaction origin is not provided', function () {
@@ -1144,8 +1144,8 @@ describe('TransactionStateManager', () => {
       const generatedTransaction = txStateManager.generateTxMeta({
         txParams,
       });
-      assert.ok(generatedTransaction);
-      assert.strictEqual(generatedTransaction.dappSuggestedGasFees, null);
+      expect(generatedTransaction).toStrictEqual(expect.anything());
+      expect(generatedTransaction.dappSuggestedGasFees).toStrictEqual(null);
     });
   });
 

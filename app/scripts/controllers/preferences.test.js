@@ -795,17 +795,17 @@ describe('preferences controller', () => {
   describe('setUseStaticTokenList', function () {
     it('should default to false', function () {
       const state = preferencesController.store.getState();
-      assert.equal(state.useStaticTokenList, false);
+      expect(state.useStaticTokenList).toStrictEqual(false);
     });
 
     it('should set the useStaticTokenList property in state', function () {
-      assert.equal(
-        preferencesController.store.getState().useStaticTokenList,
+      expect(
+        preferencesController.store.getState().useStaticTokenList).toStrictEqual(
         false,
       );
       preferencesController.setUseStaticTokenList(true);
-      assert.equal(
-        preferencesController.store.getState().useStaticTokenList,
+      expect(
+        preferencesController.store.getState().useStaticTokenList).toStrictEqual(
         true,
       );
     });
