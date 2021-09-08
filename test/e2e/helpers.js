@@ -1,5 +1,4 @@
 const path = require('path');
-const { Console } = require('console');
 const sinon = require('sinon');
 const createStaticServer = require('../../development/create-static-server');
 const {
@@ -85,10 +84,12 @@ async function withFixtures(options, testSuite) {
       });
       await segmentServer.start(9090);
     }
-    // m1 arm64 macos holdup
-    // if (process.env.SELENIUM_BROWSER === 'chrome') {
-    //   await ensureXServerIsRunning();
-    // }
+    if (
+      process.env.SELENIUM_BROWSER === 'chrome' &&
+      process.platform !== 'darwin' // m1 arm64 macos holdup
+    ) {
+      await ensureXServerIsRunning();
+    }
     const { driver } = await buildWebDriver(driverOptions);
     webDriver = driver;
     await testSuite({
