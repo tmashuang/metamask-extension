@@ -52,30 +52,28 @@ async function withFixtures(options, testSuite) {
     }
     await fixtureServer.start();
     await fixtureServer.loadState(path.join(__dirname, 'fixtures', fixtures));
-    // m1 arm64 macos holdup #1
-    // if (dapp) {
-    //   let dappDirectory;
-    //   if (dappPath) {
-    //     dappDirectory = path.resolve(__dirname, dappPath);
-    //   } else {
-    //     dappDirectory = path.resolve(
-    //       __dirname,
-    //       '..',
-    //       '..',
-    //       'node_modules',
-    //       '@metamask',
-    //       'test-dapp',
-    //       'dist',
-    //     );
-    //   }
-    //   dappServer = createStaticServer(dappDirectory);
-    //   dappServer.listen(dappPort);
-    //   await new Promise((resolve, reject) => {
-    //     dappServer.on('listening', resolve);
-    //     dappServer.on('error', reject);
-    //   });
-    // }
-    console.log('omitted');
+    if (dapp) {
+      let dappDirectory;
+      if (dappPath) {
+        dappDirectory = path.resolve(__dirname, dappPath);
+      } else {
+        dappDirectory = path.resolve(
+          __dirname,
+          '..',
+          '..',
+          'node_modules',
+          '@metamask',
+          'test-dapp',
+          'dist',
+        );
+      }
+      dappServer = createStaticServer(dappDirectory);
+      dappServer.listen(dappPort);
+      await new Promise((resolve, reject) => {
+        dappServer.on('listening', resolve);
+        dappServer.on('error', reject);
+      });
+    }
     if (mockSegment) {
       segmentStub = sinon.stub();
       segmentServer = createSegmentServer((_request, response, events) => {
@@ -87,7 +85,7 @@ async function withFixtures(options, testSuite) {
       });
       await segmentServer.start(9090);
     }
-    // m1 arm64 macos holdup #2
+    // m1 arm64 macos holdup
     // if (process.env.SELENIUM_BROWSER === 'chrome') {
     //   await ensureXServerIsRunning();
     // }
