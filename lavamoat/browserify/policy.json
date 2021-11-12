@@ -319,6 +319,7 @@
         "@ethersproject/bignumber": true,
         "@ethersproject/bytes": true,
         "@ethersproject/keccak256": true,
+        "@ethersproject/logger": true,
         "@ethersproject/sha2": true,
         "@ethersproject/strings": true
       }
@@ -495,6 +496,7 @@
         "setTimeout": true
       },
       "packages": {
+        "<root>": true,
         "@ethereumjs/common": true,
         "@ethereumjs/tx": true,
         "@metamask/contract-metadata": true,
@@ -529,24 +531,6 @@
         "uuid": true,
         "web3": true,
         "web3-provider-engine": true
-      }
-    },
-    "@metamask/eth-ledger-bridge-keyring": {
-      "globals": {
-        "addEventListener": true,
-        "console.log": true,
-        "document.createElement": true,
-        "document.head.appendChild": true,
-        "fetch": true,
-        "removeEventListener": true
-      },
-      "packages": {
-        "@ethereumjs/tx": true,
-        "buffer": true,
-        "eth-sig-util": true,
-        "ethereumjs-util": true,
-        "events": true,
-        "hdkey": true
       }
     },
     "@metamask/eth-token-tracker": {
@@ -967,6 +951,9 @@
       }
     },
     "bn.js": {
+      "globals": {
+        "Buffer": true
+      },
       "packages": {
         "browser-resolve": true
       }
@@ -2549,6 +2536,7 @@
     },
     "json-rpc-engine": {
       "packages": {
+        "<root>": true,
         "@metamask/safe-event-emitter": true,
         "eth-rpc-errors": true,
         "safe-event-emitter": true
