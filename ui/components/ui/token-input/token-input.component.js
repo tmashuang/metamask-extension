@@ -75,17 +75,11 @@ export default class TokenInput extends PureComponent {
     return Number(decimalValueString) ? decimalValueString : '';
   }
 
-  handleChange = (decimalValue, applyDecimals = false) => {
+  handleChange = (decimalValue) => {
     const { token: { decimals } = {}, onChange } = this.props;
 
-    let newDecimalValue = decimalValue;
-
-    if (decimals && applyDecimals) {
-      newDecimalValue = parseFloat(decimalValue).toFixed(decimals);
-    }
-
     const multiplier = Math.pow(10, Number(decimals || 0));
-    const hexValue = multiplyCurrencies(newDecimalValue || 0, multiplier, {
+    const hexValue = multiplyCurrencies(decimalValue || 0, multiplier, {
       multiplicandBase: 10,
       multiplierBase: 10,
       toNumericBase: 'hex',
@@ -96,7 +90,7 @@ export default class TokenInput extends PureComponent {
   };
 
   handleBlur = (decimalValue) => {
-    this.handleChange(decimalValue, true);
+    this.handleChange(decimalValue);
   };
 
   renderConversionComponent() {
