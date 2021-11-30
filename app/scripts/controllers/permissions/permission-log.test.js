@@ -51,8 +51,8 @@ const getSavedMockNext = (arr) => (handler) => {
   arr.push(handler);
 };
 
-describe('PermissionLogController', () => {
-  describe('restricted method activity log', () => {
+describe('permissions log', () => {
+  describe('activity log', () => {
     let permLog, logMiddleware;
 
     beforeEach(() => {

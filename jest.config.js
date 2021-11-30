@@ -29,11 +29,11 @@ module.exports = {
   testMatch: [
     '<rootDir>/ui/**/*.test.js',
     '<rootDir>/shared/**/*.test.js',
-    '<rootDir>/app/scripts/lib/**/*.test.js',
-    '<rootDir>/app/scripts/migrations/*.test.js',
-    '<rootDir>/app/scripts/platforms/*.test.js',
-    '<rootDir>app/scripts/controllers/network/**/*.test.js',
-    '<rootDir>/app/scripts/controllers/permissions/*.test.js',
+    '<rootDir>/app/scripts/**/*.test.js',
+  ],
+  testPathIgnorePatterns: [
+    '<rootDir>/app/scripts/metamask-controller.test.js',
+    '<rootDir>/test/unit-global/*.test.js',
   ],
   testTimeout: 2500,
   transform: {

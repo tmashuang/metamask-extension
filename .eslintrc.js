@@ -152,17 +152,16 @@ module.exports = {
       },
     },
     {
-      files: ['**/*.test.js'],
+      files: [
+        'test/unit-global/*.test.js',
+        'app/scripts/metamask-controller.test.js',
+      ],
       excludedFiles: [
         'ui/**/*.test.js',
         'ui/__mocks__/*.js',
         'shared/**/*.test.js',
         'development/**/*.test.js',
-        'app/scripts/lib/**/*.test.js',
-        'app/scripts/migrations/*.test.js',
-        'app/scripts/platforms/*.test.js',
-        'app/scripts/controllers/network/**/*.test.js',
-        'app/scripts/controllers/permissions/*.test.js',
+        'app/scripts/**/*.test.js',
       ],
       extends: ['@metamask/eslint-config-mocha'],
       rules: {
@@ -181,15 +180,14 @@ module.exports = {
     },
     {
       files: [
-        'ui/**/*.test.js',
+        '**/*.test.js',
         'ui/__mocks__/*.js',
         'shared/**/*.test.js',
         'development/**/*.test.js',
-        'app/scripts/lib/**/*.test.js',
-        'app/scripts/migrations/*.test.js',
-        'app/scripts/platforms/*.test.js',
-        'app/scripts/controllers/network/**/*.test.js',
-        'app/scripts/controllers/permissions/*.test.js',
+      ],
+      excludedFiles: [
+        'test/unit-global/*.test.js',
+        'app/scripts/metamask-controller.test.js',
       ],
       extends: ['@metamask/eslint-config-jest'],
       rules: {
