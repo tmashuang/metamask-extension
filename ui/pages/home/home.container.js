@@ -15,6 +15,10 @@ import {
   getShowWhatsNewPopup,
   getSortedNotificationsToShow,
   getShowRecoveryPhraseReminder,
+  getNewNetworkAdded,
+  hasUnsignedQRHardwareTransaction,
+  hasUnsignedQRHardwareMessage,
+  getNewCollectibleAddedMessage,
 } from '../../selectors';
 
 import {
@@ -28,6 +32,8 @@ import {
   setAlertEnabledness,
   setRecoveryPhraseReminderHasBeenShown,
   setRecoveryPhraseReminderLastShown,
+  setNewNetworkAdded,
+  setNewCollectibleAddedMessage,
 } from '../../store/actions';
 import { setThreeBoxLastUpdated, hideWhatsNewPopup } from '../../ducks/app/app';
 import { getWeb3ShimUsageAlertEnabledness } from '../../ducks/metamask/metamask';
@@ -69,9 +75,7 @@ const mapStateToProps = (state) => {
 
   const firstPermissionsRequest = getFirstPermissionRequest(state);
   const firstPermissionsRequestId =
-    firstPermissionsRequest && firstPermissionsRequest.metadata
-      ? firstPermissionsRequest.metadata.id
-      : null;
+    firstPermissionsRequest?.metadata.id || null;
 
   const originOfCurrentTab = getOriginOfCurrentTab(state);
   const shouldShowWeb3ShimUsageNotification =
@@ -80,6 +84,10 @@ const mapStateToProps = (state) => {
     activeTabHasPermissions(state) &&
     getWeb3ShimUsageStateForOrigin(state, originOfCurrentTab) ===
       WEB3_SHIM_USAGE_ALERT_STATES.RECORDED;
+
+  const isSigningQRHardwareTransaction =
+    hasUnsignedQRHardwareTransaction(state) ||
+    hasUnsignedQRHardwareMessage(state);
 
   return {
     forgottenPassword,
@@ -112,6 +120,9 @@ const mapStateToProps = (state) => {
     showWhatsNewPopup: getShowWhatsNewPopup(state),
     showRecoveryPhraseReminder: getShowRecoveryPhraseReminder(state),
     seedPhraseBackedUp,
+    newNetworkAdded: getNewNetworkAdded(state),
+    isSigningQRHardwareTransaction,
+    newCollectibleAddedMessage: getNewCollectibleAddedMessage(state),
   };
 };
 
@@ -141,6 +152,12 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch(setRecoveryPhraseReminderHasBeenShown()),
   setRecoveryPhraseReminderLastShown: (lastShown) =>
     dispatch(setRecoveryPhraseReminderLastShown(lastShown)),
+  setNewNetworkAdded: (newNetwork) => {
+    dispatch(setNewNetworkAdded(newNetwork));
+  },
+  setNewCollectibleAddedMessage: (message) => {
+    dispatch(setNewCollectibleAddedMessage(message));
+  },
 });
 
 export default compose(

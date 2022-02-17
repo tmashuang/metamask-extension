@@ -28,6 +28,7 @@ import {
 } from '../../../ui/pages/swaps/swaps.util';
 import fetchWithCache from '../../../ui/helpers/utils/fetch-with-cache';
 import { MINUTE, SECOND } from '../../../shared/constants/time';
+import { isEqualCaseInsensitive } from '../../../ui/helpers/utils/util';
 import { NETWORK_EVENTS } from './network';
 
 // The MAX_GAS_LIMIT is a number that is higher than the maximum gas costs we have observed on any aggregator
@@ -78,7 +79,7 @@ const initialState = {
     topAggId: null,
     routeState: '',
     swapsFeatureIsLive: true,
-    useNewSwapsApi: false,
+    saveFetchedQuotes: false,
     swapsQuoteRefreshTime: FALLBACK_QUOTE_REFRESH_TIME,
     swapsQuotePrefetchingRefreshTime: FALLBACK_QUOTE_REFRESH_TIME,
   },
@@ -90,7 +91,7 @@ export default class SwapsController {
     networkController,
     provider,
     getProviderConfig,
-    tokenRatesStore,
+    getTokenRatesState,
     fetchTradesInfo = defaultFetchTradesInfo,
     getCurrentChainId,
     getEIP1559GasFeeEstimates,
@@ -104,7 +105,7 @@ export default class SwapsController {
     this._getEIP1559GasFeeEstimates = getEIP1559GasFeeEstimates;
 
     this.getBufferedGasLimit = getBufferedGasLimit;
-    this.tokenRatesStore = tokenRatesStore;
+    this.getTokenRatesState = getTokenRatesState;
 
     this.pollCount = 0;
     this.getProviderConfig = getProviderConfig;
@@ -121,9 +122,9 @@ export default class SwapsController {
     });
   }
 
-  async fetchSwapsRefreshRates(chainId, useNewSwapsApi) {
+  async fetchSwapsRefreshRates(chainId) {
     const response = await fetchWithCache(
-      getBaseApi('network', chainId, useNewSwapsApi),
+      getBaseApi('network', chainId),
       { method: 'GET' },
       { cacheRefreshTime: 600000 },
     );
@@ -147,13 +148,9 @@ export default class SwapsController {
   // Sets the refresh rate for quote updates from the MetaSwap API
   async _setSwapsRefreshRates() {
     const chainId = this._getCurrentChainId();
-    const { swapsState } = this.store.getState();
     let swapsRefreshRates;
     try {
-      swapsRefreshRates = await this.fetchSwapsRefreshRates(
-        chainId,
-        swapsState.useNewSwapsApi,
-      );
+      swapsRefreshRates = await this.fetchSwapsRefreshRates(chainId);
     } catch (e) {
       console.error('Request for swaps quote refresh time failed: ', e);
     }
@@ -208,7 +205,7 @@ export default class SwapsController {
   ) {
     const { chainId } = fetchParamsMetaData;
     const {
-      swapsState: { useNewSwapsApi, quotesPollingLimitEnabled },
+      swapsState: { quotesPollingLimitEnabled, saveFetchedQuotes },
     } = this.store.getState();
 
     if (!fetchParams) {
@@ -229,13 +226,29 @@ export default class SwapsController {
     const indexOfCurrentCall = this.indexOfNewestCallInFlight + 1;
     this.indexOfNewestCallInFlight = indexOfCurrentCall;
 
+    if (!saveFetchedQuotes) {
+      this.setSaveFetchedQuotes(true);
+    }
+
     let [newQuotes] = await Promise.all([
       this._fetchTradesInfo(fetchParams, {
         ...fetchParamsMetaData,
-        useNewSwapsApi,
       }),
       this._setSwapsRefreshRates(),
     ]);
+
+    const {
+      swapsState: { saveFetchedQuotes: saveFetchedQuotesAfterResponse },
+    } = this.store.getState();
+
+    // If saveFetchedQuotesAfterResponse is false, it means a user left Swaps (we cleaned the state)
+    // and we don't want to set any API response with quotes into state.
+    if (!saveFetchedQuotesAfterResponse) {
+      return [
+        {}, // quotes
+        null, // selectedAggId
+      ];
+    }
 
     newQuotes = mapValues(newQuotes, (quote) => ({
       ...quote,
@@ -258,9 +271,11 @@ export default class SwapsController {
 
       // For a user to be able to swap a token, they need to have approved the MetaSwap contract to withdraw that token.
       // _getERC20Allowance() returns the amount of the token they have approved for withdrawal. If that amount is greater
-      // than 0, it means that approval has already occured and is not needed. Otherwise, for tokens to be swapped, a new
+      // than 0, it means that approval has already occurred and is not needed. Otherwise, for tokens to be swapped, a new
       // call of the ERC-20 approve method is required.
-      approvalRequired = allowance.eq(0);
+      approvalRequired =
+        allowance.eq(0) &&
+        Object.values(newQuotes)[0].aggregator !== 'wrappedNative';
       if (!approvalRequired) {
         newQuotes = mapValues(newQuotes, (quote) => ({
           ...quote,
@@ -540,11 +555,18 @@ export default class SwapsController {
     this.store.updateState({ swapsState: { ...swapsState, routeState } });
   }
 
+  setSaveFetchedQuotes(status) {
+    const { swapsState } = this.store.getState();
+    this.store.updateState({
+      swapsState: { ...swapsState, saveFetchedQuotes: status },
+    });
+  }
+
   setSwapsLiveness(swapsLiveness) {
     const { swapsState } = this.store.getState();
-    const { swapsFeatureIsLive, useNewSwapsApi } = swapsLiveness;
+    const { swapsFeatureIsLive } = swapsLiveness;
     this.store.updateState({
-      swapsState: { ...swapsState, swapsFeatureIsLive, useNewSwapsApi },
+      swapsState: { ...swapsState, swapsFeatureIsLive },
     });
   }
 
@@ -556,7 +578,6 @@ export default class SwapsController {
         tokens: swapsState.tokens,
         fetchParams: swapsState.fetchParams,
         swapsFeatureIsLive: swapsState.swapsFeatureIsLive,
-        useNewSwapsApi: swapsState.useNewSwapsApi,
         swapsQuoteRefreshTime: swapsState.swapsQuoteRefreshTime,
         swapsQuotePrefetchingRefreshTime:
           swapsState.swapsQuotePrefetchingRefreshTime,
@@ -570,7 +591,6 @@ export default class SwapsController {
     this.store.updateState({
       swapsState: {
         ...initialState.swapsState,
-        tokens: swapsState.tokens,
         swapsQuoteRefreshTime: swapsState.swapsQuoteRefreshTime,
         swapsQuotePrefetchingRefreshTime:
           swapsState.swapsQuotePrefetchingRefreshTime,
@@ -580,7 +600,9 @@ export default class SwapsController {
   }
 
   async _findTopQuoteAndCalculateSavings(quotes = {}) {
-    const tokenConversionRates = this.tokenRatesStore.contractExchangeRates;
+    const {
+      contractExchangeRates: tokenConversionRates,
+    } = this.getTokenRatesState();
     const {
       swapsState: { customGasPrice, customMaxPriorityFeePerGas },
     } = this.store.getState();
@@ -704,11 +726,16 @@ export default class SwapsController {
         decimalAdjustedDestinationAmount,
       );
 
-      const tokenConversionRate = tokenConversionRates[destinationToken];
+      const tokenConversionRate =
+        tokenConversionRates[
+          Object.keys(tokenConversionRates).find((tokenAddress) =>
+            isEqualCaseInsensitive(tokenAddress, destinationToken),
+          )
+        ];
       const conversionRateForSorting = tokenConversionRate || 1;
 
       const ethValueOfTokens = decimalAdjustedDestinationAmount.times(
-        conversionRateForSorting,
+        conversionRateForSorting.toString(10),
         10,
       );
 
@@ -730,7 +757,7 @@ export default class SwapsController {
         quote.ethValueOfTokens = ethValueOfTokens.toString(10);
         quote.overallValueOfQuote = overallValueOfQuoteForSorting.toString(10);
         quote.metaMaskFeeInEth = metaMaskFeeInTokens
-          .times(conversionRateForCalculations)
+          .times(conversionRateForCalculations.toString(10))
           .toString(10);
       }
 
@@ -747,7 +774,17 @@ export default class SwapsController {
       isSwapsDefaultTokenAddress(
         newQuotes[topAggId].destinationToken,
         chainId,
-      ) || Boolean(tokenConversionRates[newQuotes[topAggId]?.destinationToken]);
+      ) ||
+      Boolean(
+        tokenConversionRates[
+          Object.keys(tokenConversionRates).find((tokenAddress) =>
+            isEqualCaseInsensitive(
+              tokenAddress,
+              newQuotes[topAggId]?.destinationToken,
+            ),
+          )
+        ],
+      );
 
     let savings = null;
 

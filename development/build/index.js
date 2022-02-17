@@ -3,9 +3,10 @@
 //
 // run any task with "yarn build ${taskName}"
 //
+const path = require('path');
 const livereload = require('gulp-livereload');
 const minimist = require('minimist');
-const { version } = require('../../package.json');
+const { sync: globby } = require('globby');
 const {
   createTask,
   composeSeries,
@@ -17,10 +18,12 @@ const createScriptTasks = require('./scripts');
 const createStyleTasks = require('./styles');
 const createStaticAssetTasks = require('./static');
 const createEtcTasks = require('./etc');
-const { BuildTypes, getNextBetaVersionMap } = require('./utils');
+const { BuildType, getBrowserVersionMap } = require('./utils');
 
-// packages required dynamically via browserify configuration in dependencies
+// Packages required dynamically via browserify configuration in dependencies
+// Required for LavaMoat policy generation
 require('loose-envify');
+require('globalthis');
 require('@babel/plugin-proposal-object-rest-spread');
 require('@babel/plugin-transform-runtime');
 require('@babel/plugin-proposal-class-properties');
@@ -29,16 +32,28 @@ require('@babel/plugin-proposal-nullish-coalescing-operator');
 require('@babel/preset-env');
 require('@babel/preset-react');
 require('@babel/core');
+// ESLint-related
+require('@babel/eslint-parser');
+require('@babel/eslint-plugin');
+require('@metamask/eslint-config');
+require('@metamask/eslint-config-nodejs');
+require('eslint');
+require('eslint-config-prettier');
+require('eslint-import-resolver-node');
+require('eslint-plugin-import');
+require('eslint-plugin-node');
+require('eslint-plugin-prettier');
+require('eslint-plugin-react');
+require('eslint-plugin-react-hooks');
 
 defineAndRunBuildTasks();
 
 function defineAndRunBuildTasks() {
   const {
-    betaVersion,
     buildType,
     entryTask,
-    isBeta,
     isLavaMoat,
+    policyOnly,
     shouldIncludeLockdown,
     shouldLintFenceFiles,
     skipStats,
@@ -46,26 +61,21 @@ function defineAndRunBuildTasks() {
 
   const browserPlatforms = ['firefox', 'chrome', 'brave', 'opera'];
 
-  let betaVersionsMap;
-  if (isBeta) {
-    betaVersionsMap = getNextBetaVersionMap(
-      version,
-      betaVersion,
-      browserPlatforms,
-    );
-  }
+  const browserVersionMap = getBrowserVersionMap(browserPlatforms);
+
+  const ignoredFiles = getIgnoredFiles(buildType);
 
   const staticTasks = createStaticAssetTasks({
     livereload,
     browserPlatforms,
     shouldIncludeLockdown,
-    isBeta,
+    buildType,
   });
 
   const manifestTasks = createManifestTasks({
     browserPlatforms,
-    betaVersionsMap,
-    isBeta,
+    browserVersionMap,
+    buildType,
   });
 
   const styleTasks = createStyleTasks({ livereload });
@@ -73,16 +83,17 @@ function defineAndRunBuildTasks() {
   const scriptTasks = createScriptTasks({
     browserPlatforms,
     buildType,
+    ignoredFiles,
     isLavaMoat,
     livereload,
+    policyOnly,
     shouldLintFenceFiles,
   });
 
   const { clean, reload, zip } = createEtcTasks({
     livereload,
     browserPlatforms,
-    betaVersionsMap,
-    isBeta,
+    buildType,
   });
 
   // build for development (livereload)
@@ -126,6 +137,9 @@ function defineAndRunBuildTasks() {
     ),
   );
 
+  // build just production scripts, for LavaMoat policy generation purposes
+  createTask('scripts:prod', scriptTasks.prod);
+
   // build for CI testing
   createTask(
     'test',
@@ -146,25 +160,26 @@ function defineAndRunBuildTasks() {
 
 function parseArgv() {
   const NamedArgs = {
-    BetaVersion: 'beta-version',
     BuildType: 'build-type',
     LintFenceFiles: 'lint-fence-files',
-    OmitLockdown: 'omit-lockdown',
+    Lockdown: 'lockdown',
+    PolicyOnly: 'policy-only',
     SkipStats: 'skip-stats',
   };
 
   const argv = minimist(process.argv.slice(2), {
     boolean: [
       NamedArgs.LintFenceFiles,
-      NamedArgs.OmitLockdown,
+      NamedArgs.Lockdown,
+      NamedArgs.PolicyOnly,
       NamedArgs.SkipStats,
     ],
     string: [NamedArgs.BuildType],
     default: {
-      [NamedArgs.BetaVersion]: 0,
-      [NamedArgs.BuildType]: BuildTypes.main,
+      [NamedArgs.BuildType]: BuildType.main,
       [NamedArgs.LintFenceFiles]: true,
-      [NamedArgs.OmitLockdown]: false,
+      [NamedArgs.Lockdown]: true,
+      [NamedArgs.PolicyOnly]: false,
       [NamedArgs.SkipStats]: false,
     },
   });
@@ -180,13 +195,8 @@ function parseArgv() {
     throw new Error('MetaMask build: No entry task specified.');
   }
 
-  const betaVersion = argv[NamedArgs.BetaVersion];
-  if (!Number.isInteger(betaVersion) || betaVersion < 0) {
-    throw new Error(`MetaMask build: Invalid beta version: "${betaVersion}"`);
-  }
-
   const buildType = argv[NamedArgs.BuildType];
-  if (!(buildType in BuildTypes)) {
+  if (!(buildType in BuildType)) {
     throw new Error(`MetaMask build: Invalid build type: "${buildType}"`);
   }
 
@@ -197,14 +207,47 @@ function parseArgv() {
     ? argv[NamedArgs.LintFenceFiles]
     : !/dev/iu.test(entryTask);
 
+  const policyOnly = argv[NamedArgs.PolicyOnly];
+
   return {
-    betaVersion: String(betaVersion),
     buildType,
     entryTask,
-    isBeta: argv[NamedArgs.BuildType] === BuildTypes.beta,
     isLavaMoat: process.argv[0].includes('lavamoat'),
-    shouldIncludeLockdown: argv[NamedArgs.OmitLockdown],
+    policyOnly,
+    shouldIncludeLockdown: argv[NamedArgs.Lockdown],
     shouldLintFenceFiles,
     skipStats: argv[NamedArgs.SkipStats],
   };
+}
+
+/**
+ * Gets the files to be ignored by the current build, if any.
+ *
+ * @param {string} buildType - The type of the current build.
+ * @returns {string[] | null} The array of files to be ignored by the current
+ * build, or `null` if no files are to be ignored.
+ */
+function getIgnoredFiles(currentBuildType) {
+  const excludedFiles = Object.values(BuildType)
+    // This filter removes "main" and the current build type. The files of any
+    // build types that remain in the array will be excluded. "main" is the
+    // default build type, and has no files that are excluded from other builds.
+    .filter(
+      (buildType) =>
+        buildType !== BuildType.main && buildType !== currentBuildType,
+    )
+    // Compute globs targeting files for exclusion for each excluded build
+    // type.
+    .reduce((excludedGlobs, excludedBuildType) => {
+      return excludedGlobs.concat([
+        `../../app/**/${excludedBuildType}/**`,
+        `../../shared/**/${excludedBuildType}/**`,
+        `../../ui/**/${excludedBuildType}/**`,
+      ]);
+    }, [])
+    // This creates absolute paths of the form:
+    // PATH_TO_REPOSITORY_ROOT/app/**/${excludedBuildType}/**
+    .map((pathGlob) => path.resolve(__dirname, pathGlob));
+
+  return globby(excludedFiles);
 }

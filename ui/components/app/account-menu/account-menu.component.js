@@ -10,6 +10,7 @@ import Identicon from '../../ui/identicon';
 import SiteIcon from '../../ui/site-icon';
 import UserPreferencedCurrencyDisplay from '../user-preferenced-currency-display';
 import { PRIMARY } from '../../../helpers/constants/common';
+import { KEYRING_TYPES } from '../../../../shared/constants/hardware-wallets';
 import {
   SETTINGS_ROUTE,
   NEW_ACCOUNT_ROUTE,
@@ -19,6 +20,7 @@ import {
 } from '../../../helpers/constants/routes';
 import TextField from '../../ui/text-field';
 import SearchIcon from '../../ui/search-icon';
+import Button from '../../ui/button';
 
 import { isBeta } from '../../../helpers/utils/build-types';
 
@@ -68,7 +70,7 @@ export default class AccountMenu extends Component {
     selectedAddress: PropTypes.string,
     showAccountDetail: PropTypes.func,
     toggleAccountMenu: PropTypes.func,
-    addressConnectedDomainMap: PropTypes.object,
+    addressConnectedSubjectMap: PropTypes.object,
     originOfCurrentTab: PropTypes.string,
   };
 
@@ -145,7 +147,7 @@ export default class AccountMenu extends Component {
       selectedAddress,
       keyrings,
       showAccountDetail,
-      addressConnectedDomainMap,
+      addressConnectedSubjectMap,
       originOfCurrentTab,
     } = this.props;
     const { searchQuery } = this.state;
@@ -175,8 +177,9 @@ export default class AccountMenu extends Component {
           kr.accounts.includes(identity.address)
         );
       });
-      const addressDomains = addressConnectedDomainMap[identity.address] || {};
-      const iconAndNameForOpenDomain = addressDomains[originOfCurrentTab];
+      const addressSubjects =
+        addressConnectedSubjectMap[identity.address] || {};
+      const iconAndNameForOpenSubject = addressSubjects[originOfCurrentTab];
 
       return (
         <div
@@ -194,7 +197,9 @@ export default class AccountMenu extends Component {
           key={identity.address}
         >
           <div className="account-menu__check-mark">
-            {isSelected && <div className="account-menu__check-mark-icon" />}
+            {isSelected ? (
+              <div className="account-menu__check-mark-icon" />
+            ) : null}
           </div>
           <Identicon address={identity.address} diameter={24} />
           <div className="account-menu__account-info">
@@ -206,11 +211,11 @@ export default class AccountMenu extends Component {
             />
           </div>
           {this.renderKeyringType(keyring)}
-          {iconAndNameForOpenDomain ? (
+          {iconAndNameForOpenSubject ? (
             <div className="account-menu__icon-list">
               <SiteIcon
-                icon={iconAndNameForOpenDomain.icon}
-                name={iconAndNameForOpenDomain.name}
+                icon={iconAndNameForOpenSubject.icon}
+                name={iconAndNameForOpenSubject.name}
                 size={32}
               />
             </div>
@@ -232,8 +237,10 @@ export default class AccountMenu extends Component {
     let label;
 
     switch (type) {
-      case 'Trezor Hardware':
-      case 'Ledger Hardware':
+      case KEYRING_TYPES.TREZOR:
+      case KEYRING_TYPES.LEDGER:
+      case KEYRING_TYPES.LATTICE:
+      case KEYRING_TYPES.QR:
         label = t('hardware');
         break;
       case 'Simple Key Pair':
@@ -324,7 +331,7 @@ export default class AccountMenu extends Component {
         <div className="account-menu__close-area" onClick={toggleAccountMenu} />
         <AccountMenuItem className="account-menu__header">
           {t('myAccounts')}
-          <button
+          <Button
             className="account-menu__lock-button"
             onClick={() => {
               lockMetamask();
@@ -332,7 +339,7 @@ export default class AccountMenu extends Component {
             }}
           >
             {t('lock')}
-          </button>
+          </Button>
         </AccountMenuItem>
         <div className="account-menu__divider" />
         <div className="account-menu__accounts-container">

@@ -70,6 +70,14 @@
     "message": "MetaMask",
     "description": "The name of the application"
   },
+  "appNameBeta": {
+    "message": "MetaMask Beta",
+    "description": "The name of the application (Beta)"
+  },
+  "appNameFlask": {
+    "message": "MetaMask Flask",
+    "description": "The name of the application (Flask)"
+  },
   "approve": {
     "message": "Schválit"
   },
@@ -212,9 +220,6 @@
   "copiedExclamation": {
     "message": "Zkopírováno!"
   },
-  "copiedTransactionId": {
-    "message": "Kopírované ID transakcie"
-  },
   "copyAddress": {
     "message": "Kopírovať adresu do schránky"
   },
@@ -251,9 +256,6 @@
   "customGasSubTitle": {
     "message": "Zvýšenie poplatku môže skrátiť dobu spracovania, nie je to však zaručené."
   },
-  "customRPC": {
-    "message": "Vlastní RPC"
-  },
   "customToken": {
     "message": "Vlastní token"
   },
@@ -262,9 +264,6 @@
   },
   "decimalsMustZerotoTen": {
     "message": "Desetinných míst musí být od 0 do 36."
-  },
-  "defaultNetwork": {
-    "message": "Výchozí síť pro Etherové transakce je Mainnet."
   },
   "delete": {
     "message": "Odstrániť"
@@ -595,9 +594,6 @@
   "newContract": {
     "message": "Nový kontrakt"
   },
-  "newNetwork": {
-    "message": "Nová sieť"
-  },
   "newPassword": {
     "message": "Nové heslo (min 8 znaků)"
   },
@@ -642,12 +638,6 @@
   },
   "on": {
     "message": "Zapnuté"
-  },
-  "optionalBlockExplorerUrl": {
-    "message": "Blokovať URL Explorera (voliteľné)"
-  },
-  "optionalCurrencySymbol": {
-    "message": "Symbol (voliteľné)"
   },
   "origin": {
     "message": "Pôvod"
@@ -768,9 +758,6 @@
   "revealSeedWordsDescription": {
     "message": "Ak niekedy zmeníte prehliadač alebo presuniete počítače, budete potrebovať túto seed frázu na prístup k svojim účtom. Uložte ich niekde v bezpečí a v tajnosti."
   },
-  "revealSeedWordsTitle": {
-    "message": "Seed fráza"
-  },
   "revealSeedWordsWarning": {
     "message": "Nebnovujte slova klíčové fráze na veřejnosti! Tato slova mohou být použita k odcizení veškerých vyašich účtů."
   },
@@ -801,9 +788,6 @@
   "searchTokens": {
     "message": "Hledat tokeny"
   },
-  "secretBackupPhrase": {
-    "message": "Tajná backup fráza"
-  },
   "secretBackupPhraseDescription": {
     "message": "Vaša tajná backup fráza uľahčuje zálohovanie a obnovenie vášho účtu."
   },
@@ -827,9 +811,6 @@
   },
   "selectAnAccount": {
     "message": "Vybrať účet"
-  },
-  "selectAnAccountHelp": {
-    "message": "Vyberte účet, ktorý chcete zobraziť v MetaMask"
   },
   "selectEachPhrase": {
     "message": "Vyberte každú frázu, aby ste sa uistili, že je správna."
@@ -1084,20 +1065,8 @@
   "viewContact": {
     "message": "Zobraziť kontakt"
   },
-  "viewOnCustomBlockExplorer": {
-    "message": "Zobraziť na $1"
-  },
-  "viewOnEtherscan": {
-    "message": "Zobraziť na Etherscan"
-  },
-  "viewinExplorer": {
-    "message": "Zobraziť v Exploreri"
-  },
   "visitWebSite": {
     "message": "Navštivte naši stránku"
-  },
-  "walletSeed": {
-    "message": "Klíčová fráze peněženky"
   },
   "welcome": {
     "message": "Vitajte v MetaMask"

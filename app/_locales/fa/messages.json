@@ -70,6 +70,14 @@
     "message": "MetaMask",
     "description": "The name of the application"
   },
+  "appNameBeta": {
+    "message": "MetaMask Beta",
+    "description": "The name of the application (Beta)"
+  },
+  "appNameFlask": {
+    "message": "MetaMask Flask",
+    "description": "The name of the application (Flask)"
+  },
   "approve": {
     "message": "تصدیق"
   },
@@ -218,9 +226,6 @@
   "copiedExclamation": {
     "message": "کپی شد!"
   },
-  "copiedTransactionId": {
-    "message": "آی دی معامله کاپی شده"
-  },
   "copyAddress": {
     "message": "کاپی آدرس به کلیپ بورد"
   },
@@ -257,9 +262,6 @@
   "customGasSubTitle": {
     "message": "اضافه نمودن فیس ممکن زمان پروسس را کاهش دهد، اما تضمین نمیشود."
   },
-  "customRPC": {
-    "message": "RPC رایج"
-  },
   "customToken": {
     "message": "رمزیاب دلخواه"
   },
@@ -268,9 +270,6 @@
   },
   "decimalsMustZerotoTen": {
     "message": "اعشاریه ها باید حد اقل 0، و بیشتر از 36 نباشند."
-  },
-  "defaultNetwork": {
-    "message": "شبکه خودکار برای معاملات Ether عبارت است از Mainnet."
   },
   "delete": {
     "message": "حذف"
@@ -623,9 +622,6 @@
   "newContract": {
     "message": "قرارداد جدید"
   },
-  "newNetwork": {
-    "message": "شبکه جدید"
-  },
   "newPassword": {
     "message": "رمز عبور جدید (حداقل 8 حرف)"
   },
@@ -673,12 +669,6 @@
   },
   "on": {
     "message": "روشن"
-  },
-  "optionalBlockExplorerUrl": {
-    "message": "بلاک کردن مرورگر URL (انتخابی)"
-  },
-  "optionalCurrencySymbol": {
-    "message": "سمبول (انتخابی)"
   },
   "origin": {
     "message": "مبدأ"
@@ -799,9 +789,6 @@
   "revealSeedWordsDescription": {
     "message": "در صورتیکه شما معمولًا براوزر ها را تغییر داده یا کمپیوتر ها را انتقال میدهید، شما این عبارت آغازین را نیاز خواهید داشت تا به حساب های تان دسترسی داشته باشید. آنها را در یکجای مصؤن و مخفی نگهدارید."
   },
-  "revealSeedWordsTitle": {
-    "message": "عبارت بازیاب"
-  },
   "revealSeedWordsWarning": {
     "message": "این کلمات را میتوان جهت سرقت همه حساب های تان استفاده نمود."
   },
@@ -838,9 +825,6 @@
   "searchTokens": {
     "message": "رمزیاب های جستجو"
   },
-  "secretBackupPhrase": {
-    "message": "عبارت مخفی پشتیبان"
-  },
   "secretBackupPhraseDescription": {
     "message": "عبارت مخفی پشتیبان تان نسخه پشتیبان و دوباره سازی حساب را تسهیل میسازد."
   },
@@ -864,9 +848,6 @@
   },
   "selectAnAccount": {
     "message": "یک حساب را انتخاب کنید"
-  },
-  "selectAnAccountHelp": {
-    "message": "برای مشاهده MetaMask حساب را انتخاب نمایید"
   },
   "selectEachPhrase": {
     "message": "لطفًا جهت اطمینان از درستی، هر عبارت را انتخاب کنید."
@@ -1127,20 +1108,8 @@
   "viewContact": {
     "message": "مشاهده تماس"
   },
-  "viewOnCustomBlockExplorer": {
-    "message": "مشاهده در 1$1"
-  },
-  "viewOnEtherscan": {
-    "message": "مشاهده در ایترسکن"
-  },
-  "viewinExplorer": {
-    "message": "مشاهده در براوزر"
-  },
   "visitWebSite": {
     "message": "از وب سایت ما دیدن نمایید"
-  },
-  "walletSeed": {
-    "message": "بازیاب کیف"
   },
   "welcome": {
     "message": "به MetaMask خوش آمدید"

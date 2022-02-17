@@ -70,6 +70,14 @@
     "message": "MetaMask",
     "description": "The name of the application"
   },
+  "appNameBeta": {
+    "message": "MetaMask Beta",
+    "description": "The name of the application (Beta)"
+  },
+  "appNameFlask": {
+    "message": "MetaMask Flask",
+    "description": "The name of the application (Flask)"
+  },
   "approve": {
     "message": "Kinnita"
   },
@@ -218,9 +226,6 @@
   "copiedExclamation": {
     "message": "Kopeeritud!"
   },
-  "copiedTransactionId": {
-    "message": "Kopeeritud tehingu ID"
-  },
   "copyAddress": {
     "message": "Kopeeri aadress lõikelauale"
   },
@@ -257,9 +262,6 @@
   "customGasSubTitle": {
     "message": "Tasu suurendamine võib töötlemisaegu vähendada, kuid see ei ole tagatud."
   },
-  "customRPC": {
-    "message": "Kohandatud RPC"
-  },
   "customToken": {
     "message": "Kohandatud luba"
   },
@@ -268,9 +270,6 @@
   },
   "decimalsMustZerotoTen": {
     "message": "Kümnendkohad peavad olema vähemalt 0 ja mitte üle 36."
-  },
-  "defaultNetwork": {
-    "message": "Etheri tehingute vaikevõrk on peavõrk."
   },
   "delete": {
     "message": "Kustuta"
@@ -613,9 +612,6 @@
   "newContract": {
     "message": "Uus kontakt"
   },
-  "newNetwork": {
-    "message": "Uus võrk"
-  },
   "newPassword": {
     "message": "Uus parool (vähemalt 8 tähemärki)"
   },
@@ -663,12 +659,6 @@
   },
   "on": {
     "message": "Sees"
-  },
-  "optionalBlockExplorerUrl": {
-    "message": "Blokeeri Exploreri URL (valikuline)"
-  },
-  "optionalCurrencySymbol": {
-    "message": "Sümbol (valikuline)"
   },
   "origin": {
     "message": "Päritolu"
@@ -789,9 +779,6 @@
   "revealSeedWordsDescription": {
     "message": "Kui vahetate veebilehitsejat või arvutit, vajate oma kontodele ligipääsemiseks seemnefraasi. Hoidke seda turvalises ja salajases kohas."
   },
-  "revealSeedWordsTitle": {
-    "message": "Seemnefraas"
-  },
   "revealSeedWordsWarning": {
     "message": "Neid sõnu saab kasutada kõigi teie kontode tühjendamiseks."
   },
@@ -828,9 +815,6 @@
   "searchTokens": {
     "message": "Lubade otsimine"
   },
-  "secretBackupPhrase": {
-    "message": "Salajane varundusfraas"
-  },
   "secretBackupPhraseDescription": {
     "message": "Teie salajane varundusfraas hõlbustab konto varundamist ja taastamist."
   },
@@ -854,9 +838,6 @@
   },
   "selectAnAccount": {
     "message": "Valige konto"
-  },
-  "selectAnAccountHelp": {
-    "message": "Valige konto, mida MetaMaskis vaadata"
   },
   "selectEachPhrase": {
     "message": "Valige iga fraas, veendumaks, et see on õige."
@@ -1117,20 +1098,8 @@
   "viewContact": {
     "message": "Kuva kontakt"
   },
-  "viewOnCustomBlockExplorer": {
-    "message": "Vaata $1"
-  },
-  "viewOnEtherscan": {
-    "message": "Kuva Etherscanil"
-  },
-  "viewinExplorer": {
-    "message": "Kuva Exploreris"
-  },
   "visitWebSite": {
     "message": "Külastage meie veebilehte"
-  },
-  "walletSeed": {
-    "message": "Rahakoti seeme"
   },
   "welcome": {
     "message": "Tere tulemast MetaMaski"

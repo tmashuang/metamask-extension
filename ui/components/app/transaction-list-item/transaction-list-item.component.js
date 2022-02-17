@@ -122,8 +122,7 @@ export default function TransactionListItem({
     }
     return (
       <Button
-        type="secondary"
-        rounded
+        type="primary"
         onClick={hasCancelled ? cancelTransaction : retryTransaction}
         style={hasCancelled ? { width: 'auto' } : null}
       >
@@ -213,6 +212,16 @@ export default function TransactionListItem({
           isEarliestNonce={isEarliestNonce}
           onCancel={cancelTransaction}
           showCancel={isPending && !hasCancelled}
+          transactionStatus={() => (
+            <TransactionStatus
+              isPending={isPending}
+              isEarliestNonce={isEarliestNonce}
+              error={err}
+              date={date}
+              status={displayedStatusKey}
+              statusOnly
+            />
+          )}
         />
       )}
       {showRetryEditGasPopover && (

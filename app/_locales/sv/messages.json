@@ -70,6 +70,14 @@
     "message": "MetaMask",
     "description": "The name of the application"
   },
+  "appNameBeta": {
+    "message": "MetaMask Beta",
+    "description": "The name of the application (Beta)"
+  },
+  "appNameFlask": {
+    "message": "MetaMask Flask",
+    "description": "The name of the application (Flask)"
+  },
   "approve": {
     "message": "Godkänn"
   },
@@ -212,9 +220,6 @@
   "copiedExclamation": {
     "message": "Kopierades!"
   },
-  "copiedTransactionId": {
-    "message": "Kopierade transaktions-ID"
-  },
   "copyAddress": {
     "message": "Kopiera adress till urklipp"
   },
@@ -251,9 +256,6 @@
   "customGasSubTitle": {
     "message": "Att öka avgiften kan minska behandlingstiden, men det är inte garanterat att göra det."
   },
-  "customRPC": {
-    "message": "Anpassad RPC"
-  },
   "customToken": {
     "message": "Anpassad token"
   },
@@ -262,9 +264,6 @@
   },
   "decimalsMustZerotoTen": {
     "message": "Decimalerna måste vara minst 0 och inte över 36."
-  },
-  "defaultNetwork": {
-    "message": "Standardnätverket för Ether-transaktioner är Mainnet."
   },
   "delete": {
     "message": "Radera"
@@ -607,9 +606,6 @@
   "newContract": {
     "message": "Nytt kontrakt"
   },
-  "newNetwork": {
-    "message": "Nytt nätverk"
-  },
   "newPassword": {
     "message": "Nytt lösenord (minst 8 tecken)"
   },
@@ -657,12 +653,6 @@
   },
   "on": {
     "message": "På"
-  },
-  "optionalBlockExplorerUrl": {
-    "message": "Block Explorer URL (valfritt)"
-  },
-  "optionalCurrencySymbol": {
-    "message": "Symbol (frivillig)"
   },
   "origin": {
     "message": "Ursprung"
@@ -783,9 +773,6 @@
   "revealSeedWordsDescription": {
     "message": "Om du någonsin byter webbläsare eller dator kommer du behöva denna"
   },
-  "revealSeedWordsTitle": {
-    "message": "Seed phrase"
-  },
   "revealSeedWordsWarning": {
     "message": "De här orden kan användas för att stjäla alla dina konton."
   },
@@ -822,9 +809,6 @@
   "searchTokens": {
     "message": "Sök tokens"
   },
-  "secretBackupPhrase": {
-    "message": "Hemlig återställningsfras"
-  },
   "secretBackupPhraseDescription": {
     "message": "Din hemliga backup-fras gör det enkelt att säkerhetskopiera och återställa ditt konto."
   },
@@ -848,9 +832,6 @@
   },
   "selectAnAccount": {
     "message": "Välj ett konto"
-  },
-  "selectAnAccountHelp": {
-    "message": "Välj konto att visa i MetaMask"
   },
   "selectEachPhrase": {
     "message": "Välj varje fras för att säkerställa att den är korrekt."
@@ -1102,20 +1083,8 @@
   "viewContact": {
     "message": "Visa kontakt"
   },
-  "viewOnCustomBlockExplorer": {
-    "message": "Visa vid $1"
-  },
-  "viewOnEtherscan": {
-    "message": "Visa på Etherscan"
-  },
-  "viewinExplorer": {
-    "message": "Visa i Utforskaren"
-  },
   "visitWebSite": {
     "message": "Besök vår hemsida"
-  },
-  "walletSeed": {
-    "message": "Plånboksseed"
   },
   "welcome": {
     "message": "Välkommen till MetaMask"

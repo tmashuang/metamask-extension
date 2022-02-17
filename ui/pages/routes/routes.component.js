@@ -18,6 +18,7 @@ import RestoreVaultPage from '../keychains/restore-vault';
 import RevealSeedConfirmation from '../keychains/reveal-seed';
 import MobileSyncPage from '../mobile-sync';
 import ImportTokenPage from '../import-token';
+import AddCollectiblePage from '../add-collectible';
 import ConfirmImportTokenPage from '../confirm-import-token';
 import ConfirmAddSuggestedTokenPage from '../confirm-add-suggested-token';
 import CreateAccountPage from '../create-account';
@@ -31,6 +32,7 @@ import AppHeader from '../../components/app/app-header';
 import UnlockPage from '../unlock-page';
 import Alerts from '../../components/app/alerts';
 import Asset from '../asset';
+import OnboardingAppHeader from '../onboarding-flow/onboarding-app-header/onboarding-app-header';
 
 import {
   IMPORT_TOKEN_ROUTE,
@@ -39,7 +41,6 @@ import {
   CONFIRM_TRANSACTION_ROUTE,
   CONNECT_ROUTE,
   DEFAULT_ROUTE,
-  INITIALIZE_ROUTE,
   INITIALIZE_UNLOCK_ROUTE,
   LOCK_ROUTE,
   MOBILE_SYNC_ROUTE,
@@ -53,6 +54,9 @@ import {
   BUILD_QUOTE_ROUTE,
   CONFIRMATION_V_NEXT_ROUTE,
   CONFIRM_IMPORT_TOKEN_ROUTE,
+  INITIALIZE_ROUTE,
+  ONBOARDING_ROUTE,
+  ADD_COLLECTIBLE_ROUTE,
 } from '../../helpers/constants/routes';
 
 import {
@@ -60,8 +64,9 @@ import {
   ENVIRONMENT_TYPE_POPUP,
 } from '../../../shared/constants/app';
 import { getEnvironmentType } from '../../../app/scripts/lib/util';
-import { isBeta } from '../../helpers/utils/build-types';
 import ConfirmationPage from '../confirmation';
+import OnboardingFlow from '../onboarding-flow/onboarding-flow';
+import QRHardwarePopover from '../../components/app/qr-hardware-popover';
 
 export default class Routes extends Component {
   static propTypes = {
@@ -72,8 +77,6 @@ export default class Routes extends Component {
     alertMessage: PropTypes.string,
     textDirection: PropTypes.string,
     isNetworkLoading: PropTypes.bool,
-    provider: PropTypes.object,
-    frequentRpcListDetail: PropTypes.array,
     alertOpen: PropTypes.bool,
     isUnlocked: PropTypes.bool,
     setLastActiveTime: PropTypes.func,
@@ -83,10 +86,12 @@ export default class Routes extends Component {
     isMouseUser: PropTypes.bool,
     setMouseUserState: PropTypes.func,
     providerId: PropTypes.string,
+    providerType: PropTypes.string,
     autoLockTimeLimit: PropTypes.number,
     pageChanged: PropTypes.func.isRequired,
     prepareToLeaveSwaps: PropTypes.func,
-    browserEnvironment: PropTypes.object,
+    browserEnvironmentOs: PropTypes.string,
+    browserEnvironmentBrowser: PropTypes.string,
   };
 
   static contextTypes = {
@@ -114,9 +119,11 @@ export default class Routes extends Component {
 
   renderRoutes() {
     const { autoLockTimeLimit, setLastActiveTime } = this.props;
-
     const routes = (
       <Switch>
+        {process.env.ONBOARDING_V2 && (
+          <Route path={ONBOARDING_ROUTE} component={OnboardingFlow} />
+        )}
         <Route path={LOCK_ROUTE} component={Lock} exact />
         <Route path={INITIALIZE_ROUTE} component={FirstTimeFlow} />
         <Initialized path={UNLOCK_ROUTE} component={UnlockPage} exact />
@@ -151,6 +158,13 @@ export default class Routes extends Component {
           component={ImportTokenPage}
           exact
         />
+        {process.env.COLLECTIBLES_V1 ? (
+          <Authenticated
+            path={ADD_COLLECTIBLE_ROUTE}
+            component={AddCollectiblePage}
+            exact
+          />
+        ) : null}
         <Authenticated
           path={CONFIRM_IMPORT_TOKEN_ROUTE}
           component={ConfirmImportTokenPage}
@@ -170,7 +184,8 @@ export default class Routes extends Component {
           path={`${CONNECT_ROUTE}/:id`}
           component={PermissionsConnect}
         />
-        <Authenticated path={`${ASSET_ROUTE}/:asset`} component={Asset} />
+        <Authenticated path={`${ASSET_ROUTE}/:asset/:id`} component={Asset} />
+        <Authenticated path={`${ASSET_ROUTE}/:asset/`} component={Asset} />
         <Authenticated path={DEFAULT_ROUTE} component={Home} />
       </Switch>
     );
@@ -225,7 +240,7 @@ export default class Routes extends Component {
 
     const isInitializing = Boolean(
       matchPath(location.pathname, {
-        path: INITIALIZE_ROUTE,
+        path: process.env.ONBOARDING_V2 ? ONBOARDING_ROUTE : INITIALIZE_ROUTE,
         exact: false,
       }),
     );
@@ -261,6 +276,24 @@ export default class Routes extends Component {
     return isHandlingPermissionsRequest || isHandlingAddEthereumChainRequest;
   }
 
+  showOnboardingHeader() {
+    const { location } = this.props;
+
+    return Boolean(
+      matchPath(location.pathname, {
+        path: ONBOARDING_ROUTE,
+        exact: false,
+      }),
+    );
+  }
+
+  onAppHeaderClick = async () => {
+    const { prepareToLeaveSwaps } = this.props;
+    if (this.onSwapsPage()) {
+      await prepareToLeaveSwaps();
+    }
+  };
+
   render() {
     const {
       isLoading,
@@ -269,26 +302,22 @@ export default class Routes extends Component {
       textDirection,
       loadingMessage,
       isNetworkLoading,
-      provider,
-      frequentRpcListDetail,
       setMouseUserState,
       isMouseUser,
-      prepareToLeaveSwaps,
-      browserEnvironment,
+      browserEnvironmentOs: os,
+      browserEnvironmentBrowser: browser,
     } = this.props;
     const loadMessage =
       loadingMessage || isNetworkLoading
         ? this.getConnectingLabel(loadingMessage)
         : null;
 
-    const { os, browser } = browserEnvironment;
     return (
       <div
         className={classnames('app', {
           [`os-${os}`]: os,
           [`browser-${browser}`]: browser,
           'mouse-user-styles': isMouseUser,
-          'beta': isBeta(),
         })}
         dir={textDirection}
         onClick={() => setMouseUserState(true)}
@@ -298,31 +327,28 @@ export default class Routes extends Component {
           }
         }}
       >
+        <QRHardwarePopover />
         <Modal />
         <Alert visible={this.props.alertOpen} msg={alertMessage} />
         {!this.hideAppHeader() && (
           <AppHeader
             hideNetworkIndicator={this.onInitializationUnlockPage()}
             disableNetworkIndicator={this.onSwapsPage()}
-            onClick={async () => {
-              if (this.onSwapsPage()) {
-                await prepareToLeaveSwaps();
-              }
-            }}
+            onClick={this.onAppHeaderClick}
             disabled={
               this.onConfirmPage() ||
               (this.onSwapsPage() && !this.onSwapsBuildQuotePage())
             }
           />
         )}
-        <NetworkDropdown
-          provider={provider}
-          frequentRpcListDetail={frequentRpcListDetail}
-        />
+        {process.env.ONBOARDING_V2 && this.showOnboardingHeader() && (
+          <OnboardingAppHeader />
+        )}
+        <NetworkDropdown />
         <AccountMenu />
         <div className="main-container-wrapper">
-          {isLoading && <Loading loadingMessage={loadMessage} />}
-          {!isLoading && isNetworkLoading && <LoadingNetwork />}
+          {isLoading ? <Loading loadingMessage={loadMessage} /> : null}
+          {!isLoading && isNetworkLoading ? <LoadingNetwork /> : null}
           {this.renderRoutes()}
         </div>
         {isUnlocked ? <Alerts history={this.props.history} /> : null}
@@ -348,9 +374,9 @@ export default class Routes extends Component {
     if (loadingMessage) {
       return loadingMessage;
     }
-    const { provider, providerId } = this.props;
+    const { providerType, providerId } = this.props;
 
-    switch (provider.type) {
+    switch (providerType) {
       case 'mainnet':
         return this.context.t('connectingToMainnet');
       case 'ropsten':
@@ -363,23 +389,6 @@ export default class Routes extends Component {
         return this.context.t('connectingToGoerli');
       default:
         return this.context.t('connectingTo', [providerId]);
-    }
-  }
-
-  getNetworkName() {
-    switch (this.props.provider.type) {
-      case 'mainnet':
-        return this.context.t('mainnet');
-      case 'ropsten':
-        return this.context.t('ropsten');
-      case 'kovan':
-        return this.context.t('kovan');
-      case 'rinkeby':
-        return this.context.t('rinkeby');
-      case 'goerli':
-        return this.context.t('goerli');
-      default:
-        return this.context.t('unknownNetwork');
     }
   }
 }

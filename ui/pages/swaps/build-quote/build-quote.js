@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
+import BigNumber from 'bignumber.js';
 import PropTypes from 'prop-types';
-import { useDispatch, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import classnames from 'classnames';
 import { uniqBy, isEqual } from 'lodash';
 import { useHistory } from 'react-router-dom';
@@ -34,7 +35,15 @@ import {
   getTopAssets,
   getFetchParams,
   getQuotes,
+  setBalanceError,
+  setFromTokenInputValue,
+  setFromTokenError,
+  setMaxSlippage,
   setReviewSwapClickedTimestamp,
+  getFromTokenInputValue,
+  getFromTokenError,
+  getMaxSlippage,
+  getIsFeatureFlagLoaded,
 } from '../../../ducks/swaps/swaps';
 import {
   getSwapsDefaultToken,
@@ -51,7 +60,10 @@ import {
   hexToDecimal,
 } from '../../../helpers/utils/conversions.util';
 import { calcTokenAmount } from '../../../helpers/utils/token-util';
-import { getURLHostName } from '../../../helpers/utils/util';
+import {
+  getURLHostName,
+  isEqualCaseInsensitive,
+} from '../../../helpers/utils/util';
 import { usePrevious } from '../../../hooks/usePrevious';
 import { useTokenTracker } from '../../../hooks/useTokenTracker';
 import { useTokenFiatAmount } from '../../../hooks/useTokenFiatAmount';
@@ -74,6 +86,7 @@ import {
   stopPollingForQuotes,
 } from '../../../store/actions';
 import {
+  countDecimals,
   fetchTokenPrice,
   fetchTokenBalance,
   shouldEnableDirectWrapping,
@@ -91,14 +104,8 @@ const MAX_ALLOWED_SLIPPAGE = 15;
 let timeoutIdForQuotesPrefetching;
 
 export default function BuildQuote({
-  inputValue,
-  onInputChange,
   ethBalance,
-  setMaxSlippage,
-  maxSlippage,
   selectedAccountAddress,
-  isFeatureFlagLoaded,
-  tokenFromError,
   shuffledTokensList,
 }) {
   const t = useContext(I18nContext);
@@ -111,18 +118,22 @@ export default function BuildQuote({
   );
   const [verificationClicked, setVerificationClicked] = useState(false);
 
+  const isFeatureFlagLoaded = useSelector(getIsFeatureFlagLoaded);
   const balanceError = useSelector(getBalanceError);
-  const fetchParams = useSelector(getFetchParams);
+  const fetchParams = useSelector(getFetchParams, isEqual);
   const { sourceTokenInfo = {}, destinationTokenInfo = {} } =
     fetchParams?.metaData || {};
-  const tokens = useSelector(getTokens);
+  const tokens = useSelector(getTokens, isEqual);
   const topAssets = useSelector(getTopAssets);
-  const fromToken = useSelector(getFromToken);
+  const fromToken = useSelector(getFromToken, isEqual);
+  const fromTokenInputValue = useSelector(getFromTokenInputValue);
+  const fromTokenError = useSelector(getFromTokenError);
+  const maxSlippage = useSelector(getMaxSlippage);
   const toToken = useSelector(getToToken) || destinationTokenInfo;
-  const defaultSwapsToken = useSelector(getSwapsDefaultToken);
+  const defaultSwapsToken = useSelector(getSwapsDefaultToken, isEqual);
   const chainId = useSelector(getCurrentChainId);
-  const rpcPrefs = useSelector(getRpcPrefsForCurrentProvider);
-  const tokenList = useSelector(getTokenList);
+  const rpcPrefs = useSelector(getRpcPrefsForCurrentProvider, shallowEqual);
+  const tokenList = useSelector(getTokenList, isEqual);
   const useTokenDetection = useSelector(getUseTokenDetection);
   const quotes = useSelector(getQuotes, isEqual);
   const areQuotesPresent = Object.keys(quotes).length > 0;
@@ -169,8 +180,9 @@ export default function BuildQuote({
     shuffledTokensList,
   });
   const selectedToToken =
-    tokensToSearch.find(({ address }) => address === toToken?.address) ||
-    toToken;
+    tokensToSearch.find(({ address }) =>
+      isEqualCaseInsensitive(address, toToken?.address),
+    ) || toToken;
   const toTokenIsNotDefault =
     selectedToToken?.address &&
     !isSwapsDefaultTokenAddress(selectedToToken?.address, chainId);
@@ -194,7 +206,7 @@ export default function BuildQuote({
 
   const swapFromTokenFiatValue = useTokenFiatAmount(
     fromTokenAddress,
-    inputValue || 0,
+    fromTokenInputValue || 0,
     fromTokenSymbol,
     {
       showFiat: true,
@@ -202,13 +214,34 @@ export default function BuildQuote({
     true,
   );
   const swapFromEthFiatValue = useEthFiatAmount(
-    inputValue || 0,
+    fromTokenInputValue || 0,
     { showFiat: true },
     true,
   );
   const swapFromFiatValue = isSwapsDefaultTokenSymbol(fromTokenSymbol, chainId)
     ? swapFromEthFiatValue
     : swapFromTokenFiatValue;
+
+  const onInputChange = useCallback(
+    (newInputValue, balance) => {
+      dispatch(setFromTokenInputValue(newInputValue));
+      const newBalanceError = new BigNumber(newInputValue || 0).gt(
+        balance || 0,
+      );
+      // "setBalanceError" is just a warning, a user can still click on the "Review Swap" button.
+      if (balanceError !== newBalanceError) {
+        dispatch(setBalanceError(newBalanceError));
+      }
+      dispatch(
+        setFromTokenError(
+          fromToken && countDecimals(newInputValue) > fromToken.decimals
+            ? 'tooManyDecimals'
+            : null,
+        ),
+      );
+    },
+    [dispatch, fromToken, balanceError],
+  );
 
   const onFromSelect = (token) => {
     if (
@@ -226,8 +259,8 @@ export default function BuildQuote({
     }
     if (
       token?.address &&
-      !memoizedUsersTokens.find(
-        (usersToken) => usersToken.address === token.address,
+      !memoizedUsersTokens.find((usersToken) =>
+        isEqualCaseInsensitive(usersToken.address, token.address),
       )
     ) {
       fetchTokenBalance(token.address, selectedAccountAddress).then(
@@ -251,7 +284,7 @@ export default function BuildQuote({
     }
     dispatch(setSwapsFromToken(token));
     onInputChange(
-      token?.address ? inputValue : '',
+      token?.address ? fromTokenInputValue : '',
       token.string,
       token.decimals,
     );
@@ -298,12 +331,12 @@ export default function BuildQuote({
   );
 
   const hideDropdownItemIf = useCallback(
-    (item) => item.address === fromTokenAddress,
+    (item) => isEqualCaseInsensitive(item.address, fromTokenAddress),
     [fromTokenAddress],
   );
 
-  const tokensWithBalancesFromToken = tokensWithBalances.find(
-    (token) => token.address === fromToken?.address,
+  const tokensWithBalancesFromToken = tokensWithBalances.find((token) =>
+    isEqualCaseInsensitive(token.address, fromToken?.address),
   );
   const previousTokensWithBalancesFromToken = usePrevious(
     tokensWithBalancesFromToken,
@@ -314,9 +347,10 @@ export default function BuildQuote({
       tokensWithBalancesFromToken?.address,
       chainId,
     );
-    const addressesAreTheSame =
-      tokensWithBalancesFromToken?.address ===
-      previousTokensWithBalancesFromToken?.address;
+    const addressesAreTheSame = isEqualCaseInsensitive(
+      tokensWithBalancesFromToken?.address,
+      previousTokensWithBalancesFromToken?.address,
+    );
     const balanceHasChanged =
       tokensWithBalancesFromToken?.balance !==
       previousTokensWithBalancesFromToken?.balance;
@@ -359,9 +393,14 @@ export default function BuildQuote({
 
   useEffect(() => {
     if (prevFromTokenBalance !== fromTokenBalance) {
-      onInputChange(inputValue, fromTokenBalance);
+      onInputChange(fromTokenInputValue, fromTokenBalance);
     }
-  }, [onInputChange, prevFromTokenBalance, inputValue, fromTokenBalance]);
+  }, [
+    onInputChange,
+    prevFromTokenBalance,
+    fromTokenInputValue,
+    fromTokenBalance,
+  ]);
 
   useEffect(() => {
     dispatch(resetSwapsPostFetchState());
@@ -411,9 +450,9 @@ export default function BuildQuote({
     selectedToToken.address,
   );
   const isReviewSwapButtonDisabled =
-    tokenFromError ||
+    fromTokenError ||
     !isFeatureFlagLoaded ||
-    !Number(inputValue) ||
+    !Number(fromTokenInputValue) ||
     !selectedToToken?.address ||
     Number(maxSlippage) < 0 ||
     Number(maxSlippage) > MAX_ALLOWED_SLIPPAGE ||
@@ -428,7 +467,7 @@ export default function BuildQuote({
       await dispatch(
         fetchQuotesAndSetQuoteState(
           history,
-          inputValue,
+          fromTokenInputValue,
           maxSlippage,
           metaMetricsEvent,
           pageRedirectionDisabled,
@@ -451,7 +490,7 @@ export default function BuildQuote({
     maxSlippage,
     metaMetricsEvent,
     isReviewSwapButtonDisabled,
-    inputValue,
+    fromTokenInputValue,
     fromTokenAddress,
     toTokenAddress,
   ]);
@@ -479,8 +518,8 @@ export default function BuildQuote({
           onInputChange={(value) => {
             onInputChange(value, fromTokenBalance);
           }}
-          inputValue={inputValue}
-          leftValue={inputValue && swapFromFiatValue}
+          inputValue={fromTokenInputValue}
+          leftValue={fromTokenInputValue && swapFromFiatValue}
           selectedItem={selectedFromToken}
           maxListItems={30}
           loading={
@@ -490,21 +529,23 @@ export default function BuildQuote({
               !Object.keys(topAssets).length)
           }
           selectPlaceHolderText={t('swapSelect')}
-          hideItemIf={(item) => item.address === selectedToToken?.address}
+          hideItemIf={(item) =>
+            isEqualCaseInsensitive(item.address, selectedToToken?.address)
+          }
           listContainerClassName="build-quote__open-dropdown"
           autoFocus
         />
         <div
           className={classnames('build-quote__balance-message', {
             'build-quote__balance-message--error':
-              balanceError || tokenFromError,
+              balanceError || fromTokenError,
           })}
         >
-          {!tokenFromError &&
+          {!fromTokenError &&
             !balanceError &&
             fromTokenSymbol &&
             swapYourTokenBalance}
-          {!tokenFromError && balanceError && fromTokenSymbol && (
+          {!fromTokenError && balanceError && fromTokenSymbol && (
             <div className="build-quite__insufficient-funds">
               <div className="build-quite__insufficient-funds-first">
                 {t('swapsNotEnoughForTx', [fromTokenSymbol])}
@@ -514,7 +555,7 @@ export default function BuildQuote({
               </div>
             </div>
           )}
-          {tokenFromError && (
+          {fromTokenError && (
             <>
               <div className="build-quote__form-error">
                 {t('swapTooManyDecimalsError', [
@@ -638,7 +679,7 @@ export default function BuildQuote({
           <div className="build-quote__slippage-buttons-container">
             <SlippageButtons
               onSelect={(newSlippage) => {
-                setMaxSlippage(newSlippage);
+                dispatch(setMaxSlippage(newSlippage));
               }}
               maxAllowedSlippage={MAX_ALLOWED_SLIPPAGE}
               currentSlippage={maxSlippage}
@@ -657,7 +698,7 @@ export default function BuildQuote({
             dispatch(
               fetchQuotesAndSetQuoteState(
                 history,
-                inputValue,
+                fromTokenInputValue,
                 maxSlippage,
                 metaMetricsEvent,
               ),
@@ -681,13 +722,7 @@ export default function BuildQuote({
 }
 
 BuildQuote.propTypes = {
-  maxSlippage: PropTypes.number,
-  inputValue: PropTypes.string,
-  onInputChange: PropTypes.func,
   ethBalance: PropTypes.string,
-  setMaxSlippage: PropTypes.func,
   selectedAccountAddress: PropTypes.string,
-  isFeatureFlagLoaded: PropTypes.bool.isRequired,
-  tokenFromError: PropTypes.string,
   shuffledTokensList: PropTypes.array,
 };

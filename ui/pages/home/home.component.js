@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Redirect, Route } from 'react-router-dom';
 import { formatDate } from '../../helpers/utils/util';
 import AssetList from '../../components/app/asset-list';
+import CollectiblesTab from '../../components/app/collectibles-tab';
 import HomeNotification from '../../components/app/home-notification';
 import MultipleNotifications from '../../components/app/multiple-notifications';
 import TransactionList from '../../components/app/transaction-list';
@@ -15,6 +16,9 @@ import { Tabs, Tab } from '../../components/ui/tabs';
 import { EthOverview } from '../../components/app/wallet-overview';
 import WhatsNewPopup from '../../components/app/whats-new-popup';
 import RecoveryPhraseReminder from '../../components/app/recovery-phrase-reminder';
+import ActionableMessage from '../../components/ui/actionable-message/actionable-message';
+import Typography from '../../components/ui/typography/typography';
+import { TYPOGRAPHY, FONT_WEIGHT } from '../../helpers/constants/design-system';
 
 import { isBeta } from '../../helpers/utils/build-types';
 
@@ -31,6 +35,7 @@ import {
   BUILD_QUOTE_ROUTE,
   VIEW_QUOTE_ROUTE,
   CONFIRMATION_V_NEXT_ROUTE,
+  ADD_COLLECTIBLE_ROUTE,
 } from '../../helpers/constants/routes';
 import BetaHomeFooter from './beta-home-footer.component';
 
@@ -84,6 +89,11 @@ export default class Home extends PureComponent {
     setRecoveryPhraseReminderHasBeenShown: PropTypes.func.isRequired,
     setRecoveryPhraseReminderLastShown: PropTypes.func.isRequired,
     seedPhraseBackedUp: PropTypes.bool.isRequired,
+    newNetworkAdded: PropTypes.string,
+    setNewNetworkAdded: PropTypes.func.isRequired,
+    isSigningQRHardwareTransaction: PropTypes.bool.isRequired,
+    newCollectibleAddedMessage: PropTypes.string,
+    setNewCollectibleAddedMessage: PropTypes.func.isRequired,
   };
 
   state = {
@@ -92,7 +102,7 @@ export default class Home extends PureComponent {
     canShowBlockageNotification: true,
   };
 
-  componentDidMount() {
+  checkStatusAndNavigate() {
     const {
       firstPermissionsRequestId,
       history,
@@ -104,11 +114,13 @@ export default class Home extends PureComponent {
       showAwaitingSwapScreen,
       swapsFetchParams,
       pendingConfirmations,
+      isSigningQRHardwareTransaction,
     } = this.props;
-
-    // eslint-disable-next-line react/no-unused-state
-    this.setState({ mounted: true });
-    if (isNotification && totalUnapprovedCount === 0) {
+    if (
+      isNotification &&
+      totalUnapprovedCount === 0 &&
+      !isSigningQRHardwareTransaction
+    ) {
       global.platform.closeCurrentWindow();
     } else if (!isNotification && showAwaitingSwapScreen) {
       history.push(AWAITING_SWAP_ROUTE);
@@ -127,6 +139,12 @@ export default class Home extends PureComponent {
     }
   }
 
+  componentDidMount() {
+    // eslint-disable-next-line react/no-unused-state
+    this.setState({ mounted: true });
+    this.checkStatusAndNavigate();
+  }
+
   static getDerivedStateFromProps(
     {
       firstPermissionsRequestId,
@@ -137,11 +155,16 @@ export default class Home extends PureComponent {
       haveSwapsQuotes,
       showAwaitingSwapScreen,
       swapsFetchParams,
+      isSigningQRHardwareTransaction,
     },
     { mounted },
   ) {
     if (!mounted) {
-      if (isNotification && totalUnapprovedCount === 0) {
+      if (
+        isNotification &&
+        totalUnapprovedCount === 0 &&
+        !isSigningQRHardwareTransaction
+      ) {
         return { closing: true };
       } else if (
         firstPermissionsRequestId ||
@@ -162,11 +185,14 @@ export default class Home extends PureComponent {
       showRestorePrompt,
       threeBoxLastUpdated,
       threeBoxSynced,
+      isNotification,
     } = this.props;
 
     if (!prevState.closing && this.state.closing) {
       global.platform.closeCurrentWindow();
     }
+
+    isNotification && this.checkStatusAndNavigate();
 
     if (threeBoxSynced && showRestorePrompt && threeBoxLastUpdated === null) {
       setupThreeBox();
@@ -199,10 +225,69 @@ export default class Home extends PureComponent {
       originOfCurrentTab,
       disableWeb3ShimUsageAlert,
       infuraBlocked,
+      newNetworkAdded,
+      setNewNetworkAdded,
+      newCollectibleAddedMessage,
+      setNewCollectibleAddedMessage,
     } = this.props;
-
     return (
       <MultipleNotifications>
+        {newCollectibleAddedMessage ? (
+          <ActionableMessage
+            type={newCollectibleAddedMessage === 'success' ? 'info' : 'warning'}
+            className="home__new-network-notification"
+            message={
+              <div className="home__new-network-notification-message">
+                {newCollectibleAddedMessage === 'success' ? (
+                  <img
+                    src="./images/check_circle.svg"
+                    className="home__new-network-notification-message--image"
+                  />
+                ) : null}
+                <Typography
+                  variant={TYPOGRAPHY.H7}
+                  fontWeight={FONT_WEIGHT.NORMAL}
+                >
+                  {newCollectibleAddedMessage === 'success'
+                    ? t('newCollectibleAddedMessage')
+                    : t('newCollectibleAddFailed', [
+                        newCollectibleAddedMessage,
+                      ])}
+                </Typography>
+                <button
+                  className="fas fa-times home__close"
+                  title={t('close')}
+                  onClick={() => setNewCollectibleAddedMessage('')}
+                />
+              </div>
+            }
+          />
+        ) : null}
+        {newNetworkAdded ? (
+          <ActionableMessage
+            type="info"
+            className="home__new-network-notification"
+            message={
+              <div className="home__new-network-notification-message">
+                <img
+                  src="./images/check_circle.svg"
+                  className="home__new-network-notification-message--image"
+                />
+                <Typography
+                  variant={TYPOGRAPHY.H7}
+                  fontWeight={FONT_WEIGHT.NORMAL}
+                >
+                  {t('newNetworkAdded', [newNetworkAdded])}
+                </Typography>
+                <button
+                  className="fas fa-times home__close"
+                  title={t('close')}
+                  onClick={() => setNewNetworkAdded('')}
+                />
+              </div>
+            }
+          />
+        ) : null}
         {shouldShowWeb3ShimUsageNotification ? (
           <HomeNotification
             descriptionText={t('web3ShimUsageNotification', [
@@ -397,6 +482,20 @@ export default class Home extends PureComponent {
                   }
                 />
               </Tab>
+              {process.env.COLLECTIBLES_V1 ? (
+                <Tab
+                  activeClassName="home__tab--active"
+                  className="home__tab"
+                  data-testid="home__nfts-tab"
+                  name={t('nfts')}
+                >
+                  <CollectiblesTab
+                    onAddNFT={() => {
+                      history.push(ADD_COLLECTIBLE_ROUTE);
+                    }}
+                  />
+                </Tab>
+              ) : null}
               <Tab
                 activeClassName="home__tab--active"
                 className="home__tab"

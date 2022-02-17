@@ -1,5 +1,5 @@
 const deepFreeze = require('deep-freeze-strict');
-const { BuildTypes } = require('../utils');
+const { BuildType } = require('../utils');
 const {
   createRemoveFencedCodeTransform,
   removeFencedCode,
@@ -161,6 +161,28 @@ describe('build/transforms/remove-fenced-code', () => {
       });
     });
 
+    it('handles error during code fence removal or parsing', async () => {
+      const fileContent = getMinimalFencedCode().concat(
+        '///: END:ONLY_INCLUDE_IN',
+      );
+
+      const stream = createRemoveFencedCodeTransform('main')(mockJsFileName);
+
+      await new Promise((resolve) => {
+        stream.on('error', (error) => {
+          expect(error.message).toStrictEqual(
+            expect.stringContaining(
+              'A valid fence consists of two fence lines, but the file contains an uneven number, "3", of fence lines.',
+            ),
+          );
+          expect(lintTransformedFileMock).toHaveBeenCalledTimes(0);
+          resolve();
+        });
+
+        stream.end(fileContent);
+      });
+    });
+
     it('handles transformed file lint failure', async () => {
       lintTransformedFileMock.mockImplementationOnce(() =>
         Promise.reject(new Error('lint failure')),
@@ -191,7 +213,7 @@ describe('build/transforms/remove-fenced-code', () => {
     const mockFileName = 'file.js';
 
     // Valid inputs
-    Object.keys(BuildTypes).forEach((buildType) => {
+    Object.keys(BuildType).forEach((buildType) => {
       it(`transforms file with fences for build type "${buildType}"`, () => {
         expect(
           removeFencedCode(
@@ -200,6 +222,14 @@ describe('build/transforms/remove-fenced-code', () => {
             testData.validInputs.withFences,
           ),
         ).toStrictEqual(testData.validOutputs[buildType]);
+
+        expect(
+          removeFencedCode(
+            mockFileName,
+            buildType,
+            testData.validInputs.extraContentWithFences,
+          ),
+        ).toStrictEqual(testData.validOutputsWithExtraContent[buildType]);
 
         // Ensure that the minimal input template is in fact valid
         const minimalInput = getMinimalFencedCode(buildType);
@@ -216,6 +246,17 @@ describe('build/transforms/remove-fenced-code', () => {
             testData.validInputs.withoutFences,
           ),
         ).toStrictEqual([testData.validInputs.withoutFences, false]);
+
+        expect(
+          removeFencedCode(
+            mockFileName,
+            buildType,
+            testData.validInputs.extraContentWithoutFences,
+          ),
+        ).toStrictEqual([
+          testData.validInputs.extraContentWithoutFences,
+          false,
+        ]);
       });
     });
 
@@ -224,7 +265,7 @@ describe('build/transforms/remove-fenced-code', () => {
       expect(
         removeFencedCode(
           mockFileName,
-          BuildTypes.flask,
+          BuildType.flask,
           getMinimalFencedCode('main'),
         ),
       ).toStrictEqual(['', true]);
@@ -243,7 +284,7 @@ describe('build/transforms/remove-fenced-code', () => {
         expect(
           removeFencedCode(
             mockFileName,
-            BuildTypes.flask,
+            BuildType.flask,
             getMinimalFencedCode('main').concat(ignoredLine),
           ),
         ).toStrictEqual([ignoredLine, true]);
@@ -256,7 +297,7 @@ describe('build/transforms/remove-fenced-code', () => {
         expect(
           removeFencedCode(
             mockFileName,
-            BuildTypes.flask,
+            BuildType.flask,
             modifiedInputWithoutFences,
           ),
         ).toStrictEqual([modifiedInputWithoutFences, false]);
@@ -286,7 +327,7 @@ describe('build/transforms/remove-fenced-code', () => {
 
       inputs.forEach((input) => {
         expect(() =>
-          removeFencedCode(mockFileName, BuildTypes.flask, input),
+          removeFencedCode(mockFileName, BuildType.flask, input),
         ).toThrow(
           `Empty fence found in file "${mockFileName}":\n${emptyFence}`,
         );
@@ -313,7 +354,7 @@ describe('build/transforms/remove-fenced-code', () => {
         expect(() =>
           removeFencedCode(
             mockFileName,
-            BuildTypes.flask,
+            BuildType.flask,
             getMinimalFencedCode().replace(
               fenceSentinelAndTerminusRegex,
               replacement,
@@ -373,7 +414,7 @@ describe('build/transforms/remove-fenced-code', () => {
         expect(() =>
           removeFencedCode(
             mockFileName,
-            BuildTypes.flask,
+            BuildType.flask,
             getMinimalFencedCode().replace(directiveString, replacement),
           ),
         ).toThrow(
@@ -419,7 +460,7 @@ describe('build/transforms/remove-fenced-code', () => {
         expect(() =>
           removeFencedCode(
             mockFileName,
-            BuildTypes.flask,
+            BuildType.flask,
             getMinimalFencedCode().replace(directiveString, replacement),
           ),
         ).toThrow(
@@ -440,7 +481,7 @@ describe('build/transforms/remove-fenced-code', () => {
         expect(() =>
           removeFencedCode(
             mockFileName,
-            BuildTypes.flask,
+            BuildType.flask,
             getMinimalFencedCode().concat(addition),
           ),
         ).toThrow(
@@ -460,7 +501,7 @@ describe('build/transforms/remove-fenced-code', () => {
           expect(() =>
             removeFencedCode(
               mockFileName,
-              BuildTypes.flask,
+              BuildType.flask,
               getMinimalFencedCode().replace(validTerminus, replacement),
             ),
           ).toThrow(
@@ -484,7 +525,7 @@ describe('build/transforms/remove-fenced-code', () => {
           expect(() =>
             removeFencedCode(
               mockFileName,
-              BuildTypes.flask,
+              BuildType.flask,
               getMinimalFencedCode().replace(validCommand, replacement),
             ),
           ).toThrow(
@@ -513,7 +554,7 @@ describe('build/transforms/remove-fenced-code', () => {
           expect(() =>
             removeFencedCode(
               mockFileName,
-              BuildTypes.flask,
+              BuildType.flask,
               getMinimalFencedCode(replacement),
             ),
           ).toThrow(
@@ -526,7 +567,7 @@ describe('build/transforms/remove-fenced-code', () => {
       expect(() =>
         removeFencedCode(
           mockFileName,
-          BuildTypes.flask,
+          BuildType.flask,
           getMinimalFencedCode('').replace('()', ''),
         ),
       ).toThrow(/No params specified.$/u);
@@ -562,7 +603,7 @@ describe('build/transforms/remove-fenced-code', () => {
         expect(() =>
           removeFencedCode(
             mockFileName,
-            BuildTypes.flask,
+            BuildType.flask,
             input.replace(target, replacement),
           ),
         ).toThrow(expectedError);
@@ -611,6 +652,43 @@ Conditionally_Included
        ///: END:ONLY_INCLUDE_IN
 `,
 
+      extraContentWithFences: `
+///: BEGIN:ONLY_INCLUDE_IN(flask,beta)
+Conditionally_Included
+///: END:ONLY_INCLUDE_IN
+  Always_Included
+Always_Included
+   Always_Included
+Always_Included
+  ///: BEGIN:ONLY_INCLUDE_IN(flask,beta)
+  Conditionally_Included
+
+  Conditionally_Included
+  Conditionally_Included
+  ///: END:ONLY_INCLUDE_IN
+Always_Included
+
+Always_Included
+   Always_Included
+          ///: BEGIN:ONLY_INCLUDE_IN(flask)
+
+  Conditionally_Included
+    Conditionally_Included
+       ///: END:ONLY_INCLUDE_IN
+Always_Included
+   Always_Included
+Always_Included
+
+///: BEGIN:ONLY_INCLUDE_IN(flask)
+  Conditionally_Included
+Conditionally_Included
+
+       ///: END:ONLY_INCLUDE_IN
+    Always_Included
+      Always_Included
+Always_Included
+`,
+
       withoutFences: `
   Always_Included
 Always_Included
@@ -624,6 +702,24 @@ Always_Included
    Always_Included
 Always_Included
 
+`,
+
+      extraContentWithoutFences: `
+  Always_Included
+Always_Included
+   Always_Included
+Always_Included
+Always_Included
+
+Always_Included
+   Always_Included
+Always_Included
+   Always_Included
+Always_Included
+
+    Always_Included
+      Always_Included
+Always_Included
 `,
     },
 
@@ -655,9 +751,50 @@ Always_Included
         true,
       ],
     },
+
+    validOutputsWithExtraContent: {
+      beta: [
+        `
+///: BEGIN:ONLY_INCLUDE_IN(flask,beta)
+Conditionally_Included
+///: END:ONLY_INCLUDE_IN
+  Always_Included
+Always_Included
+   Always_Included
+Always_Included
+  ///: BEGIN:ONLY_INCLUDE_IN(flask,beta)
+  Conditionally_Included
+
+  Conditionally_Included
+  Conditionally_Included
+  ///: END:ONLY_INCLUDE_IN
+Always_Included
+
+Always_Included
+   Always_Included
+Always_Included
+   Always_Included
+Always_Included
+
+    Always_Included
+      Always_Included
+Always_Included
+`,
+        true,
+      ],
+    },
   };
 
   data.validOutputs.flask = [data.validInputs.withFences, false];
   data.validOutputs.main = [data.validInputs.withoutFences, true];
+
+  data.validOutputsWithExtraContent.flask = [
+    data.validInputs.extraContentWithFences,
+    false,
+  ];
+  data.validOutputsWithExtraContent.main = [
+    data.validInputs.extraContentWithoutFences,
+    true,
+  ];
   return deepFreeze(data);
 }

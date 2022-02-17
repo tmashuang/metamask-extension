@@ -3,19 +3,20 @@ import { text, boolean } from '@storybook/addon-knobs';
 import AdvancedTab from './advanced-tab.component';
 
 export default {
-  title: 'AdvancedTab',
+  title: 'Pages/Settings/AdvancedTab',
   id: __filename,
 };
 
-export const AdvancedTabComponent = () => {
+export const DefaultStory = () => {
   return (
     <div style={{ flex: 1, height: 500 }}>
       <AdvancedTab
         setAutoLockTimeLimit={() => undefined}
         setShowFiatConversionOnTestnetsPreference={() => undefined}
+        setShowTestNetworks={() => undefined}
         setThreeBoxSyncingPermission={() => undefined}
         setIpfsGateway={() => undefined}
-        setLedgerLivePreference={() => undefined}
+        setLedgerTransportPreference={() => undefined}
         setDismissSeedBackUpReminder={() => undefined}
         setUseNonceField={() => undefined}
         setHexDataFeatureFlag={() => undefined}
@@ -43,3 +44,5 @@ export const AdvancedTabComponent = () => {
     </div>
   );
 };
+
+DefaultStory.storyName = 'Default';

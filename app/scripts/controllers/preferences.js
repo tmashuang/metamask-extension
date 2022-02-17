@@ -3,8 +3,12 @@ import { ObservableStore } from '@metamask/obs-store';
 import { normalize as normalizeAddress } from 'eth-sig-util';
 import { ethers } from 'ethers';
 import log from 'loglevel';
-import { NETWORK_TYPE_TO_ID_MAP } from '../../../shared/constants/network';
+import {
+  IPFS_DEFAULT_GATEWAY_URL,
+  NETWORK_TYPE_TO_ID_MAP,
+} from '../../../shared/constants/network';
 import { isPrefixedFormattedHexString } from '../../../shared/modules/network.utils';
+import { LEDGER_TRANSPORT_TYPES } from '../../../shared/constants/hardware-wallets';
 import { NETWORK_EVENTS } from './network';
 
 export default class PreferencesController {
@@ -36,6 +40,9 @@ export default class PreferencesController {
       // set to true means the dynamic list from the API is being used
       // set to false will be using the static list from contract-metadata
       useTokenDetection: false,
+      useCollectibleDetection: false,
+      openSeaEnabled: false,
+      advancedGasFee: null,
 
       // WARNING: Do not use feature flags for security-sensitive things.
       // Feature flag toggling is available in the global namespace
@@ -45,7 +52,6 @@ export default class PreferencesController {
         showIncomingTransactions: true,
       },
       knownMethodData: {},
-      firstTimeFlowType: null,
       currentLocale: opts.initLangCode,
       identities: {},
       lostIdentities: {},
@@ -53,14 +59,16 @@ export default class PreferencesController {
       preferences: {
         autoLockTimeLimit: undefined,
         showFiatInTestnets: false,
+        showTestNetworks: false,
         useNativeCurrencyAsPrimaryCurrency: true,
         hideZeroBalanceTokens: false,
       },
-      completedOnboarding: false,
       // ENS decentralized website resolution
-      ipfsGateway: 'dweb.link',
+      ipfsGateway: IPFS_DEFAULT_GATEWAY_URL,
       infuraBlocked: null,
-      useLedgerLive: false,
+      ledgerTransportType: window.navigator.hid
+        ? LEDGER_TRANSPORT_TYPES.WEBHID
+        : LEDGER_TRANSPORT_TYPES.U2F,
       ...opts.initState,
     };
 
@@ -128,13 +136,42 @@ export default class PreferencesController {
   }
 
   /**
-   * Setter for the `firstTimeFlowType` property
+   * Setter for the `useCollectibleDetection` property
    *
-   * @param {string} type - Indicates the type of first time flow - create or import - the user wishes to follow
+   * @param {boolean} val - Whether or not the user prefers to autodetect collectibles.
    *
    */
-  setFirstTimeFlowType(type) {
-    this.store.updateState({ firstTimeFlowType: type });
+  setUseCollectibleDetection(val) {
+    const { openSeaEnabled } = this.store.getState();
+    if (val && !openSeaEnabled) {
+      throw new Error(
+        'useCollectibleDetection cannot be enabled if openSeaEnabled is false',
+      );
+    }
+    this.store.updateState({ useCollectibleDetection: val });
+  }
+
+  /**
+   * Setter for the `openSeaEnabled` property
+   *
+   * @param {boolean} val - Whether or not the user prefers to use the OpenSea API for collectibles data.
+   *
+   */
+  setOpenSeaEnabled(val) {
+    this.store.updateState({ openSeaEnabled: val });
+    if (!val) {
+      this.store.updateState({ useCollectibleDetection: false });
+    }
+  }
+
+  /**
+   * Setter for the `advancedGasFee` property
+   *
+   * @param {object} val - holds the maxBaseFee and PriorityFee that the user set as default advanced settings.
+   *
+   */
+  setAdvancedGasFee(val) {
+    this.store.updateState({ advancedGasFee: val });
   }
 
   /**
@@ -510,15 +547,6 @@ export default class PreferencesController {
   }
 
   /**
-   * Sets the completedOnboarding state to true, indicating that the user has completed the
-   * onboarding process.
-   */
-  completeOnboarding() {
-    this.store.updateState({ completedOnboarding: true });
-    return Promise.resolve(true);
-  }
-
-  /**
    * A getter for the `ipfsGateway` property
    * @returns {string} The current IPFS gateway domain
    */
@@ -537,21 +565,21 @@ export default class PreferencesController {
   }
 
   /**
-   * A setter for the `useLedgerLive` property
-   * @param {bool} useLedgerLive - Value for ledger live support
-   * @returns {Promise<string>} A promise of the update to useLedgerLive
+   * A setter for the `useWebHid` property
+   * @param {string} ledgerTransportType - Either 'ledgerLive', 'webhid' or 'u2f'
+   * @returns {string} The transport type that was set.
    */
-  async setLedgerLivePreference(useLedgerLive) {
-    this.store.updateState({ useLedgerLive });
-    return useLedgerLive;
+  setLedgerTransportPreference(ledgerTransportType) {
+    this.store.updateState({ ledgerTransportType });
+    return ledgerTransportType;
   }
 
   /**
-   * A getter for the `useLedgerLive` property
-   * @returns {boolean} User preference of using Ledger Live
+   * A getter for the `ledgerTransportType` property
+   * @returns {boolean} User preference of using WebHid to connect Ledger
    */
-  getLedgerLivePreference() {
-    return this.store.getState().useLedgerLive;
+  getLedgerTransportPreference() {
+    return this.store.getState().ledgerTransportType;
   }
 
   /**

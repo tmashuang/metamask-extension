@@ -22,6 +22,14 @@
     "message": "MetaMask",
     "description": "The name of the application"
   },
+  "appNameBeta": {
+    "message": "MetaMask Beta",
+    "description": "The name of the application (Beta)"
+  },
+  "appNameFlask": {
+    "message": "MetaMask Flask",
+    "description": "The name of the application (Flask)"
+  },
   "approve": {
     "message": "Onaylamak"
   },
@@ -88,9 +96,6 @@
   "customGas": {
     "message": "Gas'i özelleştir"
   },
-  "customRPC": {
-    "message": "Özel RPC"
-  },
   "customToken": {
     "message": "Özel Jeton"
   },
@@ -99,9 +104,6 @@
   },
   "decimalsMustZerotoTen": {
     "message": "Ondalıklar en azından 0 olmalı ve 36'dan büyük olmamalı."
-  },
-  "defaultNetwork": {
-    "message": "Ether işlemleri için varsayılan ağ Mainnet."
   },
   "depositEther": {
     "message": "Ether yatır"
@@ -453,9 +455,6 @@
   },
   "visitWebSite": {
     "message": "Web sitemizi ziyaret edin"
-  },
-  "walletSeed": {
-    "message": "Cüzdan Kaynağı"
   },
   "welcome": {
     "message": "MetaMask'ya Hoşgeldiniz"

@@ -70,6 +70,14 @@
     "message": "MetaMask",
     "description": "The name of the application"
   },
+  "appNameBeta": {
+    "message": "MetaMask Beta",
+    "description": "The name of the application (Beta)"
+  },
+  "appNameFlask": {
+    "message": "MetaMask Flask",
+    "description": "The name of the application (Flask)"
+  },
   "approve": {
     "message": "Potrdi"
   },
@@ -218,9 +226,6 @@
   "copiedExclamation": {
     "message": "Kopirano!"
   },
-  "copiedTransactionId": {
-    "message": "ID transakcije skopirana"
-  },
   "copyAddress": {
     "message": "Kopiraj naslov v odložišče"
   },
@@ -257,9 +262,6 @@
   "customGasSubTitle": {
     "message": "Povečanje lahko skrajša čas obdelave, vendar ni zagotovljeno."
   },
-  "customRPC": {
-    "message": "RPC po meri"
-  },
   "customToken": {
     "message": "Žeton po meri"
   },
@@ -268,9 +270,6 @@
   },
   "decimalsMustZerotoTen": {
     "message": "Decimalk mora biti med 0 in 36."
-  },
-  "defaultNetwork": {
-    "message": "Privzeto omrežje za transkacije je glavno omrežje."
   },
   "delete": {
     "message": "Izbriši"
@@ -611,9 +610,6 @@
   "newContract": {
     "message": "Nova pogodba"
   },
-  "newNetwork": {
-    "message": "Novo omrežje"
-  },
   "newPassword": {
     "message": "Novo geslo (min 8 znakov)"
   },
@@ -661,12 +657,6 @@
   },
   "on": {
     "message": "Vklopljeno"
-  },
-  "optionalBlockExplorerUrl": {
-    "message": "Blokiraj URL Explorerja (poljubno)"
-  },
-  "optionalCurrencySymbol": {
-    "message": "Simbol (nezahtevano)"
   },
   "origin": {
     "message": "Izvor"
@@ -823,9 +813,6 @@
   "searchTokens": {
     "message": "Iskanje žetonov"
   },
-  "secretBackupPhrase": {
-    "message": "Skrivno geslo za varnostno kopiranje"
-  },
   "secretBackupPhraseDescription": {
     "message": "Vaše skrivno geslo za varnostno kopiranje olajša varnostno kopiranje in obnovitev računa."
   },
@@ -849,9 +836,6 @@
   },
   "selectAnAccount": {
     "message": "Izberi račun"
-  },
-  "selectAnAccountHelp": {
-    "message": "Izberi račun za prikaz v MetaMask"
   },
   "selectEachPhrase": {
     "message": "Izberite vsako geslo ter se prepričajte, da je pravilno."
@@ -1111,15 +1095,6 @@
   },
   "viewContact": {
     "message": "Ogled stika"
-  },
-  "viewOnCustomBlockExplorer": {
-    "message": "Ogled na $1 "
-  },
-  "viewOnEtherscan": {
-    "message": "Poglej na Etherscan"
-  },
-  "viewinExplorer": {
-    "message": "Ogled v Explorerju"
   },
   "visitWebSite": {
     "message": "Obiščite našo spletno stran"

@@ -22,7 +22,7 @@
 
       flex: 1 0 auto;
 
-      @media screen and (max-width: 575px) {
+      @media screen and (max-width: $break-small) {
         text-overflow: ellipsis;
         overflow: hidden;
         white-space: nowrap;
@@ -108,10 +108,14 @@
     }
   }
 
+  &__close-button {
+    margin-left: auto;
+  }
+
   &__close-button::after {
     content: '\00D7';
     font-size: 40px;
-    color: $dusty-gray;
+    color: $ui-4;
     cursor: pointer;
   }
 
@@ -186,6 +190,10 @@
       cursor: not-allowed;
       opacity: 0.5;
     }
+
+    & .dialog {
+      margin-top: 10px;
+    }
   }
 
   &__content-label {
@@ -227,6 +235,13 @@
 
   &__address-book-button + &__address-book-button {
     margin-left: 1.875rem;
+  }
+
+  &__inline-link {
+    @include H6;
+
+    display: initial;
+    padding: 0;
   }
 
   &--selected {

@@ -1,3 +1,5 @@
+const { version: reactVersion } = require('react/package.json');
+
 module.exports = {
   root: true,
   parser: '@babel/eslint-parser',
@@ -20,6 +22,7 @@ module.exports = {
 
   ignorePatterns: [
     '!.eslintrc.js',
+    '!.mocharc.js',
     'node_modules/**',
     'dist/**',
     'builds/**',
@@ -33,6 +36,7 @@ module.exports = {
     'nyc_output/**',
     '.vscode/**',
     'lavamoat/*/policy.json',
+    'storybook-build/**',
   ],
 
   extends: [
@@ -83,6 +87,27 @@ module.exports = {
 
     'node/no-process-env': 'off',
 
+    // TODO: remove this override
+    'padding-line-between-statements': [
+      'error',
+      {
+        blankLine: 'always',
+        prev: 'directive',
+        next: '*',
+      },
+      {
+        blankLine: 'any',
+        prev: 'directive',
+        next: 'directive',
+      },
+      // Disabled temporarily to reduce conflicts while PR queue is large
+      // {
+      //   blankLine: 'always',
+      //   prev: ['multiline-block-like', 'multiline-expression'],
+      //   next: ['multiline-block-like', 'multiline-expression'],
+      // },
+    ],
+
     // TODO: re-enable these rules
     'node/no-sync': 'off',
     'node/no-unpublished-import': 'off',
@@ -127,13 +152,18 @@ module.exports = {
       },
     },
     {
-      files: ['**/*.test.js'],
+      files: [
+        'test/unit-global/*.test.js',
+        'app/scripts/metamask-controller.test.js',
+      ],
       excludedFiles: [
         'ui/**/*.test.js',
         'ui/__mocks__/*.js',
         'shared/**/*.test.js',
         'development/**/*.test.js',
-        'app/scripts/migrations/*.test.js',
+        'app/scripts/**/*.test.js',
+        // 'test/unit-global/*.test.js',
+        'app/scripts/metamask-controller.test.js',
       ],
       extends: ['@metamask/eslint-config-mocha'],
       rules: {
@@ -152,11 +182,16 @@ module.exports = {
     },
     {
       files: [
-        'ui/**/*.test.js',
+        '**/*.test.js',
         'ui/__mocks__/*.js',
         'shared/**/*.test.js',
         'development/**/*.test.js',
-        'app/scripts/migrations/*.test.js',
+        // 'test/unit-global/*.test.js',
+        'app/scripts/metamask-controller.test.js',
+      ],
+      excludedFiles: [
+        'test/unit-global/*.test.js',
+        // 'app/scripts/metamask-controller.test.js',
       ],
       extends: ['@metamask/eslint-config-jest'],
       rules: {
@@ -179,16 +214,19 @@ module.exports = {
     {
       files: [
         '.eslintrc.js',
+        '.mocharc.js',
         'babel.config.js',
+        'jest.config.js',
         'nyc.config.js',
         'stylelint.config.js',
         'app/scripts/lockdown-run.js',
+        'app/scripts/lockdown-more.js',
         'development/**/*.js',
         'test/e2e/**/*.js',
-        'test/lib/wait-until-called.js',
         'test/env.js',
         'test/setup.js',
-        'jest.config.js',
+        'test/helpers/protect-intrinsics-helpers.js',
+        'test/lib/wait-until-called.js',
       ],
       parserOptions: {
         sourceType: 'script',
@@ -197,6 +235,8 @@ module.exports = {
     {
       files: [
         'app/scripts/lockdown-run.js',
+        'app/scripts/lockdown-more.js',
+        'test/helpers/protect-intrinsics-helpers.js',
         'test/unit-global/protect-intrinsics.test.js',
       ],
       globals: {
@@ -208,7 +248,12 @@ module.exports = {
 
   settings: {
     react: {
-      version: 'detect',
+      // If this is set to 'detect', ESLint will import React in order to find
+      // its version. Because we run ESLint in the build system under LavaMoat,
+      // this means that detecting the React version requires a LavaMoat policy
+      // for all of React, in the build system. That's a no-go, so we grab it
+      // from React's package.json.
+      version: reactVersion,
     },
   },
 };

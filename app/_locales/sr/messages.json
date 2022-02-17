@@ -70,6 +70,14 @@
     "message": "MetaMask",
     "description": "The name of the application"
   },
+  "appNameBeta": {
+    "message": "MetaMask Beta",
+    "description": "The name of the application (Beta)"
+  },
+  "appNameFlask": {
+    "message": "MetaMask Flask",
+    "description": "The name of the application (Flask)"
+  },
   "approve": {
     "message": "Odobrite"
   },
@@ -215,9 +223,6 @@
   "copiedExclamation": {
     "message": "Kopirano!"
   },
-  "copiedTransactionId": {
-    "message": "Kopiran identifikator transakcije"
-  },
   "copyAddress": {
     "message": "Kopirajte adresu u ostavu"
   },
@@ -254,9 +259,6 @@
   "customGasSubTitle": {
     "message": "Povećanje naknade može smanjiti vreme obrade, ali to nije zagarantovano."
   },
-  "customRPC": {
-    "message": "Korisnički definisan RPC"
-  },
   "customToken": {
     "message": "Prilagođeni token"
   },
@@ -265,9 +267,6 @@
   },
   "decimalsMustZerotoTen": {
     "message": "Decimalni broj mora biti najmanje 0, a ne veći od 36."
-  },
-  "defaultNetwork": {
-    "message": "Podrazumevana mreža za Ether transakcije je Mainnet."
   },
   "delete": {
     "message": "Избриши"
@@ -614,9 +613,6 @@
   "newContract": {
     "message": "Novi ugovor"
   },
-  "newNetwork": {
-    "message": "Nova mreža"
-  },
   "newPassword": {
     "message": "Nova lozinka (minimalno 8 karaktera)"
   },
@@ -664,12 +660,6 @@
   },
   "on": {
     "message": "Укључено"
-  },
-  "optionalBlockExplorerUrl": {
-    "message": "Blokirajte URL Explorer-a (opciono)"
-  },
-  "optionalCurrencySymbol": {
-    "message": "Simbol (opciono)"
   },
   "origin": {
     "message": "Извор"
@@ -790,9 +780,6 @@
   "revealSeedWordsDescription": {
     "message": "Ukoliko ikad promenite pregledač ili kompjuter, trebaće vam ova šifra za oporavak naloga (seed phrase) kako biste pristupili svojim nalozima. Čuvajte je na bezbednom i tajnom mestu."
   },
-  "revealSeedWordsTitle": {
-    "message": "Seed fraza"
-  },
   "revealSeedWordsWarning": {
     "message": "Ove reči se mogu iskoristiti za krađu svih vaših naloga."
   },
@@ -829,9 +816,6 @@
   "searchTokens": {
     "message": "Pretražite tokene"
   },
-  "secretBackupPhrase": {
-    "message": "Tajna rezervna kopija fraze"
-  },
   "secretBackupPhraseDescription": {
     "message": "Vaša tajna fraza za rezervnu kopiju olakšava pravljenje rezervne kopije i vraćanje naloga u prethodno stanje."
   },
@@ -855,9 +839,6 @@
   },
   "selectAnAccount": {
     "message": "Izaberite nalog"
-  },
-  "selectAnAccountHelp": {
-    "message": "Izaberite nalog za prikaz u MetaMask-u"
   },
   "selectEachPhrase": {
     "message": "Molimo vas izaberite svaki izraz kako biste proverili da je tačan."
@@ -1112,20 +1093,8 @@
   "viewContact": {
     "message": "Pogledaj kontakt"
   },
-  "viewOnCustomBlockExplorer": {
-    "message": "Pogledaj na $1"
-  },
-  "viewOnEtherscan": {
-    "message": "Pogledaj na Etherscan-u"
-  },
-  "viewinExplorer": {
-    "message": "Pogledati u Explorer-u"
-  },
   "visitWebSite": {
     "message": "Posetite našu veb lokaciju"
-  },
-  "walletSeed": {
-    "message": "Šifra za oporavak novčanika"
   },
   "welcome": {
     "message": "Dobro došli na MetaMask"

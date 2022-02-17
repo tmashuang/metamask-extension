@@ -6,6 +6,7 @@ import {
   GAS_RECOMMENDATIONS,
   EDIT_GAS_MODES,
   GAS_ESTIMATE_TYPES,
+  CUSTOM_GAS_ESTIMATE,
 } from '../../../../shared/constants/gas';
 
 import Button from '../../ui/button';
@@ -22,6 +23,7 @@ import {
   FONT_WEIGHT,
 } from '../../../helpers/constants/design-system';
 import { areDappSuggestedAndTxParamGasFeesTheSame } from '../../../helpers/utils/confirm-tx.util';
+import { isLegacyTransaction } from '../../../helpers/utils/transactions.util';
 
 import InfoTooltip from '../../ui/info-tooltip';
 import ErrorMessage from '../../ui/error-message';
@@ -32,6 +34,8 @@ import ActionableMessage from '../../ui/actionable-message/actionable-message';
 
 import { I18nContext } from '../../../contexts/i18n';
 import GasTiming from '../gas-timing';
+
+import { useMetricEvent } from '../../../hooks/useMetricEvent';
 
 export default function EditGasDisplay({
   mode = EDIT_GAS_MODES.MODIFY_IN_PLACE,
@@ -73,17 +77,15 @@ export default function EditGasDisplay({
   const scrollRef = useRef(null);
 
   const isMainnet = useSelector(getIsMainnet);
-  const networkAndAccountSupport1559 = useSelector(
-    checkNetworkAndAccountSupports1559,
-  );
+  const supportsEIP1559 =
+    useSelector(checkNetworkAndAccountSupports1559) &&
+    !isLegacyTransaction(transaction.txParams);
   const showAdvancedInlineGasIfPossible = useSelector(
     getAdvancedInlineGasShown,
   );
 
   const [showAdvancedForm, setShowAdvancedForm] = useState(
-    !estimateToUse ||
-      estimateToUse === 'custom' ||
-      !networkAndAccountSupport1559,
+    !estimateToUse || estimateToUse === CUSTOM_GAS_ESTIMATE || !supportsEIP1559,
   );
   const [hideRadioButtons, setHideRadioButtons] = useState(
     showAdvancedInlineGasIfPossible,
@@ -109,7 +111,7 @@ export default function EditGasDisplay({
     (balanceError || estimatesUnavailableWarning) &&
     (!isGasEstimatesLoading || txParamsHaveBeenCustomized);
   const radioButtonsEnabled =
-    networkAndAccountSupport1559 &&
+    supportsEIP1559 &&
     gasEstimateType === GAS_ESTIMATE_TYPES.FEE_MARKET &&
     !requireDappAcknowledgement;
 
@@ -119,6 +121,14 @@ export default function EditGasDisplay({
   } else if (estimatesUnavailableWarning) {
     errorKey = 'gasEstimatesUnavailableWarning';
   }
+
+  const clickedAdvancedOptionsMetricsEvent = useMetricEvent({
+    eventOpts: {
+      category: 'Transactions',
+      action: 'Edit Screen',
+      name: 'Clicked "Advanced Options"',
+    },
+  });
 
   return (
     <div className="edit-gas-display">
@@ -163,12 +173,12 @@ export default function EditGasDisplay({
         )}
         <TransactionTotalBanner
           total={
-            (networkAndAccountSupport1559 || isMainnet) && estimatedMinimumFiat
+            (supportsEIP1559 || isMainnet) && estimatedMinimumFiat
               ? `~ ${estimatedMinimumFiat}`
               : estimatedMinimumNative
           }
           detail={
-            networkAndAccountSupport1559 &&
+            supportsEIP1559 &&
             estimatedMaximumFiat !== undefined && (
               <>
                 <Typography
@@ -188,7 +198,8 @@ export default function EditGasDisplay({
             )
           }
           timing={
-            hasGasErrors === false && (
+            hasGasErrors === false &&
+            supportsEIP1559 && (
               <GasTiming
                 maxFeePerGas={maxFeePerGas}
                 maxPriorityFeePerGas={maxPriorityFeePerGas}
@@ -250,7 +261,10 @@ export default function EditGasDisplay({
           !showAdvancedInlineGasIfPossible && (
             <button
               className="edit-gas-display__advanced-button"
-              onClick={() => setShowAdvancedForm(!showAdvancedForm)}
+              onClick={() => {
+                setShowAdvancedForm(!showAdvancedForm);
+                clickedAdvancedOptionsMetricsEvent();
+              }}
             >
               {t('advancedOptions')}{' '}
               {showAdvancedForm ? (
@@ -281,18 +295,17 @@ export default function EditGasDisplay({
               gasErrors={gasErrors}
               onManualChange={onManualChange}
               minimumGasLimit={minimumGasLimit}
+              supportsEIP1559={supportsEIP1559}
             />
           )}
       </div>
-      {networkAndAccountSupport1559 &&
-        !requireDappAcknowledgement &&
-        showEducationButton && (
-          <div className="edit-gas-display__education">
-            <button onClick={onEducationClick}>
-              {t('editGasEducationButtonText')}
-            </button>
-          </div>
-        )}
+      {supportsEIP1559 && !requireDappAcknowledgement && showEducationButton && (
+        <div className="edit-gas-display__education">
+          <button onClick={onEducationClick}>
+            {t('editGasEducationButtonText')}
+          </button>
+        </div>
+      )}
       <div ref={scrollRef} className="edit-gas-display__scroll-bottom" />
     </div>
   );

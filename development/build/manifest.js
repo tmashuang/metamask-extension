@@ -1,16 +1,19 @@
 const { promises: fs } = require('fs');
 const path = require('path');
-const { merge, cloneDeep } = require('lodash');
+const { mergeWith, cloneDeep } = require('lodash');
 
 const baseManifest = require('../../app/manifest/_base.json');
-const { version } = require('../../package.json');
-const betaManifestModifications = require('../../app/manifest/_beta_modifications.json');
 
 const { createTask, composeSeries } = require('./task');
+const { BuildType } = require('./utils');
 
 module.exports = createManifestTasks;
 
-function createManifestTasks({ betaVersionsMap, browserPlatforms, isBeta }) {
+function createManifestTasks({
+  browserPlatforms,
+  browserVersionMap,
+  buildType,
+}) {
   // merge base manifest with per-platform manifests
   const prepPlatforms = async () => {
     return Promise.all(
@@ -25,12 +28,12 @@ function createManifestTasks({ betaVersionsMap, browserPlatforms, isBeta }) {
             `${platform}.json`,
           ),
         );
-        const result = merge(
+        const result = mergeWith(
           cloneDeep(baseManifest),
           platformModifications,
-          isBeta
-            ? getBetaModifications(platform, betaVersionsMap)
-            : { version },
+          browserVersionMap[platform],
+          await getBuildModifications(buildType, platform),
+          customArrayMerge,
         );
         const dir = path.join('.', 'dist', platform);
         await fs.mkdir(dir, { recursive: true });
@@ -97,6 +100,14 @@ function createManifestTasks({ betaVersionsMap, browserPlatforms, isBeta }) {
       );
     };
   }
+
+  // helper for merging obj value
+  function customArrayMerge(objValue, srcValue) {
+    if (Array.isArray(objValue)) {
+      return [...new Set([...objValue, ...srcValue])];
+    }
+    return undefined;
+  }
 }
 
 // helper for reading and deserializing json from fs
@@ -109,16 +120,53 @@ async function writeJson(obj, file) {
   return fs.writeFile(file, JSON.stringify(obj, null, 2));
 }
 
-function getBetaModifications(platform, betaVersionsMap) {
-  if (!betaVersionsMap || typeof betaVersionsMap !== 'object') {
-    throw new Error('MetaMask build: Expected object beta versions map.');
+/**
+ * Get manifest modifications for the given build type, including modifications specific to the
+ * given platform.
+ *
+ * @param {BuildType} buildType - The build type.
+ * @param {string} platform - The platform (i.e. the browser).
+ * @returns {Object} The build modificantions for the given build type and platform.
+ */
+async function getBuildModifications(buildType, platform) {
+  if (!Object.values(BuildType).includes(buildType)) {
+    throw new Error(`Invalid build type: ${buildType}`);
+  } else if (buildType === BuildType.main) {
+    return {};
   }
 
-  const betaVersion = betaVersionsMap[platform];
+  const builtTypeManifestDirectoryPath = path.resolve(
+    __dirname,
+    '..',
+    '..',
+    'app',
+    'build-types',
+    buildType,
+    'manifest',
+  );
 
-  return {
-    ...betaManifestModifications,
-    version: betaVersion,
-    ...(platform === 'firefox' ? {} : { version_name: 'beta' }),
-  };
+  const baseBuildTypeModificationsPath = path.join(
+    builtTypeManifestDirectoryPath,
+    '_base.json',
+  );
+  const buildModifications = await readJson(baseBuildTypeModificationsPath);
+
+  const platformBuildTypeModificationsPath = path.join(
+    builtTypeManifestDirectoryPath,
+    `${platform}.json`,
+  );
+  try {
+    const platformBuildTypeModifications = await readJson(
+      platformBuildTypeModificationsPath,
+    );
+    Object.assign(buildModifications, platformBuildTypeModifications);
+  } catch (error) {
+    // Suppress 'ENOENT' error because it indicates there are no platform-specific manifest
+    // modifications for this build type.
+    if (error.code !== 'ENOENT') {
+      throw error;
+    }
+  }
+
+  return buildModifications;
 }

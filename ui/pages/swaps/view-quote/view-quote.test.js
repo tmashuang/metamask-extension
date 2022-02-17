@@ -14,7 +14,7 @@ jest.mock('../../../components/ui/info-tooltip/info-tooltip-icon', () => () =>
   '<InfoTooltipIcon />',
 );
 
-jest.mock('../../../hooks/useGasFeeInputs', () => {
+jest.mock('../../../hooks/gasFeeInput/useGasFeeInputs', () => {
   return {
     useGasFeeInputs: () => {
       return {
@@ -63,11 +63,9 @@ describe('ViewQuote', () => {
     expect(
       getByTestId('main-quote-summary__exchange-rate-container'),
     ).toMatchSnapshot();
-    expect(
-      getByTestId('fee-card__savings-and-quotes-header'),
-    ).toMatchSnapshot();
-    expect(getByTestId('fee-card__row-header')).toMatchSnapshot();
-    expect(getByText('Back')).toBeInTheDocument();
+    expect(getByText('Estimated gas fee')).toBeInTheDocument();
+    expect(getByText('Max fee')).toBeInTheDocument();
+    expect(getByText('Edit')).toBeInTheDocument();
     expect(getByText('Swap')).toBeInTheDocument();
   });
 
@@ -89,13 +87,10 @@ describe('ViewQuote', () => {
     expect(
       getByTestId('main-quote-summary__exchange-rate-container'),
     ).toMatchSnapshot();
-    expect(
-      getByTestId('fee-card__savings-and-quotes-header'),
-    ).toMatchSnapshot();
     expect(getByText('Estimated gas fee')).toBeInTheDocument();
     expect(getByText('0.01044 ETH')).toBeInTheDocument();
     expect(getByText('Max fee')).toBeInTheDocument();
-    expect(getByText('Back')).toBeInTheDocument();
+    expect(getByText('Edit')).toBeInTheDocument();
     expect(getByText('Swap')).toBeInTheDocument();
   });
 });
