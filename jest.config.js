@@ -30,9 +30,11 @@ module.exports = {
     '<rootDir>/ui/**/*.test.js',
     '<rootDir>/shared/**/*.test.js',
     '<rootDir>/app/scripts/**/*.test.js',
+    // '<rootDir>/test/unit-global/*.test.js',
+    '<rootDir>/app/scripts/metamask-controller.test.js',
   ],
   testPathIgnorePatterns: [
-    '<rootDir>/app/scripts/metamask-controller.test.js',
+    // '<rootDir>/app/scripts/metamask-controller.test.js',
     '<rootDir>/test/unit-global/*.test.js',
   ],
   testTimeout: 2500,

@@ -8,3 +8,4 @@ set -o pipefail
 concurrently -n production,development \
   "jest --config=./jest.config.js $*" \
   "jest --config=./development/jest.config.js $*"
+w

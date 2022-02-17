@@ -7,7 +7,7 @@ import { JSDOM } from 'jsdom';
 process.env.IN_TEST = true;
 
 nock.disableNetConnect();
-nock.enableNetConnect('localhost');
+nock.enableNetConnect('localhost|127.0.0.1');
 
 // catch rejections that are still unhandled when tests exit
 const unhandledRejections = new Map();

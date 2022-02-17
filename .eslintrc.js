@@ -162,6 +162,8 @@ module.exports = {
         'shared/**/*.test.js',
         'development/**/*.test.js',
         'app/scripts/**/*.test.js',
+        // 'test/unit-global/*.test.js',
+        'app/scripts/metamask-controller.test.js',
       ],
       extends: ['@metamask/eslint-config-mocha'],
       rules: {
@@ -184,10 +186,12 @@ module.exports = {
         'ui/__mocks__/*.js',
         'shared/**/*.test.js',
         'development/**/*.test.js',
+        // 'test/unit-global/*.test.js',
+        'app/scripts/metamask-controller.test.js',
       ],
       excludedFiles: [
         'test/unit-global/*.test.js',
-        'app/scripts/metamask-controller.test.js',
+        // 'app/scripts/metamask-controller.test.js',
       ],
       extends: ['@metamask/eslint-config-jest'],
       rules: {

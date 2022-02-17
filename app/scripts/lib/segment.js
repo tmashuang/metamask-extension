@@ -78,7 +78,6 @@ export const createSegmentMock = (
     },
   };
   // Mimic the flushInterval behavior with an interval
-  setInterval(segmentMock.flush, flushInterval);
   return segmentMock;
 };
 
