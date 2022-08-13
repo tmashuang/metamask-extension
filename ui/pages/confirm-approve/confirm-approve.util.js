@@ -32,7 +32,7 @@ export function getCustomTxParamsData(
       'Invalid token value; should be exactly 64 hex digits long (u256)',
     );
   }
-
+  
   let customPermissionValue = decimalToHex(
     calcTokenValue(customPermissionAmount, decimals),
   );

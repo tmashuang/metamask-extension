@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Edit Gas Display Education should match snapshot 1`] = `
+<div>
+  <div
+    class="edit-gas-display-education"
+  >
+    <p
+      class="box box--margin-top-1 box--margin-bottom-1 box--flex-direction-row typography typography--h6 typography--weight-normal typography--style-normal typography--color-text-alternative"
+    >
+      [editGasEducationModalIntro]
+    </p>
+    <p
+      class="box box--margin-top-1 box--margin-bottom-1 box--flex-direction-row typography typography--p typography--weight-bold typography--style-normal typography--color-text-default"
+    >
+      [editGasHigh]
+    </p>
+    <p
+      class="box box--margin-top-1 box--margin-bottom-1 box--flex-direction-row typography typography--h6 typography--weight-normal typography--style-normal typography--color-text-alternative"
+    >
+      [editGasEducationHighExplanation]
+    </p>
+    <p
+      class="box box--margin-top-1 box--margin-bottom-1 box--flex-direction-row typography typography--p typography--weight-bold typography--style-normal typography--color-text-default"
+    >
+      [editGasMedium]
+    </p>
+    <p
+      class="box box--margin-top-1 box--margin-bottom-1 box--flex-direction-row typography typography--h6 typography--weight-normal typography--style-normal typography--color-text-alternative"
+    >
+      [editGasEducationMediumExplanation]
+    </p>
+    <p
+      class="box box--margin-top-1 box--margin-bottom-1 box--flex-direction-row typography typography--p typography--weight-bold typography--style-normal typography--color-text-default"
+    >
+      [editGasLow]
+    </p>
+    <p
+      class="box box--margin-top-1 box--margin-bottom-1 box--flex-direction-row typography typography--h6 typography--weight-normal typography--style-normal typography--color-text-alternative"
+    >
+      [editGasEducationLowExplanation]
+    </p>
+  </div>
+</div>
+`;

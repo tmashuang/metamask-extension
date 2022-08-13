@@ -105,7 +105,6 @@ export default class NewAccount extends PureComponent {
           legacy_event: true,
         },
       });
-
       history.push(INITIALIZE_SEED_PHRASE_INTRO_ROUTE);
     } catch (error) {
       this.setState({ passwordError: error.message });
@@ -147,6 +146,7 @@ export default class NewAccount extends PureComponent {
       <div>
         <div className="first-time-flow__create-back">
           <a
+            data-testid="onboarding-back-button"
             onClick={(e) => {
               e.preventDefault();
               this.context.trackEvent({
@@ -167,6 +167,7 @@ export default class NewAccount extends PureComponent {
         <div className="first-time-flow__header">{t('createPassword')}</div>
         <form className="first-time-flow__form" onSubmit={this.handleCreate}>
           <TextField
+            data-testid="create-password"
             id="create-password"
             label={t('newPassword')}
             type="password"
@@ -181,6 +182,7 @@ export default class NewAccount extends PureComponent {
             largeLabel
           />
           <TextField
+            data-testid="confirm-password"
             id="confirm-password"
             label={t('confirmPassword')}
             type="password"
