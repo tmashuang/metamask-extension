@@ -2272,9 +2272,9 @@
     safe-event-emitter "^1.0.1"
 
 "@metamask/etherscan-link@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@metamask/etherscan-link/-/etherscan-link-2.0.0.tgz#89035736515a39532ba1142d87b9a8c2b4f920f1"
-  integrity sha512-/YS32hS2UTTxs0KyUmAgaDj1w4dzAvOrT+p4TJtpICeH3E/k51r2FO0Or7WJJI/mpzTqNKgcH5yyS2oCtupGiA==
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@metamask/etherscan-link/-/etherscan-link-2.2.0.tgz#76314d0c1405a0669fc4a0a19e0877bd3d0c389f"
+  integrity sha512-xUgehvgU+ZbzeJ44m4sUtsyf6Dwou+SlYhiKfi6lkRcbWh6Jl3TCi0YM9C7XWgxfnLSdQBO1ndvcp0kslKgMsA==
 
 "@metamask/forwarder@^1.1.0":
   version "1.1.0"
