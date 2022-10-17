@@ -2210,9 +2210,9 @@
   integrity sha512-t4ijbU+4OH9UAlrPkfLPFo6KmkRTRZJHB+Vly4ajF8oZMnota5YjVVl/SmltsoRC9xvJtRn9DUVf3YMHMIdofw==
 
 "@metamask/contract-metadata@^1.22.0":
-  version "1.23.0"
-  resolved "https://registry.yarnpkg.com/@metamask/contract-metadata/-/contract-metadata-1.23.0.tgz#c70be7f3eaeeb791651ce793b7cdc230e9780b18"
-  integrity sha512-oTUqL9dtXtbng60DZMRsBmZ5HiOUUfEsZjuswOJ0yHO24YsW0ktCcgCJVYPv1HcOsF0SVrRtG4rtrvOl4nY+HA==
+  version "1.36.0"
+  resolved "https://registry.yarnpkg.com/@metamask/contract-metadata/-/contract-metadata-1.36.0.tgz#8e277190195e9c26733752457d2004d149fd7e0e"
+  integrity sha512-weTsrXfDQHOgYaiI5giMcOAsD3ChcwnoryasT7xmAfLSKIbKP3RTTUu63VWYBoFCBZugHrhKD6z+N+nm8qAWBQ==
 
 "@metamask/controllers@^5.0.0", "@metamask/controllers@^5.1.0":
   version "5.1.0"
