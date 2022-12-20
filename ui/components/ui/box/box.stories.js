@@ -638,6 +638,7 @@ export const ResponsiveProps = () => {
         padding={[2, 4]}
         gap={[2, 4]}
         display={[DISPLAY.FLEX]}
+        flexWrap={FLEX_WRAP.WRAP}
         flexDirection={[
           FLEX_DIRECTION.COLUMN,
           FLEX_DIRECTION.COLUMN,
@@ -646,21 +647,21 @@ export const ResponsiveProps = () => {
         borderColor={COLORS.BORDER_DEFAULT}
       >
         <Box
-          padding={[4, 8]}
+          padding={[0, 8]}
           backgroundColor={COLORS.BACKGROUND_ALTERNATIVE}
           borderColor={COLORS.BORDER_MUTED}
         >
           responsive
         </Box>
         <Box
-          padding={[4, 8]}
+          padding={[4, 0, null, 2]}
           backgroundColor={COLORS.BACKGROUND_ALTERNATIVE}
           borderColor={COLORS.BORDER_MUTED}
         >
           props
         </Box>
         <Box
-          padding={[4, 8]}
+          padding={[4, 8, 12]}
           backgroundColor={COLORS.BACKGROUND_ALTERNATIVE}
           borderColor={COLORS.BORDER_MUTED}
         >
@@ -692,6 +693,51 @@ export const ResponsiveProps = () => {
         >
           Responsive Border Radius 2
         </Box>
+      </Box>
+      <Typography boxProps={{ marginBottom: 4, marginTop: 4 }}>
+        Boxes below are only visible on certain screen sizes
+      </Typography>
+      <Box
+        padding={4}
+        display={[DISPLAY.BLOCK, DISPLAY.NONE]}
+        backgroundColor={COLORS.INFO_MUTED}
+      >
+        This box is only visible on screens 0px - 575px
+      </Box>
+      <Box
+        padding={4}
+        display={[DISPLAY.BLOCK, null, DISPLAY.NONE]}
+        backgroundColor={COLORS.WARNING_MUTED}
+      >
+        This box is only visible on screens 0px - 767px
+      </Box>
+      <Box
+        padding={4}
+        display={[DISPLAY.BLOCK, null, null, DISPLAY.NONE]}
+        backgroundColor={COLORS.ERROR_MUTED}
+      >
+        This box is only visible on screens 0px - 1279px
+      </Box>
+      <Box
+        padding={4}
+        display={[DISPLAY.NONE, null, null, DISPLAY.BLOCK]}
+        backgroundColor={COLORS.SUCCESS_MUTED}
+      >
+        This box is only visible on screens 1280px and above
+      </Box>
+      <Box
+        padding={4}
+        display={[DISPLAY.NONE, null, DISPLAY.BLOCK]}
+        backgroundColor={COLORS.BACKGROUND_ALTERNATIVE}
+      >
+        This box is only visible on screens 768px and above
+      </Box>
+      <Box
+        padding={4}
+        display={[DISPLAY.NONE, DISPLAY.BLOCK]}
+        borderColor={COLORS.BORDER_DEFAULT}
+      >
+        This box is only visible on screens 576px and above
       </Box>
     </>
   );
