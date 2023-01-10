@@ -637,7 +637,7 @@ export const ResponsiveProps = () => {
         marginBottom={[0]}
         padding={[2, 4]}
         gap={[2, 4]}
-        display={[DISPLAY.FLEX, null, null, DISPLAY.NONE]}
+        display={[DISPLAY.FLEX]}
         flexDirection={[
           FLEX_DIRECTION.COLUMN,
           FLEX_DIRECTION.COLUMN,
