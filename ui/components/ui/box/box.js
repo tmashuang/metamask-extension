@@ -239,18 +239,18 @@ const Box = React.forwardRef(function Box(
     generateClassNames('margin-right', marginRight, isValidSize),
     generateClassNames('margin-bottom', marginBottom, isValidSize),
     generateClassNames('margin-left', marginLeft, isValidSize),
-    generateClassNames('margin-inline', marginInline, isValidSize),
-    generateClassNames('margin-inline-start', marginInlineStart, isValidSize),
-    generateClassNames('margin-inline-end', marginInlineEnd, isValidSize),
+    generateClassNames('margin-inline', marginInline, isValidSize), // TODO: add styles and unit tests https://github.com/MetaMask/metamask-extension/issues/16077
+    generateClassNames('margin-inline-start', marginInlineStart, isValidSize), // TODO: add styles and unit tests https://github.com/MetaMask/metamask-extension/issues/16077
+    generateClassNames('margin-inline-end', marginInlineEnd, isValidSize), // TODO: add styles and unit tests https://github.com/MetaMask/metamask-extension/issues/16077
     // Padding
     generateClassNames('padding', padding, isValidSize),
     generateClassNames('padding-top', paddingTop, isValidSize),
     generateClassNames('padding-right', paddingRight, isValidSize),
     generateClassNames('padding-bottom', paddingBottom, isValidSize),
     generateClassNames('padding-left', paddingLeft, isValidSize),
-    generateClassNames('padding-inline', paddingInline, isValidSize),
-    generateClassNames('padding-inline-start', paddingInlineStart, isValidSize),
-    generateClassNames('padding-inline-end', paddingInlineEnd, isValidSize),
+    generateClassNames('padding-inline', paddingInline, isValidSize), // TODO: add styles and unit tests https://github.com/MetaMask/metamask-extension/issues/16077
+    generateClassNames('padding-inline-start', paddingInlineStart, isValidSize), // TODO: add styles and unit tests https://github.com/MetaMask/metamask-extension/issues/16077
+    generateClassNames('padding-inline-end', paddingInlineEnd, isValidSize), // TODO: add styles and unit tests https://github.com/MetaMask/metamask-extension/issues/16077
     generateClassNames('display', display, isValidString),
     generateClassNames('gap', gap, isValidSize),
     generateClassNames('flex-direction', flexDirection, isValidString),
