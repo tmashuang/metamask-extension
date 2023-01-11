@@ -21,5 +21,5 @@ jobs:
       uses: anuraag016/Jest-Coverage-Diff@master
       with:
         fullCoverageDiff: false
-        runCommand: "npx jest --collectCoverageFrom='[\"'<rootDir>/app/scripts/controllers/permissions/**/*.js','<rootDir>/app/scripts/lib/createRPCMethodTrackingMiddleware.js','<rootDir>/shared/**/*.js','<rootDir>/ui/**/*.js',\"]' --coverage --collectCoverage=true --coverageDirectory='./jest-coverage/main' --coverageReporters='json-summary' --forceExit"
+        runCommand: "yarn test:coverage:jest"
         delta: 0.5
