@@ -1,6 +1,4 @@
-import { strict as assert } from 'assert';
 import sinon from 'sinon';
-import proxyquire from 'proxyquire';
 import nock from 'nock';
 import { cloneDeep } from 'lodash';
 
@@ -17,9 +15,13 @@ import {
 } from '../../../shared/constants/transaction';
 import { MILLISECOND } from '../../../shared/constants/time';
 
-const IncomingTransactionsController = proxyquire('./incoming-transactions', {
-  '../../../shared/modules/random-id': { default: () => 54321 },
-}).default;
+jest.mock('../../../shared/modules/random-id', () => ({
+  __esModule: true,
+  default: () => 54321,
+}));
+
+const IncomingTransactionsController =
+  require('./incoming-transactions').default;
 
 const FAKE_CHAIN_ID = '0x1338';
 const MOCK_SELECTED_ADDRESS = '0x0101';
@@ -160,14 +162,14 @@ function nockEtherscanApiForAllChains(mockResponse) {
   );
 }
 
-describe('IncomingTransactionsController', function () {
-  afterEach(function () {
+describe('IncomingTransactionsController', () => {
+  afterEach(() => {
     sinon.restore();
     nock.cleanAll();
   });
 
-  describe('constructor', function () {
-    it('should set up correct store, listeners and properties in the constructor', function () {
+  describe('constructor', () => {
+    it('should set up correct store, listeners and properties in the constructor', () => {
       const mockedNetworkMethods = getMockNetworkControllerMethods();
       const incomingTransactionsController = new IncomingTransactionsController(
         {
@@ -180,26 +182,24 @@ describe('IncomingTransactionsController', function () {
       );
       sinon.spy(incomingTransactionsController, '_update');
 
-      assert.deepStrictEqual(
-        incomingTransactionsController.store.getState(),
+      expect(incomingTransactionsController.store.getState()).toStrictEqual(
         getEmptyInitState(),
       );
 
-      assert(mockedNetworkMethods.onNetworkDidChange.calledOnce);
+      expect(mockedNetworkMethods.onNetworkDidChange.calledOnce).toBeTruthy();
       const networkControllerListenerCallback =
         mockedNetworkMethods.onNetworkDidChange.getCall(0).args[0];
-      assert.strictEqual(incomingTransactionsController._update.callCount, 0);
+      expect(incomingTransactionsController._update.callCount).toBe(0);
       networkControllerListenerCallback('testNetworkType');
-      assert.strictEqual(incomingTransactionsController._update.callCount, 1);
-      assert.deepStrictEqual(
+      expect(incomingTransactionsController._update.callCount).toBe(1);
+      expect(
         incomingTransactionsController._update.getCall(0).args[0],
-        '0x0101',
-      );
+      ).toStrictEqual('0x0101');
 
       incomingTransactionsController._update.resetHistory();
     });
 
-    it('should set the store to a provided initial state', function () {
+    it('should set the store to a provided initial state', () => {
       const incomingTransactionsController = new IncomingTransactionsController(
         {
           blockTracker: getMockBlockTracker(),
@@ -210,15 +210,14 @@ describe('IncomingTransactionsController', function () {
         },
       );
 
-      assert.deepStrictEqual(
-        incomingTransactionsController.store.getState(),
+      expect(incomingTransactionsController.store.getState()).toStrictEqual(
         getNonEmptyInitState(),
       );
     });
   });
 
-  describe('update events', function () {
-    it('should set up a listener for the latest block', async function () {
+  describe('update events', () => {
+    it('should set up a listener for the latest block', async () => {
       const incomingTransactionsController = new IncomingTransactionsController(
         {
           blockTracker: getMockBlockTracker(),
@@ -231,17 +230,16 @@ describe('IncomingTransactionsController', function () {
 
       incomingTransactionsController.start();
 
-      assert(
+      expect(
         incomingTransactionsController.blockTracker.addListener.calledOnce,
-      );
-      assert.strictEqual(
+      ).toBeTruthy();
+      expect(
         incomingTransactionsController.blockTracker.addListener.getCall(0)
           .args[0],
-        'latest',
-      );
+      ).toBe('latest');
     });
 
-    it('should update upon latest block when started and on supported network', async function () {
+    it('should update upon latest block when started and on supported network', async () => {
       const incomingTransactionsController = new IncomingTransactionsController(
         {
           blockTracker: getMockBlockTracker(),
@@ -293,61 +291,56 @@ describe('IncomingTransactionsController', function () {
         '0xfakeeip1559'
       ]?.id;
 
-      assert.ok(
+      expect(
         typeof generatedTxId === 'number' && generatedTxId > 0,
-        'Generated transaction ID should be a positive number',
-      );
-      assert.deepStrictEqual(
-        actualStateWithoutGenerated,
-        {
-          incomingTransactions: {
-            ...getNonEmptyInitState().incomingTransactions,
-            '0xfake': {
-              blockNumber: '10',
-              hash: '0xfake',
-              metamaskNetworkId: NETWORK_IDS.GOERLI,
-              chainId: CHAIN_IDS.GOERLI,
-              status: TransactionStatus.confirmed,
-              time: 16000000000000000,
-              type: TransactionType.incoming,
-              txParams: {
-                from: '0xfake',
-                gas: '0x0',
-                gasPrice: '0x0',
-                nonce: '0x64',
-                to: '0x0101',
-                value: '0x0',
-              },
-            },
-            '0xfakeeip1559': {
-              blockNumber: '10',
-              hash: '0xfakeeip1559',
-              metamaskNetworkId: NETWORK_IDS.GOERLI,
-              chainId: CHAIN_IDS.GOERLI,
-              status: TransactionStatus.confirmed,
-              time: 16000000000000000,
-              type: TransactionType.incoming,
-              txParams: {
-                from: '0xfake',
-                gas: '0x0',
-                maxFeePerGas: '0xa',
-                maxPriorityFeePerGas: '0x1',
-                nonce: '0x64',
-                to: '0x0101',
-                value: '0x0',
-              },
+      ).toBeTruthy();
+      expect(actualStateWithoutGenerated).toStrictEqual({
+        incomingTransactions: {
+          ...getNonEmptyInitState().incomingTransactions,
+          '0xfake': {
+            blockNumber: '10',
+            hash: '0xfake',
+            metamaskNetworkId: NETWORK_IDS.GOERLI,
+            chainId: CHAIN_IDS.GOERLI,
+            status: TransactionStatus.confirmed,
+            time: 16000000000000000,
+            type: TransactionType.incoming,
+            txParams: {
+              from: '0xfake',
+              gas: '0x0',
+              gasPrice: '0x0',
+              nonce: '0x64',
+              to: '0x0101',
+              value: '0x0',
             },
           },
-          incomingTxLastFetchedBlockByChainId: {
-            ...getNonEmptyInitState().incomingTxLastFetchedBlockByChainId,
-            [CHAIN_IDS.GOERLI]: 11,
+          '0xfakeeip1559': {
+            blockNumber: '10',
+            hash: '0xfakeeip1559',
+            metamaskNetworkId: NETWORK_IDS.GOERLI,
+            chainId: CHAIN_IDS.GOERLI,
+            status: TransactionStatus.confirmed,
+            time: 16000000000000000,
+            type: TransactionType.incoming,
+            txParams: {
+              from: '0xfake',
+              gas: '0x0',
+              maxFeePerGas: '0xa',
+              maxPriorityFeePerGas: '0x1',
+              nonce: '0x64',
+              to: '0x0101',
+              value: '0x0',
+            },
           },
         },
-        'State should have been updated after first block was received',
-      );
+        incomingTxLastFetchedBlockByChainId: {
+          ...getNonEmptyInitState().incomingTxLastFetchedBlockByChainId,
+          [CHAIN_IDS.GOERLI]: 11,
+        },
+      });
     });
 
-    it('should not update upon latest block when started and not on supported network', async function () {
+    it('should not update upon latest block when started and not on supported network', async () => {
       const incomingTransactionsController = new IncomingTransactionsController(
         {
           blockTracker: getMockBlockTracker(),
@@ -390,13 +383,13 @@ describe('IncomingTransactionsController', function () {
             setTimeout(() => reject(new Error('TIMEOUT')), SET_STATE_TIMEOUT);
           }),
         ]);
-        assert.fail('Update state should not have been called');
+        expect(false).toBe(true);
       } catch (error) {
-        assert(error.message === 'TIMEOUT', 'TIMEOUT error should be thrown');
+        expect(error.message === 'TIMEOUT').toBeTruthy();
       }
     });
 
-    it('should not update upon latest block when started and incoming transactions disabled', async function () {
+    it('should not update upon latest block when started and incoming transactions disabled', async () => {
       const incomingTransactionsController = new IncomingTransactionsController(
         {
           blockTracker: getMockBlockTracker(),
@@ -440,13 +433,13 @@ describe('IncomingTransactionsController', function () {
             setTimeout(() => reject(new Error('TIMEOUT')), SET_STATE_TIMEOUT);
           }),
         ]);
-        assert.fail('Update state should not have been called');
+        expect(false).toBe(true);
       } catch (error) {
-        assert(error.message === 'TIMEOUT', 'TIMEOUT error should be thrown');
+        expect(error.message === 'TIMEOUT').toBeTruthy();
       }
     });
 
-    it('should not update upon latest block when not started', async function () {
+    it('should not update upon latest block when not started', async () => {
       const incomingTransactionsController = new IncomingTransactionsController(
         {
           blockTracker: getMockBlockTracker(),
@@ -486,13 +479,13 @@ describe('IncomingTransactionsController', function () {
             setTimeout(() => reject(new Error('TIMEOUT')), SET_STATE_TIMEOUT);
           }),
         ]);
-        assert.fail('Update state should not have been called');
+        expect(false).toBe(true);
       } catch (error) {
-        assert(error.message === 'TIMEOUT', 'TIMEOUT error should be thrown');
+        expect(error.message === 'TIMEOUT').toBeTruthy();
       }
     });
 
-    it('should not update upon latest block when stopped', async function () {
+    it('should not update upon latest block when stopped', async () => {
       const incomingTransactionsController = new IncomingTransactionsController(
         {
           blockTracker: getMockBlockTracker(),
@@ -534,13 +527,13 @@ describe('IncomingTransactionsController', function () {
             setTimeout(() => reject(new Error('TIMEOUT')), SET_STATE_TIMEOUT);
           }),
         ]);
-        assert.fail('Update state should not have been called');
+        expect(false).toBe(true);
       } catch (error) {
-        assert(error.message === 'TIMEOUT', 'TIMEOUT error should be thrown');
+        expect(error.message === 'TIMEOUT').toBeTruthy();
       }
     });
 
-    it('should update when the selected address changes and on supported network', async function () {
+    it('should update when the selected address changes and on supported network', async () => {
       const incomingTransactionsController = new IncomingTransactionsController(
         {
           blockTracker: getMockBlockTracker(),
@@ -596,43 +589,38 @@ describe('IncomingTransactionsController', function () {
       const actualStateWithoutGenerated = cloneDeep(actualState);
       delete actualStateWithoutGenerated?.incomingTransactions?.['0xfake']?.id;
 
-      assert.ok(
+      expect(
         typeof generatedTxId === 'number' && generatedTxId > 0,
-        'Generated transaction ID should be a positive number',
-      );
-      assert.deepStrictEqual(
-        actualStateWithoutGenerated,
-        {
-          incomingTransactions: {
-            ...getNonEmptyInitState().incomingTransactions,
-            '0xfake': {
-              blockNumber: '10',
-              hash: '0xfake',
-              metamaskNetworkId: NETWORK_IDS.GOERLI,
-              chainId: CHAIN_IDS.GOERLI,
-              status: TransactionStatus.confirmed,
-              time: 16000000000000000,
-              type: TransactionType.incoming,
-              txParams: {
-                from: '0xfake',
-                gas: '0x0',
-                gasPrice: '0x0',
-                nonce: '0x64',
-                to: '0x01019',
-                value: '0x0',
-              },
+      ).toBeTruthy();
+      expect(actualStateWithoutGenerated).toStrictEqual({
+        incomingTransactions: {
+          ...getNonEmptyInitState().incomingTransactions,
+          '0xfake': {
+            blockNumber: '10',
+            hash: '0xfake',
+            metamaskNetworkId: NETWORK_IDS.GOERLI,
+            chainId: CHAIN_IDS.GOERLI,
+            status: TransactionStatus.confirmed,
+            time: 16000000000000000,
+            type: TransactionType.incoming,
+            txParams: {
+              from: '0xfake',
+              gas: '0x0',
+              gasPrice: '0x0',
+              nonce: '0x64',
+              to: '0x01019',
+              value: '0x0',
             },
           },
-          incomingTxLastFetchedBlockByChainId: {
-            ...getNonEmptyInitState().incomingTxLastFetchedBlockByChainId,
-            [CHAIN_IDS.GOERLI]: 11,
-          },
         },
-        'State should have been updated after first block was received',
-      );
+        incomingTxLastFetchedBlockByChainId: {
+          ...getNonEmptyInitState().incomingTxLastFetchedBlockByChainId,
+          [CHAIN_IDS.GOERLI]: 11,
+        },
+      });
     });
 
-    it('should not update when the selected address changes and not on supported network', async function () {
+    it('should not update when the selected address changes and not on supported network', async () => {
       const incomingTransactionsController = new IncomingTransactionsController(
         {
           blockTracker: { ...getMockBlockTracker() },
@@ -685,13 +673,13 @@ describe('IncomingTransactionsController', function () {
             setTimeout(() => reject(new Error('TIMEOUT')), SET_STATE_TIMEOUT);
           }),
         ]);
-        assert.fail('Update state should not have been called');
+        expect(false).toBe(true);
       } catch (error) {
-        assert(error.message === 'TIMEOUT', 'TIMEOUT error should be thrown');
+        expect(error.message === 'TIMEOUT').toBeTruthy();
       }
     });
 
-    it('should update when switching to a supported network', async function () {
+    it('should update when switching to a supported network', async () => {
       const mockedNetworkMethods = getMockNetworkControllerMethods(
         CHAIN_IDS.GOERLI,
       );
@@ -739,43 +727,38 @@ describe('IncomingTransactionsController', function () {
       const actualStateWithoutGenerated = cloneDeep(actualState);
       delete actualStateWithoutGenerated?.incomingTransactions?.['0xfake']?.id;
 
-      assert.ok(
+      expect(
         typeof generatedTxId === 'number' && generatedTxId > 0,
-        'Generated transaction ID should be a positive number',
-      );
-      assert.deepStrictEqual(
-        actualStateWithoutGenerated,
-        {
-          incomingTransactions: {
-            ...getNonEmptyInitState().incomingTransactions,
-            '0xfake': {
-              blockNumber: '10',
-              hash: '0xfake',
-              metamaskNetworkId: NETWORK_IDS.GOERLI,
-              chainId: CHAIN_IDS.GOERLI,
-              status: TransactionStatus.confirmed,
-              time: 16000000000000000,
-              type: TransactionType.incoming,
-              txParams: {
-                from: '0xfake',
-                gas: '0x0',
-                gasPrice: '0x0',
-                nonce: '0x64',
-                to: '0x0101',
-                value: '0x0',
-              },
+      ).toBeTruthy();
+      expect(actualStateWithoutGenerated).toStrictEqual({
+        incomingTransactions: {
+          ...getNonEmptyInitState().incomingTransactions,
+          '0xfake': {
+            blockNumber: '10',
+            hash: '0xfake',
+            metamaskNetworkId: NETWORK_IDS.GOERLI,
+            chainId: CHAIN_IDS.GOERLI,
+            status: TransactionStatus.confirmed,
+            time: 16000000000000000,
+            type: TransactionType.incoming,
+            txParams: {
+              from: '0xfake',
+              gas: '0x0',
+              gasPrice: '0x0',
+              nonce: '0x64',
+              to: '0x0101',
+              value: '0x0',
             },
           },
-          incomingTxLastFetchedBlockByChainId: {
-            ...getNonEmptyInitState().incomingTxLastFetchedBlockByChainId,
-            [CHAIN_IDS.GOERLI]: 11,
-          },
         },
-        'State should have been updated after first block was received',
-      );
+        incomingTxLastFetchedBlockByChainId: {
+          ...getNonEmptyInitState().incomingTxLastFetchedBlockByChainId,
+          [CHAIN_IDS.GOERLI]: 11,
+        },
+      });
     });
 
-    it('should not update when switching to an unsupported network', async function () {
+    it('should not update when switching to an unsupported network', async () => {
       const mockedNetworkMethods = getMockNetworkControllerMethods(
         CHAIN_IDS.GOERLI,
       );
@@ -824,16 +807,16 @@ describe('IncomingTransactionsController', function () {
             setTimeout(() => reject(new Error('TIMEOUT')), SET_STATE_TIMEOUT);
           }),
         ]);
-        assert.fail('Update state should not have been called');
+        expect(false).toBe(true);
       } catch (error) {
-        assert(error.message === 'TIMEOUT', 'TIMEOUT error should be thrown');
+        expect(error.message === 'TIMEOUT').toBeTruthy();
       }
     });
   });
 
-  describe('_update', function () {
-    describe('when state is empty (initialized)', function () {
-      it('should use provided block number and update the latest block seen', async function () {
+  describe('_update', () => {
+    describe('when state is empty (initialized)', () => {
+      it('should use provided block number and update the latest block seen', async () => {
         const incomingTransactionsController =
           new IncomingTransactionsController({
             blockTracker: getMockBlockTracker(),
@@ -850,27 +833,25 @@ describe('IncomingTransactionsController', function () {
           .returns([]);
 
         await incomingTransactionsController._update('fakeAddress', 999);
-        assert(
+        expect(
           incomingTransactionsController._getNewIncomingTransactions.calledOnce,
-        );
-        assert.deepStrictEqual(
+        ).toBeTruthy();
+        expect(
           incomingTransactionsController._getNewIncomingTransactions.getCall(0)
             .args,
-          ['fakeAddress', 999, CHAIN_IDS.GOERLI],
-        );
-        assert.deepStrictEqual(
+        ).toStrictEqual(['fakeAddress', 999, CHAIN_IDS.GOERLI]);
+        expect(
           incomingTransactionsController.store.updateState.getCall(0).args[0],
-          {
-            incomingTxLastFetchedBlockByChainId: {
-              ...EMPTY_BLOCKS_BY_NETWORK,
-              [CHAIN_IDS.GOERLI]: 1000,
-            },
-            incomingTransactions: {},
+        ).toStrictEqual({
+          incomingTxLastFetchedBlockByChainId: {
+            ...EMPTY_BLOCKS_BY_NETWORK,
+            [CHAIN_IDS.GOERLI]: 1000,
           },
-        );
+          incomingTransactions: {},
+        });
       });
 
-      it('should update the last fetched block for network to highest block seen in incoming txs', async function () {
+      it('should update the last fetched block for network to highest block seen in incoming txs', async () => {
         const incomingTransactionsController =
           new IncomingTransactionsController({
             blockTracker: getMockBlockTracker(),
@@ -899,32 +880,32 @@ describe('IncomingTransactionsController', function () {
           .returns([NEW_TRANSACTION_ONE, NEW_TRANSACTION_TWO]);
         await incomingTransactionsController._update('fakeAddress', 10);
 
-        assert(incomingTransactionsController.store.updateState.calledOnce);
+        expect(
+          incomingTransactionsController.store.updateState.calledOnce,
+        ).toBeTruthy();
 
-        assert.deepStrictEqual(
+        expect(
           incomingTransactionsController._getNewIncomingTransactions.getCall(0)
             .args,
-          ['fakeAddress', 10, CHAIN_IDS.GOERLI],
-        );
+        ).toStrictEqual(['fakeAddress', 10, CHAIN_IDS.GOERLI]);
 
-        assert.deepStrictEqual(
+        expect(
           incomingTransactionsController.store.updateState.getCall(0).args[0],
-          {
-            incomingTxLastFetchedBlockByChainId: {
-              ...EMPTY_BLOCKS_BY_NETWORK,
-              [CHAIN_IDS.GOERLI]: 445,
-            },
-            incomingTransactions: {
-              [NEW_TRANSACTION_ONE.hash]: NEW_TRANSACTION_ONE,
-              [NEW_TRANSACTION_TWO.hash]: NEW_TRANSACTION_TWO,
-            },
+        ).toStrictEqual({
+          incomingTxLastFetchedBlockByChainId: {
+            ...EMPTY_BLOCKS_BY_NETWORK,
+            [CHAIN_IDS.GOERLI]: 445,
           },
-        );
+          incomingTransactions: {
+            [NEW_TRANSACTION_ONE.hash]: NEW_TRANSACTION_ONE,
+            [NEW_TRANSACTION_TWO.hash]: NEW_TRANSACTION_TWO,
+          },
+        });
       });
     });
 
-    describe('when state is populated with prior data for network', function () {
-      it('should use the last fetched block for the current network and increment by 1 in state', async function () {
+    describe('when state is populated with prior data for network', () => {
+      it('should use the last fetched block for the current network and increment by 1 in state', async () => {
         const incomingTransactionsController =
           new IncomingTransactionsController({
             blockTracker: getMockBlockTracker(),
@@ -941,31 +922,29 @@ describe('IncomingTransactionsController', function () {
 
         await incomingTransactionsController._update('fakeAddress', 999);
 
-        assert(
+        expect(
           incomingTransactionsController._getNewIncomingTransactions.calledOnce,
-        );
+        ).toBeTruthy();
 
-        assert.deepStrictEqual(
+        expect(
           incomingTransactionsController._getNewIncomingTransactions.getCall(0)
             .args,
-          ['fakeAddress', 1, CHAIN_IDS.GOERLI],
-        );
+        ).toStrictEqual(['fakeAddress', 1, CHAIN_IDS.GOERLI]);
 
-        assert.deepStrictEqual(
+        expect(
           incomingTransactionsController.store.updateState.getCall(0).args[0],
-          {
-            incomingTxLastFetchedBlockByChainId: {
-              ...PREPOPULATED_BLOCKS_BY_NETWORK,
-              [CHAIN_IDS.GOERLI]:
-                PREPOPULATED_BLOCKS_BY_NETWORK[CHAIN_IDS.GOERLI] + 1,
-            },
-            incomingTransactions: PREPOPULATED_INCOMING_TXS_BY_HASH,
+        ).toStrictEqual({
+          incomingTxLastFetchedBlockByChainId: {
+            ...PREPOPULATED_BLOCKS_BY_NETWORK,
+            [CHAIN_IDS.GOERLI]:
+              PREPOPULATED_BLOCKS_BY_NETWORK[CHAIN_IDS.GOERLI] + 1,
           },
-        );
+          incomingTransactions: PREPOPULATED_INCOMING_TXS_BY_HASH,
+        });
       });
     });
 
-    it('should update the last fetched block for network to highest block seen in incoming txs', async function () {
+    it('should update the last fetched block for network to highest block seen in incoming txs', async () => {
       const incomingTransactionsController = new IncomingTransactionsController(
         {
           blockTracker: getMockBlockTracker(),
@@ -995,32 +974,32 @@ describe('IncomingTransactionsController', function () {
         .returns([NEW_TRANSACTION_ONE, NEW_TRANSACTION_TWO]);
       await incomingTransactionsController._update('fakeAddress', 10);
 
-      assert(incomingTransactionsController.store.updateState.calledOnce);
+      expect(
+        incomingTransactionsController.store.updateState.calledOnce,
+      ).toBeTruthy();
 
-      assert.deepStrictEqual(
+      expect(
         incomingTransactionsController._getNewIncomingTransactions.getCall(0)
           .args,
-        ['fakeAddress', 1, CHAIN_IDS.GOERLI],
-      );
+      ).toStrictEqual(['fakeAddress', 1, CHAIN_IDS.GOERLI]);
 
-      assert.deepStrictEqual(
+      expect(
         incomingTransactionsController.store.updateState.getCall(0).args[0],
-        {
-          incomingTxLastFetchedBlockByChainId: {
-            ...PREPOPULATED_BLOCKS_BY_NETWORK,
-            [CHAIN_IDS.GOERLI]: 445,
-          },
-          incomingTransactions: {
-            ...PREPOPULATED_INCOMING_TXS_BY_HASH,
-            [NEW_TRANSACTION_ONE.hash]: NEW_TRANSACTION_ONE,
-            [NEW_TRANSACTION_TWO.hash]: NEW_TRANSACTION_TWO,
-          },
+      ).toStrictEqual({
+        incomingTxLastFetchedBlockByChainId: {
+          ...PREPOPULATED_BLOCKS_BY_NETWORK,
+          [CHAIN_IDS.GOERLI]: 445,
         },
-      );
+        incomingTransactions: {
+          ...PREPOPULATED_INCOMING_TXS_BY_HASH,
+          [NEW_TRANSACTION_ONE.hash]: NEW_TRANSACTION_ONE,
+          [NEW_TRANSACTION_TWO.hash]: NEW_TRANSACTION_TWO,
+        },
+      });
     });
   });
 
-  describe('_getNewIncomingTransactions', function () {
+  describe('_getNewIncomingTransactions', () => {
     const ADDRESS_TO_FETCH_FOR = '0xfakeaddress';
     const FETCHED_TX = getFakeEtherscanTransaction({
       toAddress: ADDRESS_TO_FETCH_FOR,
@@ -1031,17 +1010,17 @@ describe('IncomingTransactionsController', function () {
       }),
     );
     let tempFetch;
-    beforeEach(function () {
+    beforeEach(() => {
       tempFetch = window.fetch;
       window.fetch = mockFetch;
     });
 
-    afterEach(function () {
+    afterEach(() => {
       window.fetch = tempFetch;
       mockFetch.resetHistory();
     });
 
-    it('should call fetch with the expected url when passed an address, block number and supported chainId', async function () {
+    it('should call fetch with the expected url when passed an address, block number and supported chainId', async () => {
       const incomingTransactionsController = new IncomingTransactionsController(
         {
           blockTracker: getMockBlockTracker(),
@@ -1058,14 +1037,13 @@ describe('IncomingTransactionsController', function () {
         CHAIN_IDS.GOERLI,
       );
 
-      assert(mockFetch.calledOnce);
-      assert.strictEqual(
-        mockFetch.getCall(0).args[0],
+      expect(mockFetch.calledOnce).toBeTruthy();
+      expect(mockFetch.getCall(0).args[0]).toBe(
         `https://api-${NETWORK_TYPES.GOERLI}.etherscan.io/api?module=account&action=txlist&address=0xfakeaddress&tag=latest&page=1&startBlock=789`,
       );
     });
 
-    it('should call fetch with the expected url when passed an address, block number and MAINNET chainId', async function () {
+    it('should call fetch with the expected url when passed an address, block number and MAINNET chainId', async () => {
       const incomingTransactionsController = new IncomingTransactionsController(
         {
           blockTracker: getMockBlockTracker(),
@@ -1082,14 +1060,13 @@ describe('IncomingTransactionsController', function () {
         CHAIN_IDS.MAINNET,
       );
 
-      assert(mockFetch.calledOnce);
-      assert.strictEqual(
-        mockFetch.getCall(0).args[0],
+      expect(mockFetch.calledOnce).toBeTruthy();
+      expect(mockFetch.getCall(0).args[0]).toBe(
         `https://api.etherscan.io/api?module=account&action=txlist&address=0xfakeaddress&tag=latest&page=1&startBlock=789`,
       );
     });
 
-    it('should call fetch with the expected url when passed an address and supported chainId, but a falsy block number', async function () {
+    it('should call fetch with the expected url when passed an address and supported chainId, but a falsy block number', async () => {
       const incomingTransactionsController = new IncomingTransactionsController(
         {
           blockTracker: getMockBlockTracker(),
@@ -1106,14 +1083,13 @@ describe('IncomingTransactionsController', function () {
         CHAIN_IDS.GOERLI,
       );
 
-      assert(mockFetch.calledOnce);
-      assert.strictEqual(
-        mockFetch.getCall(0).args[0],
+      expect(mockFetch.calledOnce).toBeTruthy();
+      expect(mockFetch.getCall(0).args[0]).toBe(
         `https://api-${NETWORK_TYPES.GOERLI}.etherscan.io/api?module=account&action=txlist&address=0xfakeaddress&tag=latest&page=1`,
       );
     });
 
-    it('should return an array of normalized transactions', async function () {
+    it('should return an array of normalized transactions', async () => {
       const incomingTransactionsController = new IncomingTransactionsController(
         {
           blockTracker: getMockBlockTracker(),
@@ -1131,8 +1107,8 @@ describe('IncomingTransactionsController', function () {
           CHAIN_IDS.GOERLI,
         );
 
-      assert(mockFetch.calledOnce);
-      assert.deepStrictEqual(result, [
+      expect(mockFetch.calledOnce).toBeTruthy();
+      expect(result).toStrictEqual([
         incomingTransactionsController._normalizeTxFromEtherscan(
           FETCHED_TX,
           CHAIN_IDS.GOERLI,
@@ -1140,7 +1116,7 @@ describe('IncomingTransactionsController', function () {
       ]);
     });
 
-    it('should return empty tx array if status is 0', async function () {
+    it('should return empty tx array if status is 0', async () => {
       const mockFetchStatusZero = sinon.stub().returns(
         Promise.resolve({
           json: () => Promise.resolve({ status: '0', result: [FETCHED_TX] }),
@@ -1164,12 +1140,12 @@ describe('IncomingTransactionsController', function () {
           '789',
           CHAIN_IDS.GOERLI,
         );
-      assert.deepStrictEqual(result, []);
+      expect(result).toStrictEqual([]);
       window.fetch = tempFetchStatusZero;
       mockFetchStatusZero.reset();
     });
 
-    it('should return empty tx array if result array is empty', async function () {
+    it('should return empty tx array if result array is empty', async () => {
       const mockFetchEmptyResult = sinon.stub().returns(
         Promise.resolve({
           json: () => Promise.resolve({ status: '1', result: [] }),
@@ -1193,14 +1169,14 @@ describe('IncomingTransactionsController', function () {
           '789',
           CHAIN_IDS.GOERLI,
         );
-      assert.deepStrictEqual(result, []);
+      expect(result).toStrictEqual([]);
       window.fetch = tempFetchEmptyResult;
       mockFetchEmptyResult.reset();
     });
   });
 
-  describe('_normalizeTxFromEtherscan', function () {
-    it('should return the expected data when the tx is in error', function () {
+  describe('_normalizeTxFromEtherscan', () => {
+    it('should return the expected data when the tx is in error', () => {
       const incomingTransactionsController = new IncomingTransactionsController(
         {
           blockTracker: getMockBlockTracker(),
@@ -1227,7 +1203,7 @@ describe('IncomingTransactionsController', function () {
         CHAIN_IDS.GOERLI,
       );
 
-      assert.deepStrictEqual(result, {
+      expect(result).toStrictEqual({
         blockNumber: 333,
         id: 54321,
         metamaskNetworkId: NETWORK_IDS.GOERLI,
@@ -1247,7 +1223,7 @@ describe('IncomingTransactionsController', function () {
       });
     });
 
-    it('should return the expected data when the tx is not in error', function () {
+    it('should return the expected data when the tx is not in error', () => {
       const incomingTransactionsController = new IncomingTransactionsController(
         {
           blockTracker: getMockBlockTracker(),
@@ -1274,7 +1250,7 @@ describe('IncomingTransactionsController', function () {
         CHAIN_IDS.GOERLI,
       );
 
-      assert.deepStrictEqual(result, {
+      expect(result).toStrictEqual({
         blockNumber: 333,
         id: 54321,
         metamaskNetworkId: NETWORK_IDS.GOERLI,
@@ -1294,7 +1270,7 @@ describe('IncomingTransactionsController', function () {
       });
     });
 
-    it('should return the expected data when the tx uses EIP-1559 fields', function () {
+    it('should return the expected data when the tx uses EIP-1559 fields', () => {
       const incomingTransactionsController = new IncomingTransactionsController(
         {
           blockTracker: getMockBlockTracker(),
@@ -1322,7 +1298,7 @@ describe('IncomingTransactionsController', function () {
         CHAIN_IDS.GOERLI,
       );
 
-      assert.deepStrictEqual(result, {
+      expect(result).toStrictEqual({
         blockNumber: 333,
         id: 54321,
         metamaskNetworkId: NETWORK_IDS.GOERLI,
