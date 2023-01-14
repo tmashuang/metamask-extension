@@ -1,3 +1,5 @@
+/* eslint-disable jest/no-conditional-expect */
+// TODO: Solve conditional tests
 import sinon from 'sinon';
 import nock from 'nock';
 import { cloneDeep } from 'lodash';
