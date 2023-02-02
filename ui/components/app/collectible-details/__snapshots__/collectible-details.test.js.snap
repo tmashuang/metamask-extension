@@ -1,0 +1,182 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Collectible Details should match minimal props and state snapshot 1`] = `
+<div>
+  <div
+    class="asset-navigation"
+  >
+    <button
+      class="asset-breadcrumb"
+    >
+      <i
+        class="fas fa-chevron-left asset-breadcrumb__chevron"
+        data-testid="asset__back"
+      />
+      <span>
+        Test Account
+      </span>
+       / 
+      <span
+        class="asset-breadcrumb__asset"
+      >
+        Non Fungible Token
+      </span>
+    </button>
+    <button
+      class="fas fa-ellipsis-v collectible-options__button"
+      data-testid="collectible-options__button"
+    />
+  </div>
+  <div
+    class="box collectible-details box--flex-direction-row"
+  >
+    <div
+      class="collectible-details__top-section"
+    >
+      <div
+        class="box collectible-details__card box--flex-direction-row box--justify-content-center box--background-color-background-default box--rounded-md box--border-style-solid box--border-color-border-muted box--border-width-1 box--display-flex"
+      >
+        <div
+          class="collectible-default"
+          data-testid="collectible-image"
+          tabindex="0"
+        >
+          <h6
+            class="box box--margin-top-1 box--margin-bottom-1 box--flex-direction-row typography collectible-default__text typography--h6 typography--weight-normal typography--style-normal typography--color-text-default"
+          >
+            Non Fungible Token
+             
+            <br />
+             #
+            123
+          </h6>
+        </div>
+      </div>
+      <div
+        class="box collectible-details__info box--flex-direction-column box--justify-content-space-between box--display-flex"
+      >
+        <div>
+          <h4
+            class="box box--margin-top-1 box--margin-bottom-2 box--flex-direction-row typography typography--h4 typography--weight-bold typography--style-normal typography--color-text-default"
+          >
+            Non Fungible Token
+          </h4>
+          <h5
+            class="box box--margin-top-1 box--margin-bottom-4 box--flex-direction-row typography typography--h5 typography--weight-normal typography--style-normal typography--color-text-muted typography--overflowwrap-break-word"
+          >
+            #
+            123
+          </h5>
+        </div>
+        <div
+          class="box box--display-flex box--flex-direction-row box--width-1/2"
+        >
+          <button
+            class="button btn--rounded btn-primary collectible-details__send-button"
+            disabled=""
+            role="button"
+            tabindex="0"
+          >
+            Send
+          </button>
+          <div
+            class="info-tooltip"
+          >
+            <div>
+              <div
+                aria-describedby="tippy-tooltip-1"
+                class="info-tooltip__tooltip-container"
+                data-original-title="null"
+                data-tooltipped=""
+                style="display: inline;"
+                tabindex="0"
+              >
+                <svg
+                  viewBox="0 0 10 10"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M5 0C2.2 0 0 2.2 0 5s2.2 5 5 5 5-2.2 5-5-2.2-5-5-5zm0 2c.4 0 .7.3.7.7s-.3.7-.7.7-.7-.2-.7-.6.3-.8.7-.8zm.7 6H4.3V4.3h1.5V8z"
+                    fill="var(--color-icon-alternative)"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="box box--margin-bottom-2 box--flex-direction-row"
+    >
+      <div
+        class="box box--display-flex box--flex-direction-row"
+      >
+        <h6
+          class="box box--margin-top-1 box--margin-right-2 box--margin-bottom-4 box--flex-direction-row typography collectible-details__link-title typography--h6 typography--weight-bold typography--style-normal typography--color-text-default"
+        >
+          Source
+        </h6>
+        <h6
+          class="box box--margin-top-1 box--margin-bottom-4 box--flex-direction-row typography collectible-details__image-source typography--h6 typography--weight-normal typography--style-normal typography--color-primary-default"
+        >
+          <a
+            href=""
+            rel="noopener noreferrer"
+            target="_blank"
+            title=""
+          />
+        </h6>
+        <button
+          aria-label="copy"
+          class="box mm-button-icon mm-button-icon--size-lg collectible-details__contract-copy-button box--display-inline-flex box--flex-direction-row box--justify-content-center box--align-items-center box--color-icon-default box--background-color-transparent box--rounded-lg"
+        >
+          <div
+            class="box mm-icon mm-icon--size-lg box--flex-direction-row box--color-inherit"
+            style="mask-image: url('./images/icons/copy.svg');"
+          />
+        </button>
+      </div>
+      <div
+        class="box box--display-flex box--flex-direction-row"
+      >
+        <h6
+          class="box box--margin-top-1 box--margin-right-2 box--margin-bottom-4 box--flex-direction-row typography collectible-details__link-title typography--h6 typography--weight-bold typography--style-normal typography--color-text-default"
+        >
+          Contract address
+        </h6>
+        <div
+          class="box collectible-details__contract-wrapper box--display-flex box--flex-direction-row"
+        >
+          <h6
+            class="box box--margin-top-1 box--margin-bottom-4 box--flex-direction-row typography collectible-details__contract-link typography--h6 typography--weight-normal typography--style-normal typography--color-primary-default typography--overflowwrap-break-word"
+          >
+            <a
+              href="https://goerli.etherscan.io/token/0xNFT"
+              rel="noopener noreferrer"
+              target="_blank"
+              title="0xNFT"
+            >
+              0xNFT
+            </a>
+          </h6>
+          <button
+            aria-label="copy"
+            class="box mm-button-icon mm-button-icon--size-lg collectible-details__contract-copy-button box--display-inline-flex box--flex-direction-row box--justify-content-center box--align-items-center box--color-icon-default box--background-color-transparent box--rounded-lg"
+          >
+            <div
+              class="box mm-icon mm-icon--size-lg box--flex-direction-row box--color-inherit"
+              style="mask-image: url('./images/icons/copy.svg');"
+            />
+          </button>
+        </div>
+      </div>
+      <h6
+        class="box box--margin-top-1 box--margin-bottom-1 box--flex-direction-row typography typography--h7 typography--weight-normal typography--style-normal typography--color-text-alternative"
+      >
+        Disclaimer: MetaMask pulls the media file from the source url. This url sometimes is changed by the marketplace the NFT was minted on.
+      </h6>
+    </div>
+  </div>
+</div>
+`;

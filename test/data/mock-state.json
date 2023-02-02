@@ -258,6 +258,28 @@
       "maxBaseFee": "75",
       "priorityFee": "2"
     },
+    "collectiblesDropdownState": {
+      "0x0dcd5d886577d5081b0c52e242ef29e70be3e7bc": {
+        "0x5": {
+          "0xNFT": true
+        }
+      }
+    },
+    "allNftContracts": {
+      "0x0dcd5d886577d5081b0c52e242ef29e70be3e7bc": {
+        "5": [
+          {
+            "address": "0xNFT",
+            "description": "Non Fungible Token",
+            "name": "Non Fungible Token",
+            "symbol": "NFT",
+            "assetContractType": "non-fungible",
+            "schemaName": "ERC721",
+            "externalLink": ""
+          }
+        ]
+      }
+    },
     "tokenList": {
       "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599": {
         "address": "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",

@@ -134,10 +134,11 @@ export default function CollectiblesItems({
     return (
       <div className="collectibles-items__collection" key={`collection-${key}`}>
         <button
+          className="collectibles-items__collection-wrapper"
+          data-testid="collection-expander-button"
           onClick={() => {
             updateCollectibleDropDownStateKey(key, isExpanded);
           }}
-          className="collectibles-items__collection-wrapper"
         >
           <Box
             marginBottom={2}
