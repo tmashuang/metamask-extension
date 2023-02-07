@@ -1,7 +1,9 @@
-import { strict as assert } from 'assert';
-import sinon from 'sinon';
-import proxyquire from 'proxyquire';
+/**
+ * @jest-environment node
+ */
 
+// TODO: Passed but Ganache Spamming
+import sinon from 'sinon';
 import { ApprovalRequestNotFoundError } from '@metamask/approval-controller';
 import { PermissionsRequestNotFoundError } from '@metamask/permission-controller';
 import nock from 'nock';
@@ -24,8 +26,8 @@ const browserPolyfillMock = {
   },
   storage: {
     local: {
-      get: sinon.stub().resolves({}),
-      set: sinon.stub().resolves(),
+      get: jest.fn().mockResolvedValue(),
+      set: jest.fn().mockResolvedValue(),
     },
   },
 };
@@ -46,20 +48,22 @@ const createLoggerMiddlewareMock = () => (req, res, next) => {
 const TEST_SEED =
   'debris dizzy just program just float decrease vacant alarm reduce speak stadium';
 
-const MetaMaskController = proxyquire('./metamask-controller', {
-  './lib/createLoggerMiddleware': { default: createLoggerMiddlewareMock },
-}).default;
+jest.mock('./lib/createLoggerMiddleware', () => ({
+  default: createLoggerMiddlewareMock,
+}));
 
-describe('MetaMaskController', function () {
+const MetaMaskController = require('./metamask-controller').default;
+
+describe('MetaMaskController', () => {
   let metamaskController;
   const sandbox = sinon.createSandbox();
   const noop = () => undefined;
 
-  before(async function () {
+  beforeAll(async () => {
     await ganacheServer.start();
   });
 
-  beforeEach(function () {
+  beforeEach(() => {
     nock('https://static.metafi.codefi.network')
       .persist()
       .get('/api/v1/lists/eth_phishing_detect_config.json')
@@ -96,48 +100,46 @@ describe('MetaMaskController', function () {
     });
   });
 
-  afterEach(function () {
+  afterEach(() => {
     sandbox.restore();
     nock.cleanAll();
   });
 
-  after(async function () {
+  afterAll(async () => {
     await ganacheServer.quit();
   });
 
-  describe('#addNewAccount', function () {
-    it('two parallel calls with same accountCount give same result', async function () {
+  describe('#addNewAccount', () => {
+    it('two parallel calls with same accountCount give same result', async () => {
       await metamaskController.createNewVaultAndKeychain('test@123');
       const [addNewAccountResult1, addNewAccountResult2] = await Promise.all([
         metamaskController.addNewAccount(1),
         metamaskController.addNewAccount(1),
       ]);
-      assert.deepEqual(
-        Object.keys(addNewAccountResult1.identities),
+      expect(Object.keys(addNewAccountResult1.identities)).toStrictEqual(
         Object.keys(addNewAccountResult2.identities),
       );
     });
 
-    it('two successive calls with same accountCount give same result', async function () {
+    it('two successive calls with same accountCount give same result', async () => {
       await metamaskController.createNewVaultAndKeychain('test@123');
       const addNewAccountResult1 = await metamaskController.addNewAccount(1);
       const addNewAccountResult2 = await metamaskController.addNewAccount(1);
-      assert.deepEqual(
-        Object.keys(addNewAccountResult1.identities),
+      expect(Object.keys(addNewAccountResult1.identities)).toStrictEqual(
         Object.keys(addNewAccountResult2.identities),
       );
     });
 
-    it('two successive calls with different accountCount give different results', async function () {
+    it('two successive calls with different accountCount give different results', async () => {
       await metamaskController.createNewVaultAndKeychain('test@123');
       const addNewAccountResult1 = await metamaskController.addNewAccount(1);
       const addNewAccountResult2 = await metamaskController.addNewAccount(2);
-      assert.notDeepEqual(addNewAccountResult1, addNewAccountResult2);
+      expect(addNewAccountResult1).not.toStrictEqual(addNewAccountResult2);
     });
   });
 
-  describe('#importAccountWithStrategy', function () {
-    it('two sequential calls with same strategy give same result', async function () {
+  describe('#importAccountWithStrategy', () => {
+    it('two sequential calls with same strategy give same result', async () => {
       let keyringControllerState1;
       let keyringControllerState2;
       const importPrivkey =
@@ -162,12 +164,12 @@ describe('MetaMaskController', function () {
           );
         }),
       ]);
-      assert.deepEqual(keyringControllerState1, keyringControllerState2);
+      expect(keyringControllerState1).toStrictEqual(keyringControllerState2);
     });
   });
 
-  describe('#createNewVaultAndRestore', function () {
-    it('two successive calls with same inputs give same result', async function () {
+  describe('#createNewVaultAndRestore', () => {
+    it('two successive calls with same inputs give same result', async () => {
       const result1 = await metamaskController.createNewVaultAndRestore(
         'test@123',
         TEST_SEED,
@@ -176,29 +178,29 @@ describe('MetaMaskController', function () {
         'test@123',
         TEST_SEED,
       );
-      assert.deepEqual(result1, result2);
+      expect(result1).toStrictEqual(result2);
     });
   });
 
-  describe('#createNewVaultAndKeychain', function () {
-    it('two successive calls with same inputs give same result', async function () {
+  describe('#createNewVaultAndKeychain', () => {
+    it('two successive calls with same inputs give same result', async () => {
       const result1 = await metamaskController.createNewVaultAndKeychain(
         'test@123',
       );
       const result2 = await metamaskController.createNewVaultAndKeychain(
         'test@123',
       );
-      assert.notEqual(result1, undefined);
-      assert.deepEqual(result1, result2);
+      expect(result1).not.toStrictEqual(undefined);
+      expect(result1).toStrictEqual(result2);
     });
   });
 
-  describe('#addToken', function () {
+  describe('#addToken', () => {
     const address = '0x514910771af9ca656af840dff83e8264ecf986ca';
     const symbol = 'LINK';
     const decimals = 18;
 
-    it('two parallel calls with same token details give same result', async function () {
+    it('two parallel calls with same token details give same result', async () => {
       const supportsInterfaceStub = sinon
         .stub()
         .returns(Promise.resolve(false));
@@ -212,11 +214,11 @@ describe('MetaMaskController', function () {
         metamaskController.getApi().addToken(address, symbol, decimals),
         metamaskController.getApi().addToken(address, symbol, decimals),
       ]);
-      assert.deepEqual(token1, token2);
+      expect(token1).toStrictEqual(token2);
     });
   });
 
-  describe('#addCustomNetwork', function () {
+  describe('#addCustomNetwork', () => {
     const customRpc = {
       chainId: '0x1',
       chainName: 'DUMMY_CHAIN_NAME',
@@ -224,7 +226,7 @@ describe('MetaMaskController', function () {
       ticker: 'DUMMY_TICKER',
       blockExplorerUrl: 'DUMMY_EXPLORER',
     };
-    it('two successive calls with custom RPC details give same result', async function () {
+    it('two successive calls with custom RPC details give same result', async () => {
       await metamaskController.addCustomNetwork(customRpc);
       const rpcList1Length =
         metamaskController.preferencesController.store.getState()
@@ -233,12 +235,12 @@ describe('MetaMaskController', function () {
       const rpcList2Length =
         metamaskController.preferencesController.store.getState()
           .frequentRpcListDetail.length;
-      assert.equal(rpcList1Length, rpcList2Length);
+      expect(rpcList1Length).toStrictEqual(rpcList2Length);
     });
   });
 
-  describe('#updateTransactionSendFlowHistory', function () {
-    it('two sequential calls with same history give same result', async function () {
+  describe('#updateTransactionSendFlowHistory', () => {
+    it('two sequential calls with same history give same result', async () => {
       const recipientAddress = '0xc42edfcc21ed14dda456aa0756c153f7985d8813';
 
       await metamaskController.createNewVaultAndKeychain('test@123');
@@ -262,12 +264,12 @@ describe('MetaMaskController', function () {
             .updateTransactionSendFlowHistory(txMeta.id, 2, ['foo1', 'foo2']),
         ),
       ]);
-      assert.deepEqual(transaction1, transaction2);
+      expect(transaction1).toStrictEqual(transaction2);
     });
   });
 
-  describe('#removePermissionsFor', function () {
-    it('should not propagate PermissionsRequestNotFoundError', function () {
+  describe('#removePermissionsFor', () => {
+    it('should not propagate PermissionsRequestNotFoundError', () => {
       const error = new PermissionsRequestNotFoundError('123');
       metamaskController.permissionController = {
         revokePermissions: () => {
@@ -278,21 +280,21 @@ describe('MetaMaskController', function () {
       metamaskController.removePermissionsFor({ subject: 'test_subject' });
     });
 
-    it('should propagate Error other than PermissionsRequestNotFoundError', function () {
+    it('should propagate Error other than PermissionsRequestNotFoundError', () => {
       const error = new Error();
       metamaskController.permissionController = {
         revokePermissions: () => {
           throw error;
         },
       };
-      assert.throws(() => {
+      expect(() => {
         metamaskController.removePermissionsFor({ subject: 'test_subject' });
-      }, error);
+      }).toThrow();
     });
   });
 
-  describe('#rejectPermissionsRequest', function () {
-    it('should not propagate PermissionsRequestNotFoundError', function () {
+  describe('#rejectPermissionsRequest', () => {
+    it('should not propagate PermissionsRequestNotFoundError', () => {
       const error = new PermissionsRequestNotFoundError('123');
       metamaskController.permissionController = {
         rejectPermissionsRequest: () => {
@@ -303,21 +305,21 @@ describe('MetaMaskController', function () {
       metamaskController.rejectPermissionsRequest('DUMMY_ID');
     });
 
-    it('should propagate Error other than PermissionsRequestNotFoundError', function () {
+    it('should propagate Error other than PermissionsRequestNotFoundError', () => {
       const error = new Error();
       metamaskController.permissionController = {
         rejectPermissionsRequest: () => {
           throw error;
         },
       };
-      assert.throws(() => {
+      expect(() => {
         metamaskController.rejectPermissionsRequest('DUMMY_ID');
-      }, error);
+      }).toThrow();
     });
   });
 
-  describe('#acceptPermissionsRequest', function () {
-    it('should not propagate PermissionsRequestNotFoundError', function () {
+  describe('#acceptPermissionsRequest', () => {
+    it('should not propagate PermissionsRequestNotFoundError', () => {
       const error = new PermissionsRequestNotFoundError('123');
       metamaskController.permissionController = {
         acceptPermissionsRequest: () => {
@@ -328,21 +330,21 @@ describe('MetaMaskController', function () {
       metamaskController.acceptPermissionsRequest('DUMMY_ID');
     });
 
-    it('should propagate Error other than PermissionsRequestNotFoundError', function () {
+    it('should propagate Error other than PermissionsRequestNotFoundError', () => {
       const error = new Error();
       metamaskController.permissionController = {
         acceptPermissionsRequest: () => {
           throw error;
         },
       };
-      assert.throws(() => {
+      expect(() => {
         metamaskController.acceptPermissionsRequest('DUMMY_ID');
-      }, error);
+      }).toThrow();
     });
   });
 
-  describe('#resolvePendingApproval', function () {
-    it('should not propagate ApprovalRequestNotFoundError', function () {
+  describe('#resolvePendingApproval', () => {
+    it('should not propagate ApprovalRequestNotFoundError', () => {
       const error = new ApprovalRequestNotFoundError('123');
       metamaskController.approvalController = {
         accept: () => {
@@ -353,21 +355,21 @@ describe('MetaMaskController', function () {
       metamaskController.resolvePendingApproval('DUMMY_ID', 'DUMMY_VALUE');
     });
 
-    it('should propagate Error other than ApprovalRequestNotFoundError', function () {
+    it('should propagate Error other than ApprovalRequestNotFoundError', () => {
       const error = new Error();
       metamaskController.approvalController = {
         accept: () => {
           throw error;
         },
       };
-      assert.throws(() => {
+      expect(() => {
         metamaskController.resolvePendingApproval('DUMMY_ID', 'DUMMY_VALUE');
-      }, error);
+      }).toThrow();
     });
   });
 
-  describe('#rejectPendingApproval', function () {
-    it('should not propagate ApprovalRequestNotFoundError', function () {
+  describe('#rejectPendingApproval', () => {
+    it('should not propagate ApprovalRequestNotFoundError', () => {
       const error = new ApprovalRequestNotFoundError('123');
       metamaskController.approvalController = {
         reject: () => {
@@ -382,20 +384,20 @@ describe('MetaMaskController', function () {
       });
     });
 
-    it('should propagate Error other than ApprovalRequestNotFoundError', function () {
+    it('should propagate Error other than ApprovalRequestNotFoundError', () => {
       const error = new Error();
       metamaskController.approvalController = {
         reject: () => {
           throw error;
         },
       };
-      assert.throws(() => {
+      expect(() => {
         metamaskController.rejectPendingApproval('DUMMY_ID', {
           code: 1,
           message: 'DUMMY_MESSAGE',
           data: 'DUMMY_DATA',
         });
-      }, error);
+      }).toThrow();
     });
   });
 });

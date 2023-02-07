@@ -14,7 +14,7 @@ global.chrome = {
 };
 
 nock.disableNetConnect();
-nock.enableNetConnect('localhost');
+nock.enableNetConnect(/(localhost|127.0.0.1):8545/u);
 if (typeof beforeEach === 'function') {
   /* eslint-disable-next-line jest/require-top-level-describe */
   beforeEach(() => {

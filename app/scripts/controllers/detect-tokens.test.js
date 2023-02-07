@@ -1,4 +1,3 @@
-import { strict as assert } from 'assert';
 import sinon from 'sinon';
 import nock from 'nock';
 import { ObservableStore } from '@metamask/obs-store';
@@ -16,7 +15,7 @@ import DetectTokensController from './detect-tokens';
 import NetworkController, { NETWORK_EVENTS } from './network';
 import PreferencesController from './preferences';
 
-describe('DetectTokensController', function () {
+describe('DetectTokensController', () => {
   const sandbox = sinon.createSandbox();
   let assetsContractController,
     keyringMemStore,
@@ -32,7 +31,7 @@ describe('DetectTokensController', function () {
     getAccounts: noop,
   };
 
-  beforeEach(async function () {
+  beforeAll(async () => {
     keyringMemStore = new ObservableStore({ isUnlocked: false });
     network = new NetworkController({ infuraProjectId: 'foo' });
     network.initializeProvider(networkControllerProviderConfig);
@@ -44,8 +43,8 @@ describe('DetectTokensController', function () {
     tokenListController = new TokenListController({
       chainId: '1',
       preventPollingOnNetworkRestart: false,
-      onNetworkStateChange: sinon.spy(),
-      onPreferencesStateChange: sinon.spy(),
+      onNetworkStateChange: jest.fn(),
+      onPreferencesStateChange: jest.fn(),
       messenger: tokenListMessenger,
     });
     await tokenListController.start();
@@ -176,19 +175,18 @@ describe('DetectTokensController', function () {
       .persist();
   });
 
-  after(function () {
+  afterAll(() => {
     sandbox.restore();
   });
 
-  it('should poll on correct interval', async function () {
-    const stub = sinon.stub(global, 'setInterval');
+  it('should poll on correct interval', async () => {
+    const setIntervalSpy = jest.spyOn(global, 'setInterval');
     new DetectTokensController({ interval: 1337 }); // eslint-disable-line no-new
-    assert.strictEqual(stub.getCall(0).args[1], 1337);
-    stub.restore();
+    expect(setIntervalSpy.mock.calls[0][1]).toStrictEqual(1337);
   });
 
-  it('should be called on every polling period', async function () {
-    const clock = sandbox.useFakeTimers();
+  it('should be called on every polling period', async () => {
+    const clock = jest.useFakeTimers();
     network.setProviderType(NETWORK_TYPES.MAINNET);
     const controller = new DetectTokensController({
       preferences,
@@ -201,28 +199,28 @@ describe('DetectTokensController', function () {
     controller.isOpen = true;
     controller.isUnlocked = true;
 
-    const stub = sandbox.stub(controller, 'detectNewTokens');
+    const spy = jest.spyOn(controller, 'detectNewTokens').mockImplementation();
 
-    clock.tick(1);
-    sandbox.assert.notCalled(stub);
-    clock.tick(180000);
-    sandbox.assert.called(stub);
-    clock.tick(180000);
-    sandbox.assert.calledTwice(stub);
-    clock.tick(180000);
-    sandbox.assert.calledThrice(stub);
+    clock.advanceTimersByTime(1);
+    expect(spy).not.toHaveBeenCalled();
+    clock.advanceTimersByTime(180000);
+    expect(spy).toHaveBeenCalled();
+    clock.advanceTimersByTime(180000);
+    expect(spy).toHaveBeenCalledTimes(2);
+    clock.advanceTimersByTime(180000);
+    expect(spy).toHaveBeenCalledTimes(3);
   });
 
-  it('should not check and add tokens while on unsupported networks', async function () {
-    sandbox.useFakeTimers();
+  it('should not check and add tokens while on unsupported networks', async () => {
+    jest.useFakeTimers();
     network.setProviderType(NETWORK_TYPES.SEPOLIA);
     const tokenListMessengerSepolia = new ControllerMessenger().getRestricted({
       name: 'TokenListController',
     });
     tokenListController = new TokenListController({
       chainId: '11155111',
-      onNetworkStateChange: sinon.spy(),
-      onPreferencesStateChange: sinon.spy(),
+      onNetworkStateChange: jest.fn(),
+      onPreferencesStateChange: jest.fn(),
       messenger: tokenListMessengerSepolia,
     });
     await tokenListController.start();
@@ -246,8 +244,8 @@ describe('DetectTokensController', function () {
     sandbox.assert.notCalled(stub);
   });
 
-  it('should skip adding tokens listed in ignoredTokens array', async function () {
-    sandbox.useFakeTimers();
+  it('should skip adding tokens listed in ignoredTokens array', async () => {
+    const clock = jest.useFakeTimers();
     network.setProviderType(NETWORK_TYPES.MAINNET);
     const controller = new DetectTokensController({
       preferences,
@@ -260,6 +258,8 @@ describe('DetectTokensController', function () {
     });
     controller.isOpen = true;
     controller.isUnlocked = true;
+
+    clock.advanceTimersByTime(180000);
 
     const { tokenList } = tokenListController.state;
     const tokenValues = Object.values(tokenList);
@@ -285,7 +285,7 @@ describe('DetectTokensController', function () {
     await tokensController.ignoreTokens([tokenValues[1].address]);
 
     await controller.detectNewTokens();
-    assert.deepEqual(tokensController.state.detectedTokens, [
+    expect(tokensController.state.detectedTokens).toStrictEqual([
       {
         address: toChecksumHexAddress(tokenValues[0].address),
         decimals: tokenValues[0].decimals,
@@ -297,8 +297,8 @@ describe('DetectTokensController', function () {
     ]);
   });
 
-  it('should check and add tokens while on supported networks', async function () {
-    sandbox.useFakeTimers();
+  it('should check and add tokens while on supported networks', async () => {
+    jest.useFakeTimers();
     network.setProviderType(NETWORK_TYPES.MAINNET);
     const controller = new DetectTokensController({
       preferences,
@@ -336,7 +336,7 @@ describe('DetectTokensController', function () {
         Promise.resolve({ [tokenAddressToAdd]: new BigNumber(10) }),
       );
     await controller.detectNewTokens();
-    assert.deepEqual(tokensController.state.detectedTokens, [
+    expect(tokensController.state.detectedTokens).toStrictEqual([
       {
         address: toChecksumHexAddress(existingTokenAddress),
         decimals: existingToken.decimals,
@@ -356,8 +356,8 @@ describe('DetectTokensController', function () {
     ]);
   });
 
-  it('should trigger detect new tokens when change address', async function () {
-    sandbox.useFakeTimers();
+  it('should trigger detect new tokens when change address', async () => {
+    jest.useFakeTimers();
     const controller = new DetectTokensController({
       preferences,
       network,
@@ -375,8 +375,8 @@ describe('DetectTokensController', function () {
     sandbox.assert.called(stub);
   });
 
-  it('should trigger detect new tokens when submit password', async function () {
-    sandbox.useFakeTimers();
+  it('should trigger detect new tokens when submit password', async () => {
+    jest.useFakeTimers();
     const controller = new DetectTokensController({
       preferences,
       network,
@@ -392,8 +392,8 @@ describe('DetectTokensController', function () {
     sandbox.assert.called(stub);
   });
 
-  it('should not trigger detect new tokens when not unlocked', async function () {
-    const clock = sandbox.useFakeTimers();
+  it('should not trigger detect new tokens when not unlocked', async () => {
+    const clock = jest.useFakeTimers();
     network.setProviderType(NETWORK_TYPES.MAINNET);
     const controller = new DetectTokensController({
       preferences,
@@ -405,16 +405,14 @@ describe('DetectTokensController', function () {
     });
     controller.isOpen = true;
     controller.isUnlocked = false;
-    const stub = sandbox.stub(
-      assetsContractController,
-      'getBalancesInSingleCall',
-    );
-    clock.tick(180000);
-    sandbox.assert.notCalled(stub);
+
+    const spy = jest.spyOn(assetsContractController, 'getBalancesInSingleCall');
+    clock.advanceTimersByTime(180000);
+    expect(spy).not.toHaveBeenCalled();
   });
 
-  it('should not trigger detect new tokens when not open', async function () {
-    const clock = sandbox.useFakeTimers();
+  it('should not trigger detect new tokens when not open', async () => {
+    const clock = jest.useFakeTimers();
     network.setProviderType(NETWORK_TYPES.MAINNET);
     const controller = new DetectTokensController({
       preferences,
@@ -429,11 +427,9 @@ describe('DetectTokensController', function () {
     );
     controller.isOpen = false;
     controller.isUnlocked = true;
-    const stub = sandbox.stub(
-      assetsContractController,
-      'getBalancesInSingleCall',
-    );
-    clock.tick(180000);
-    sandbox.assert.notCalled(stub);
+
+    const spy = jest.spyOn(assetsContractController, 'getBalancesInSingleCall');
+    clock.advanceTimersByTime(180000);
+    expect(spy).not.toHaveBeenCalled();
   });
 });

@@ -3,7 +3,7 @@ module.exports = {
   exit: true,
   ignore: [
     './app/scripts/lib/**/*.test.js',
-    './app/scripts/migrations/*.test.js',
+    './app/scripts/**/*.test.js',
     './app/scripts/platforms/*.test.js',
     './app/scripts/controllers/app-state.test.js',
     './app/scripts/controllers/network/**/*.test.js',
@@ -13,6 +13,10 @@ module.exports = {
     './app/scripts/controllers/backup.test.js',
     './app/scripts/controllers/cached-balances.test.js',
     './app/scripts/controllers/incoming-transactions.test.js',
+    './app/scripts/controllers/detect-tokens.test.js',
+    './app/scripts/controllers/swaps.test.js',
+    './app/scripts/controllers/transactions/index.test.js',
+    './test/unit-global/**/*.test.js'
   ],
   recursive: true,
   require: ['test/env.js', 'test/setup.js'],

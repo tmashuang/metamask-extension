@@ -1,46 +1,45 @@
-import { strict as assert } from 'assert';
 import sinon from 'sinon';
 import EnsController from '.';
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 const ZERO_X_ERROR_ADDRESS = '0x';
 
-describe('EnsController', function () {
+describe('EnsController', () => {
   let currentChainId;
   let getCurrentChainId;
   let onNetworkDidChange;
-  beforeEach(function () {
+  beforeEach(() => {
     currentChainId = '0x5';
     getCurrentChainId = () => currentChainId;
     onNetworkDidChange = sinon.spy();
   });
-  afterEach(function () {
+  afterEach(() => {
     sinon.restore();
   });
-  describe('#constructor', function () {
-    it('should construct the controller given a provider and a network', async function () {
+  describe('#constructor', () => {
+    it('should construct the controller given a provider and a network', async () => {
       const ens = new EnsController({
         provider: sinon.fake(),
         getCurrentChainId,
         onNetworkDidChange,
       });
 
-      assert.ok(ens._ens);
+      expect(ens._ens).toBeTruthy();
     });
 
-    it('should construct the controller given an existing ENS instance', async function () {
+    it('should construct the controller given an existing ENS instance', async () => {
       const ens = new EnsController({
         ens: {},
         getCurrentChainId,
         onNetworkDidChange,
       });
 
-      assert.ok(ens._ens);
+      expect(ens._ens).toBeTruthy();
     });
   });
 
-  describe('#reverseResolveName', function () {
-    it('should resolve to an ENS name', async function () {
+  describe('#reverseResolveName', () => {
+    it('should resolve to an ENS name', async () => {
       const address = '0x8e5d75d60224ea0c33d0041e75de68b1c3cb6dd5';
       const ens = new EnsController({
         ens: {
@@ -52,10 +51,10 @@ describe('EnsController', function () {
       });
 
       const name = await ens.reverseResolveAddress(address);
-      assert.equal(name, 'peaksignal.eth');
+      expect(name).toStrictEqual('peaksignal.eth');
     });
 
-    it('should only resolve an ENS name once', async function () {
+    it('should only resolve an ENS name once', async () => {
       const address = '0x8e5d75d60224ea0c33d0041e75de68b1c3cb6dd5';
       const reverse = sinon.stub().withArgs(address).returns('peaksignal.eth');
       const lookup = sinon.stub().withArgs('peaksignal.eth').returns(address);
@@ -68,13 +67,17 @@ describe('EnsController', function () {
         onNetworkDidChange,
       });
 
-      assert.equal(await ens.reverseResolveAddress(address), 'peaksignal.eth');
-      assert.equal(await ens.reverseResolveAddress(address), 'peaksignal.eth');
-      assert.ok(lookup.calledOnce);
-      assert.ok(reverse.calledOnce);
+      expect(await ens.reverseResolveAddress(address)).toStrictEqual(
+        'peaksignal.eth',
+      );
+      expect(await ens.reverseResolveAddress(address)).toStrictEqual(
+        'peaksignal.eth',
+      );
+      expect(lookup.calledOnce).toBeTruthy();
+      expect(reverse.calledOnce).toBeTruthy();
     });
 
-    it('should fail if the name is registered to a different address than the reverse-resolved', async function () {
+    it('should fail if the name is registered to a different address than the reverse-resolved', async () => {
       const address = '0x8e5d75d60224ea0c33d0041e75de68b1c3cb6dd5';
       const ens = new EnsController({
         ens: {
@@ -86,10 +89,10 @@ describe('EnsController', function () {
       });
 
       const name = await ens.reverseResolveAddress(address);
-      assert.strictEqual(name, undefined);
+      expect(name).toBe(undefined);
     });
 
-    it('should throw an error when the lookup resolves to the zero address', async function () {
+    it('should throw an error when the lookup resolves to the zero address', async () => {
       const address = '0x8e5d75d60224ea0c33d0041e75de68b1c3cb6dd5';
       const ens = new EnsController({
         ens: {
@@ -102,13 +105,14 @@ describe('EnsController', function () {
 
       try {
         await ens.reverseResolveAddress(address);
-        assert.fail('#reverseResolveAddress did not throw');
+        expect(false).toBe(true);
       } catch (e) {
-        assert.ok(e);
+        // eslint-disable-next-line jest/no-conditional-expect
+        expect(e).toBeTruthy();
       }
     });
 
-    it('should throw an error the lookup resolves to the zero x address', async function () {
+    it('should throw an error the lookup resolves to the zero x address', async () => {
       const address = '0x8e5d75d60224ea0c33d0041e75de68b1c3cb6dd5';
       const ens = new EnsController({
         ens: {
@@ -124,9 +128,10 @@ describe('EnsController', function () {
 
       try {
         await ens.reverseResolveAddress(address);
-        assert.fail('#reverseResolveAddress did not throw');
+        expect(false).toBe(true);
       } catch (e) {
-        assert.ok(e);
+        // eslint-disable-next-line jest/no-conditional-expect
+        expect(e).toBeTruthy();
       }
     });
   });

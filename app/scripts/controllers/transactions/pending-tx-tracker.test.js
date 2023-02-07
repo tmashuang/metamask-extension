@@ -1,12 +1,11 @@
-import { strict as assert } from 'assert';
 import sinon from 'sinon';
 import BN from 'bn.js';
 import { TransactionStatus } from '../../../../shared/constants/transaction';
 import PendingTransactionTracker from './pending-tx-tracker';
 
-describe('PendingTransactionTracker', function () {
-  describe('#resubmitPendingTxs', function () {
-    it('should return early if there are no pending transactions', async function () {
+describe('PendingTransactionTracker', () => {
+  describe('#resubmitPendingTxs', () => {
+    it('should return early if there are no pending transactions', async () => {
       const getPendingTransactions = sinon.stub().returns([]);
       const pendingTxTracker = new PendingTransactionTracker({
         query: {
@@ -29,15 +28,12 @@ describe('PendingTransactionTracker', function () {
       pendingTxTracker.on('tx:warning', warningListener);
       await pendingTxTracker.resubmitPendingTxs('0x1');
 
-      assert.ok(
-        getPendingTransactions.calledOnceWithExactly(),
-        'should call getPendingTransaction',
-      );
-      assert.ok(resubmitTx.notCalled, 'should NOT call _resubmitTx');
-      assert.ok(warningListener.notCalled, "should NOT emit 'tx:warning'");
+      expect(getPendingTransactions.calledOnceWithExactly()).toBeTruthy();
+      expect(resubmitTx.notCalled).toBeTruthy();
+      expect(warningListener.notCalled).toBeTruthy();
     });
 
-    it('should resubmit each pending transaction', async function () {
+    it('should resubmit each pending transaction', async () => {
       const getPendingTransactions = sinon.stub().returns([
         {
           id: 1,
@@ -67,15 +63,12 @@ describe('PendingTransactionTracker', function () {
       pendingTxTracker.on('tx:warning', warningListener);
       await pendingTxTracker.resubmitPendingTxs('0x1');
 
-      assert.ok(
-        getPendingTransactions.calledOnceWithExactly(),
-        'should call getPendingTransaction',
-      );
-      assert.ok(resubmitTx.calledTwice, 'should call _resubmitTx');
-      assert.ok(warningListener.notCalled, "should NOT emit 'tx:warning'");
+      expect(getPendingTransactions.calledOnceWithExactly()).toBeTruthy();
+      expect(resubmitTx.calledTwice).toBeTruthy();
+      expect(warningListener.notCalled).toBeTruthy();
     });
 
-    it("should NOT emit 'tx:warning' for known failed resubmission", async function () {
+    it("should NOT emit 'tx:warning' for known failed resubmission", async () => {
       const getPendingTransactions = sinon.stub().returns([
         {
           id: 1,
@@ -104,15 +97,12 @@ describe('PendingTransactionTracker', function () {
       pendingTxTracker.on('tx:warning', warningListener);
       await pendingTxTracker.resubmitPendingTxs('0x1');
 
-      assert.ok(
-        getPendingTransactions.calledOnceWithExactly(),
-        'should call getPendingTransaction',
-      );
-      assert.ok(resubmitTx.calledOnce, 'should call _resubmitTx');
-      assert.ok(warningListener.notCalled, "should NOT emit 'tx:warning'");
+      expect(getPendingTransactions.calledOnceWithExactly()).toBeTruthy();
+      expect(resubmitTx.calledOnce).toBeTruthy();
+      expect(warningListener.notCalled).toBeTruthy();
     });
 
-    it("should emit 'tx:warning' for unknown failed resubmission", async function () {
+    it("should emit 'tx:warning' for unknown failed resubmission", async () => {
       const getPendingTransactions = sinon.stub().returns([
         {
           id: 1,
@@ -141,17 +131,14 @@ describe('PendingTransactionTracker', function () {
       pendingTxTracker.on('tx:warning', warningListener);
       await pendingTxTracker.resubmitPendingTxs('0x1');
 
-      assert.ok(
-        getPendingTransactions.calledOnceWithExactly(),
-        'should call getPendingTransaction',
-      );
-      assert.ok(resubmitTx.calledOnce, 'should call _resubmitTx');
-      assert.ok(warningListener.calledOnce, "should emit 'tx:warning'");
+      expect(getPendingTransactions.calledOnceWithExactly()).toBeTruthy();
+      expect(resubmitTx.calledOnce).toBeTruthy();
+      expect(warningListener.calledOnce).toBeTruthy();
     });
   });
 
-  describe('#updatePendingTxs', function () {
-    it('should call _checkPendingTx for each pending transaction', async function () {
+  describe('#updatePendingTxs', () => {
+    it('should call _checkPendingTx for each pending transaction', async () => {
       const txMeta = {
         id: 1,
         hash: '0x0593ee121b92e10d63150ad08b4b8f9c7857d1bd160195ee648fb9a0f8d00eeb',
@@ -188,27 +175,27 @@ describe('PendingTransactionTracker', function () {
         .resolves();
       await pendingTxTracker.updatePendingTxs();
 
-      assert.ok(checkPendingTxStub.calledThrice);
-      assert.ok(
+      expect(checkPendingTxStub.calledThrice).toBeTruthy();
+      expect(
         checkPendingTxStub.firstCall.calledWithExactly(
           sinon.match.has('id', 1),
         ),
-      );
-      assert.ok(
+      ).toBeTruthy();
+      expect(
         checkPendingTxStub.secondCall.calledWithExactly(
           sinon.match.has('id', 2),
         ),
-      );
-      assert.ok(
+      ).toBeTruthy();
+      expect(
         checkPendingTxStub.thirdCall.calledWithExactly(
           sinon.match.has('id', 3),
         ),
-      );
+      ).toBeTruthy();
     });
   });
 
-  describe('#_resubmitTx', function () {
-    it('should publish a new transaction', async function () {
+  describe('#_resubmitTx', () => {
+    it('should publish a new transaction', async () => {
       const txMeta = {
         id: 1,
         hash: '0x0593ee121b92e10d63150ad08b4b8f9c7857d1bd160195ee648fb9a0f8d00eeb',
@@ -242,17 +229,13 @@ describe('PendingTransactionTracker', function () {
 
       await pendingTxTracker._resubmitTx(txMeta);
 
-      assert.ok(
+      expect(
         publishTransaction.calledOnceWithExactly(txMeta.rawTx),
-        'should call publish transaction with the rawTx',
-      );
-      assert.ok(
-        approveTransaction.notCalled,
-        'should NOT try to approve transaction',
-      );
+      ).toBeTruthy();
+      expect(approveTransaction.notCalled).toBeTruthy();
     });
 
-    it('should publish the given transaction if more than 2**retryCount blocks have passed', async function () {
+    it('should publish the given transaction if more than 2**retryCount blocks have passed', async () => {
       const txMeta = {
         id: 1,
         hash: '0x0593ee121b92e10d63150ad08b4b8f9c7857d1bd160195ee648fb9a0f8d00eeb',
@@ -288,17 +271,13 @@ describe('PendingTransactionTracker', function () {
 
       await pendingTxTracker._resubmitTx(txMeta, '0x11' /* 16 */);
 
-      assert.ok(
+      expect(
         publishTransaction.calledOnceWithExactly(txMeta.rawTx),
-        'should try to publish transaction',
-      );
-      assert.ok(
-        approveTransaction.notCalled,
-        'should NOT try to approve transaction',
-      );
+      ).toBeTruthy();
+      expect(approveTransaction.notCalled).toBeTruthy();
     });
 
-    it('should NOT publish the given transaction if fewer than 2**retryCount blocks have passed', async function () {
+    it('should NOT publish the given transaction if fewer than 2**retryCount blocks have passed', async () => {
       const txMeta = {
         id: 1,
         hash: '0x0593ee121b92e10d63150ad08b4b8f9c7857d1bd160195ee648fb9a0f8d00eeb',
@@ -334,17 +313,11 @@ describe('PendingTransactionTracker', function () {
 
       await pendingTxTracker._resubmitTx(txMeta, '0x5');
 
-      assert.ok(
-        publishTransaction.notCalled,
-        'should NOT try to publish transaction',
-      );
-      assert.ok(
-        approveTransaction.notCalled,
-        'should NOT try to approve transaction',
-      );
+      expect(publishTransaction.notCalled).toBeTruthy();
+      expect(approveTransaction.notCalled).toBeTruthy();
     });
 
-    it('should call approveTransaction if the tx is not yet signed', async function () {
+    it('should call approveTransaction if the tx is not yet signed', async () => {
       const approveTransaction = sinon.spy();
       const publishTransaction = sinon.spy();
       const pendingTxTracker = new PendingTransactionTracker({
@@ -365,19 +338,13 @@ describe('PendingTransactionTracker', function () {
 
       await pendingTxTracker._resubmitTx({ id: 40 });
 
-      assert.ok(
-        approveTransaction.calledOnceWithExactly(40),
-        'should call approveTransaction with the tx ID',
-      );
-      assert.ok(
-        publishTransaction.notCalled,
-        'should NOT try to publish transaction',
-      );
+      expect(approveTransaction.calledOnceWithExactly(40)).toBeTruthy();
+      expect(publishTransaction.notCalled).toBeTruthy();
     });
   });
 
-  describe('#_checkIfTxWasDropped', function () {
-    it('should return true when the given nonce is lower than the network nonce', async function () {
+  describe('#_checkIfTxWasDropped', () => {
+    it('should return true when the given nonce is lower than the network nonce', async () => {
       const nonceBN = new BN(2);
       const pendingTxTracker = new PendingTransactionTracker({
         query: {
@@ -397,7 +364,7 @@ describe('PendingTransactionTracker', function () {
 
       pendingTxTracker.DROPPED_BUFFER_COUNT = 0;
 
-      assert.ok(
+      expect(
         await pendingTxTracker._checkIfTxWasDropped({
           id: 1,
           hash: '0x0593ee121b92e10d63150ad08b4b8f9c7857d1bd160195ee648fb9a0f8d00eeb',
@@ -409,10 +376,10 @@ describe('PendingTransactionTracker', function () {
           },
           rawTx: '0xf86c808504a817c800827b0d940c62bba0ea0d00cc9789d0d7ff1f471d',
         }),
-      );
+      ).toBeTruthy();
     });
 
-    it('should return false when the given nonce is the network nonce', async function () {
+    it('should return false when the given nonce is the network nonce', async () => {
       const nonceBN = new BN(1);
       const pendingTxTracker = new PendingTransactionTracker({
         query: {
@@ -443,12 +410,12 @@ describe('PendingTransactionTracker', function () {
           '0xf86c808504a89e84ed3317a6a02ec9d3d1d6e176d4d2593dd760e74ccac753e6a0ea0d00cc9789d0d7ff1f471d',
       });
 
-      assert.ok(!dropped, 'should be false');
+      expect(!dropped).toBeTruthy();
     });
   });
 
-  describe('#_checkIfNonceIsTaken', function () {
-    it('should return false if the given nonce is not taken', async function () {
+  describe('#_checkIfNonceIsTaken', () => {
+    it('should return false if the given nonce is not taken', async () => {
       const confirmedTxList = [
         {
           id: 1,
@@ -497,15 +464,15 @@ describe('PendingTransactionTracker', function () {
         },
       });
 
-      assert.ok(
+      expect(
         getCompletedTransactions.calledOnceWithExactly(
           '0x1678a085c290ebd122dc42cba69373b5953b831d',
         ),
-      );
-      assert.ok(!taken);
+      ).toBeTruthy();
+      expect(!taken).toBeTruthy();
     });
 
-    it('should return true if the nonce is taken', async function () {
+    it('should return true if the nonce is taken', async () => {
       const confirmedTxList = [
         {
           id: 1,
@@ -554,17 +521,17 @@ describe('PendingTransactionTracker', function () {
         },
       });
 
-      assert.ok(
+      expect(
         getCompletedTransactions.calledOnceWithExactly(
           '0x1678a085c290ebd122dc42cba69373b5953b831d',
         ),
-      );
-      assert.ok(taken);
+      ).toBeTruthy();
+      expect(taken).toBeTruthy();
     });
   });
 
-  describe('#_checkPendingTx', function () {
-    it("should emit 'tx:warning' if getTransactionReceipt rejects", async function () {
+  describe('#_checkPendingTx', () => {
+    it("should emit 'tx:warning' if getTransactionReceipt rejects", async () => {
       const txMeta = {
         id: 1,
         hash: '0x0593ee121b92e10d63150ad08b4b8f9c7857d1bd160195ee648fb9a0f8d00eeb',
@@ -606,16 +573,13 @@ describe('PendingTransactionTracker', function () {
       pendingTxTracker.once('tx:warning', listeners.warning);
       await pendingTxTracker._checkPendingTx(txMeta);
 
-      assert.ok(listeners.dropped.notCalled, "should not emit 'tx:dropped");
-      assert.ok(
-        listeners.confirmed.notCalled,
-        "should not emit 'tx:confirmed'",
-      );
-      assert.ok(listeners.failed.notCalled, "should not emit 'tx:failed'");
-      assert.ok(listeners.warning.calledOnce, "should emit 'tx:warning'");
+      expect(listeners.dropped.notCalled).toBeTruthy();
+      expect(listeners.confirmed.notCalled).toBeTruthy();
+      expect(listeners.failed.notCalled).toBeTruthy();
+      expect(listeners.warning.calledOnce).toBeTruthy();
     });
 
-    it('should NOT emit anything if the tx is already not submitted', async function () {
+    it('should NOT emit anything if the tx is already not submitted', async () => {
       const pendingTxTracker = new PendingTransactionTracker({
         query: sinon.spy(),
         nonceTracker: {
@@ -648,16 +612,13 @@ describe('PendingTransactionTracker', function () {
         hash: '0xbad',
       });
 
-      assert.ok(listeners.failed.notCalled, "should not emit 'tx:failed'");
-      assert.ok(
-        listeners.confirmed.notCalled,
-        "should not emit 'tx:confirmed'",
-      );
-      assert.ok(listeners.dropped.notCalled, "should not emit 'tx:dropped'");
-      assert.ok(listeners.warning.notCalled, "should not emit 'tx:warning'");
+      expect(listeners.failed.notCalled).toBeTruthy();
+      expect(listeners.confirmed.notCalled).toBeTruthy();
+      expect(listeners.dropped.notCalled).toBeTruthy();
+      expect(listeners.warning.notCalled).toBeTruthy();
     });
 
-    it("should emit 'tx:failed' if the txMeta does NOT have a hash", async function () {
+    it("should emit 'tx:failed' if the txMeta does NOT have a hash", async () => {
       const pendingTxTracker = new PendingTransactionTracker({
         query: sinon.spy(),
         nonceTracker: {
@@ -688,22 +649,18 @@ describe('PendingTransactionTracker', function () {
         txParams: { from: '0x1678a085c290ebd122dc42cba69373b5953b831d' },
       });
 
-      assert.ok(
+      expect(
         listeners.failed.calledOnceWithExactly(
           '2',
           sinon.match.instanceOf(Error),
         ),
-        "should pass txId to 'tx:failed' listener",
-      );
-      assert.ok(
-        listeners.confirmed.notCalled,
-        "should not emit 'tx:confirmed'",
-      );
-      assert.ok(listeners.dropped.notCalled, "should not emit 'tx:dropped'");
-      assert.ok(listeners.warning.notCalled, "should not emit 'tx:warning'");
+      ).toBeTruthy();
+      expect(listeners.confirmed.notCalled).toBeTruthy();
+      expect(listeners.dropped.notCalled).toBeTruthy();
+      expect(listeners.warning.notCalled).toBeTruthy();
     });
 
-    it("should emit 'tx:dropped' if another tx with the same nonce succeeds", async function () {
+    it("should emit 'tx:dropped' if another tx with the same nonce succeeds", async () => {
       const txs = [
         {
           status: TransactionStatus.confirmed,
@@ -749,16 +706,13 @@ describe('PendingTransactionTracker', function () {
       pendingTxTracker.once('tx:warning', listeners.warning);
       await pendingTxTracker._checkPendingTx(txs[1]);
 
-      assert.ok(listeners.dropped.calledOnceWithExactly('123'));
-      assert.ok(
-        listeners.confirmed.notCalled,
-        "should not emit 'tx:confirmed'",
-      );
-      assert.ok(listeners.failed.notCalled, "should not emit 'tx:failed'");
-      assert.ok(listeners.warning.notCalled, "should not emit 'tx:warning'");
+      expect(listeners.dropped.calledOnceWithExactly('123')).toBeTruthy();
+      expect(listeners.confirmed.notCalled).toBeTruthy();
+      expect(listeners.failed.notCalled).toBeTruthy();
+      expect(listeners.warning.notCalled).toBeTruthy();
     });
 
-    it("should emit 'tx:dropped' with the txMetas id only after the fourth call", async function () {
+    it("should emit 'tx:dropped' with the txMetas id only after the fourth call", async () => {
       const nonceBN = new BN(2);
       const txMeta = {
         id: 1,
@@ -803,13 +757,10 @@ describe('PendingTransactionTracker', function () {
       await pendingTxTracker._checkPendingTx(txMeta);
       await pendingTxTracker._checkPendingTx(txMeta);
 
-      assert.ok(listeners.dropped.calledOnceWithExactly(1));
-      assert.ok(
-        listeners.confirmed.notCalled,
-        "should not emit 'tx:confirmed'",
-      );
-      assert.ok(listeners.failed.notCalled, "should not emit 'tx:failed'");
-      assert.ok(listeners.warning.notCalled, "should not emit 'tx:warning'");
+      expect(listeners.dropped.calledOnceWithExactly(1)).toBeTruthy();
+      expect(listeners.confirmed.notCalled).toBeTruthy();
+      expect(listeners.failed.notCalled).toBeTruthy();
+      expect(listeners.warning.notCalled).toBeTruthy();
     });
   });
 });
