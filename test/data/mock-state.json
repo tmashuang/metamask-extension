@@ -2,6 +2,13 @@
   "DNS": {
     "resolution": null
   },
+  "activeTab": {
+    "id": 1,
+    "title": "Metamask",
+    "origin": "https://metamask.io",
+    "protocol": "https:",
+    "url": "https://metamask.io"
+  },
   "appState": {
     "networkDropdownOpen": false,
     "gasIsLoading": false,
@@ -55,6 +62,15 @@
       "historicalPriorityFeeRange": ["0.1458417", "700.156384646"],
       "priorityFeeTrend": "down",
       "networkCongestion": 0.90625
+    },
+    "permissionHistory": {
+      "https://metamask.io": {
+        "eth_accounts": {
+          "accounts": {
+            "0x0dcd5d886577d5081b0c52e242ef29e70be3e7bc": 1
+          }
+        }
+      }
     },
     "snaps": [{}],
     "preferences": {

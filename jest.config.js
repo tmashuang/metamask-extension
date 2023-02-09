@@ -13,7 +13,7 @@ module.exports = {
   ],
   coverageDirectory: './coverage',
   coveragePathIgnorePatterns: ['.stories.js', '.snap'],
-  coverageReporters: ['json'],
+  coverageReporters: ['html', 'json'],
   reporters: [
     'default',
     [
