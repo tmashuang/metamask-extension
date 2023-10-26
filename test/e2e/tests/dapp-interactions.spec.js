@@ -102,6 +102,7 @@ describe('Dapp interactions', function () {
 
         assert.ok(connectedDapp1, 'Account not connected to Dapp1');
         assert.ok(connectedDapp2, 'Account not connected to Dapp2');
+        assert.equal(true, false)
       },
     );
   });

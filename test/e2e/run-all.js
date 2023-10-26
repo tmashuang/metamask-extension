@@ -90,6 +90,10 @@ async function main() {
             description: `run json-rpc specific e2e tests`,
             type: 'boolean',
           })
+          .option('multi-provider', {
+            description: `run multi injected provider e2e tests`,
+            type: 'boolean',
+          })
           .option('build-type', {
             description: `Sets the build-type to test for. This may filter out tests.`,
             type: 'string',
@@ -126,6 +130,7 @@ async function main() {
     buildType,
     updateSnapshot,
     updatePrivacySnapshot,
+    multiProvider,
   } = argv;
 
   let testPaths;
@@ -138,6 +143,9 @@ async function main() {
     ];
   } else if (rpc) {
     const testDir = path.join(__dirname, 'json-rpc');
+    testPaths = await getTestPathsForTestDir(testDir);
+  } else if (multiProvider) {
+    const testDir = path.join(__dirname, 'multi-injected-provider');
     testPaths = await getTestPathsForTestDir(testDir);
   } else {
     const testDir = path.join(__dirname, 'tests');

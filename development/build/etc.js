@@ -12,6 +12,7 @@ const { createTask, composeParallel } = require('./task');
 
 module.exports = createEtcTasks;
 
+// TODO: Look here maybe
 function createEtcTasks({ browserPlatforms, buildType, livereload, version }) {
   const clean = createTask(TASKS.CLEAN, async function clean() {
     await del(['./dist/*']);

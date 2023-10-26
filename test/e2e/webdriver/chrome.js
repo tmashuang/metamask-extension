@@ -14,7 +14,7 @@ const HTTPS_PROXY_HOST = '127.0.0.1:8000';
  */
 class ChromeDriver {
   static async build({ openDevToolsForTabs, port }) {
-    const args = [`load-extension=dist/chrome`];
+    const args = [`load-extension=dist/chrome,dist/firefox`]; // TODO: this works, just not on the same dir/, needs secondary build
     if (openDevToolsForTabs) {
       args.push('--auto-open-devtools-for-tabs');
     }
@@ -27,6 +27,7 @@ class ChromeDriver {
       args.push('--log-level=3');
     }
     const options = new chrome.Options().addArguments(args);
+    // options.addExtensions('builds/metamask-chrome-11.4.0.zip'); // TODO: This is working
     options.setProxy(proxy.manual({ https: HTTPS_PROXY_HOST }));
     options.setAcceptInsecureCerts(true);
     options.setUserPreferences({
